@@ -13,6 +13,7 @@ from sklearn.metrics import f1_score, classification_report
 from sklearn.inspection import permutation_importance
 import xgboost as xgb
 import random
+from itertools import combinations
 
 def drop_top_control_feat(sc_profiles, feat_rank_dir, percent_dropping=0.1):
     '''
@@ -157,7 +158,7 @@ def experimental_group_runner(experiments, gene_group, data_dir, feat_col, batch
             var_profiles["Label"] = 0
             var_plate_list = list(var_profiles['Metadata_Plate'].unique()) 
 
-            # Only compare between profiles that are on the same plate
+            # Only compare profiles on the same plate
             plate_list = list(set(ref_plate_list) & set(var_plate_list))
             # unique_ref_plate_list = list(set(ref_plate_list) - set(var_plate_list))
             # unique_var_plate_list = list(set(var_plate_list) - set(ref_plate_list))
@@ -226,6 +227,7 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
     pair_list = []
     feat_list = []
     result_plate_list = []
+    
     for gene_key in tqdm(control_group.keys()):
         gene_profiles = controls.loc[control_group[gene_key]]
         # Skip controls with no replicates
@@ -233,45 +235,45 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
             continue
             
         well_group = gene_profiles.groupby("Metadata_Well").groups
-        well_list = list(well_group.keys())
+        
+        # Randomly choose 4 out of 6 possible combinations of well pairs
+        num_pair = 4
+        well_pair_list = random.choices([ x for x in combinations(list(well_group.keys()), r=2)], k=num_pair)
 
-        for i in range(len(well_list) - 1):
-            # All cells from well location one across plates
-            well_one = gene_profiles.loc[well_group[well_list[i]]].reset_index(drop=True)
+        for (idx_one, idx_two) in well_pair_list:
+            well_one = gene_profiles.loc[well_group[idx_one]].reset_index(drop=True)
             well_one["Label"] = 1
-            well_one_plate_list = list(well_one['Metadata_Plate'].unique())
+            well_two = gene_profiles.loc[well_group[idx_two]].reset_index(drop=True)
+            well_two["Label"] = 0
+
+            plate_list = list(set(list(well_one['Metadata_Plate'].unique())) 
+                              & set(list(well_two['Metadata_Plate'].unique()))
+                             )
             
-            for j in range(i + 1, len(well_list)):
-                well_two = gene_profiles.loc[well_group[well_list[j]]].reset_index(drop=True)
-                well_two["Label"] = 0
-                well_two_plate_list = list(well_two['Metadata_Plate'].unique())
+            for plate in plate_list:
+                platemap = plate.split('_')[-1].split('T')[0]
+                
+                # Train on data from same platemap but other plates
+                all_profiles_train = pd.concat(
+                [well_one[well_one['Metadata_Plate'].apply(lambda x: (platemap in x) & (plate not in x))], 
+                 well_two[well_two['Metadata_Plate'].apply(lambda x: (platemap in x) & (plate not in x))]],
+                ignore_index=True
+                )
+                
+                # Test on data from one replicate plate
+                all_profiles_test = pd.concat(
+                [well_one[well_one['Metadata_Plate']==plate], 
+                 well_two[well_two['Metadata_Plate']==plate]], 
+                ignore_index=True
+                )
+                
+                feat_importances, f1score_macro = classifier(all_profiles_train, all_profiles_test, feat_col)
 
-                plate_list = list(set(well_one_plate_list) & set(well_two_plate_list))
-
-                for plate in plate_list:
-                    platemap = plate.split('_')[-1].split('T')[0]
-                    
-                    # Train on data from same platemap but other plates
-                    all_profiles_train = pd.concat(
-                    [well_one[well_one['Metadata_Plate'].apply(lambda x: (platemap in x) & (plate not in x))], 
-                     well_two[well_two['Metadata_Plate'].apply(lambda x: (platemap in x) & (plate not in x))]],
-                    ignore_index=True
-                    )
-                    
-                    # Test on data from one replicate plate
-                    all_profiles_test = pd.concat(
-                    [well_one[well_one['Metadata_Plate']==plate], 
-                     well_two[well_two['Metadata_Plate']==plate]], 
-                    ignore_index=True
-                    )
-                    
-                    feat_importances, f1score_macro = classifier(all_profiles_train, all_profiles_test, feat_col)
-
-                    feat_list.append(feat_importances)
-                    f1score_macro_list.append(f1score_macro)
-                    gene_list.append(gene_key)
-                    pair_list.append(well_list[i] + "_" + well_list[j])
-                    result_plate_list.append(plate)
+                feat_list.append(feat_importances)
+                f1score_macro_list.append(f1score_macro)
+                gene_list.append(gene_key)
+                pair_list.append(idx_one + "_" + idx_two)
+                result_plate_list.append(plate)
         
     df_feat_one = pd.DataFrame({"Gene": gene_list, "Variant": pair_list})
     df_feat_two = pd.DataFrame(feat_list)
@@ -295,12 +297,12 @@ def main():
     data_dir = "/dgx1nas1/storage/data/sam/processed"
     feature_type = "_normalized_feature_selected"
     batch = "2023_05_30_B1A1R1"
-    run_name = 'Run6'
+    run_name = 'Run7'
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
     drop_control_feat = False
     percent_dropping = 0.1
-    feat_rank_dir = '/dgx1nas1/storage/data/sam/results/Run6'
+    feat_rank_dir = '/dgx1nas1/storage/data/sam/results/Run7'
     
     result_dir = pathlib.Path(f'/dgx1nas1/storage/data/sam/results/{run_name}')
     result_dir.mkdir(exist_ok=True)
@@ -346,17 +348,10 @@ def main():
     experiments = sc_profiles[~sc_profiles["Metadata_control"].astype('bool')].reset_index(drop=True)
     gene_group = experiments.groupby("Metadata_Gene").groups
 
-    controls = sc_profiles[sc_profiles["Metadata_control"].astype('bool')].reset_index(drop=True)
+    controls = sc_profiles[sc_profiles["Metadata_control"].astype('bool')]
+    # Drop transfection controls
+    controls = controls[controls['Metadata_Symbol']!='516 - TC'].reset_index(drop=True)
     control_group = controls.groupby("Metadata_Sample_Unique").groups
-
-    experimental_group_runner(
-        experiments, 
-        gene_group, 
-        result_dir, 
-        feat_cols_protein, 
-        batch_name=batch,
-        protein_prefix='protein')
-    print('Finished protein feature classification for experimental groups.\n')
 
     control_group_runner(
         controls, 
@@ -367,6 +362,14 @@ def main():
         protein_prefix='protein')
     print('Finished protein feature classification for control groups.\n')
 
+    experimental_group_runner(
+        experiments, 
+        gene_group, 
+        result_dir, 
+        feat_cols_protein, 
+        batch_name=batch,
+        protein_prefix='protein')
+    print('Finished protein feature classification for experimental groups.\n')
     
     control_group_runner(
         controls, 

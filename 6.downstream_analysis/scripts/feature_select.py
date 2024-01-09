@@ -1,15 +1,14 @@
 import pathlib
-import sqlite3
+import os
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import os
 # ignore mix type warnings from pandas
 import warnings
 warnings.filterwarnings("ignore")
 
 from pycytominer import feature_select
-
 
    
 # Setting file paths

@@ -1,9 +1,12 @@
 # VarChAMP: Variant Characterization across the Mendelian Proteome
 
+We aim to functionally characterize approximately 100,000 coding variants across Mendelian disease genes, addressing the significant gap in understanding the impact of human genomic variations. 
+By analyzing the phenotypic impacts of these variants, we seek to elucidate genotype-phenotype relationships in inherited disorders. 
+We will create a searchable database detailing these variant effects, accessible through the [IGVF consortium](https://igvf.org/), which will contribute to public health by aiding in the diagnosis and treatment of Mendelian disorders.
+
 ## Documents
 
 **GDrive folder (internal)**: [link](https://drive.google.com/drive/folders/1HwRhkZFeNnrUFBL2zBwcojTiS5TSElFQ)
-
 
 ## What's in this repo?
 

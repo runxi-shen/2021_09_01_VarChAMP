@@ -16,12 +16,12 @@ def main():
 
     # Input path
     batch_name = '2023_05_30_B1A1R1'
-    norm_path = pathlib.Path(data_dir / batch_name + '_annotated_normalized.parquet')
+    norm_path = pathlib.Path(data_dir / batch_name + '_annotated_corrected_normalized.parquet')
 
     # Output path
     feat_path_1 = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_1.parquet')
     feat_path_2 = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_2.parquet')
-    feat_path_final = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_final.parquet')
+    feat_path_final = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_3.parquet')
 
 
     print('Step 1 starting...')

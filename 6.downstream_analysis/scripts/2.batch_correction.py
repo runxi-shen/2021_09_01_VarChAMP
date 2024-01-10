@@ -1,10 +1,10 @@
 '''
 Perform batch correction.
 '''
-import os
 import pathlib
 
 import pandas as pd 
+from tqdm import tqdm
 from sklearn.base import TransformerMixin
 from pycytominer.operations.transform import RobustMAD
 
@@ -28,7 +28,7 @@ def main():
     batch_name = '2023_05_30_B1A1R1'
 
     # Data directories
-    data_dir = pathlib.Path("/dgx1nas1/storage/data/sam/processed").resolve(strict=True)
+    data_dir = pathlib.Path("/dgx1nas1/storage/data/sam/processed_v2").resolve(strict=True)
     result_dir = pathlib.Path(data_dir / 'batch_corrected/')
     result_dir.mkdir(exist_ok=True)
 
@@ -36,13 +36,13 @@ def main():
     anno_file = pathlib.Path(data_dir / batch_name + '_cc_corrected.parquet')
 
     # Output file paths
-    norm_file = pathlib.Path(result_dir / batch_name + '_annotated_normalized.parquet')
+    norm_file = pathlib.Path(result_dir / batch_name + '_annotated_corrected_normalized.parquet')
 
     df = pd.read_parquet(anno_file)
     
     norm_plates = []
     plate_list = df['Metadata_Plate'].unique().to_list()
-    for plate in plate_list:
+    for plate in tqdm(plate_list):
         df_plate = df[df['Metadata_Plate']==plate].copy()
 
         normalizer = RobustMAD(epsilon_mad)

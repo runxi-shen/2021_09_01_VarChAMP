@@ -1,16 +1,19 @@
-# 2021_09_01_VarCHAMP
+# VarChAMP: Variant Characterization across the Mendelian Proteome
+
+We aim to functionally characterize approximately 100,000 coding variants across Mendelian disease genes, addressing the significant gap in understanding the impact of human genomic variations. 
+By analyzing the phenotypic impacts of these variants, we seek to elucidate genotype-phenotype relationships in inherited disorders. 
+We will create a searchable database detailing these variant effects, accessible through the [IGVF consortium](https://igvf.org/), which will contribute to public health by aiding in the diagnosis and treatment of Mendelian disorders.
+
+## Documents
+
+**GDrive folder (internal)**: [link](https://drive.google.com/drive/folders/1HwRhkZFeNnrUFBL2zBwcojTiS5TSElFQ)
 
 ## What's in this repo?
 
-This repo contains the analysis scripts and notebooks for the morphmap project.
-The data is stored in a separate repo, `2021_09_01_VarChAMP-data`, which is added as a sybmodule to this repo.
+This repo contains the analysis scripts and notebooks for the VarChAMP project.
+The data is stored in a separate repo, [`2021_09_01_VarChAMP-data`](https://github.com/broadinstitute/2021_09_01_VarChAMP-data), which is added as a submodule to this repo.
 Profiles from all the plates are in `2021_09_01_VarChAMP-data/profiles`.
 All levels of profiles downstream of the aggregation step in the pycytominer workflow are in that folder.
-
-## Profiles outside this repo
-
-Since profiles are not stored in repo, any new versions of profiles that are required for analysis should be stored outside the repo.
-Please create a script to create them and store them in a folder outside the repo.
 
 ## How to use this repo?
 

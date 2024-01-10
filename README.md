@@ -1,16 +1,16 @@
-# 2021_09_01_VarCHAMP
+# VarChAMP: Variant Characterization across the Mendelian Proteome
+
+## Documents
+
+**GDrive folder (internal)**: [link](https://drive.google.com/drive/folders/1HwRhkZFeNnrUFBL2zBwcojTiS5TSElFQ)
+
 
 ## What's in this repo?
 
-This repo contains the analysis scripts and notebooks for the morphmap project.
-The data is stored in a separate repo, `2021_09_01_VarChAMP-data`, which is added as a sybmodule to this repo.
+This repo contains the analysis scripts and notebooks for the VarChAMP project.
+The data is stored in a separate repo, [`2021_09_01_VarChAMP-data`](https://github.com/broadinstitute/2021_09_01_VarChAMP-data), which is added as a submodule to this repo.
 Profiles from all the plates are in `2021_09_01_VarChAMP-data/profiles`.
 All levels of profiles downstream of the aggregation step in the pycytominer workflow are in that folder.
-
-## Profiles outside this repo
-
-Since profiles are not stored in repo, any new versions of profiles that are required for analysis should be stored outside the repo.
-Please create a script to create them and store them in a folder outside the repo.
 
 ## How to use this repo?
 

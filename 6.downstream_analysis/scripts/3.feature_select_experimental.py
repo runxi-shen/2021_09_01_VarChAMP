@@ -21,7 +21,7 @@ def main():
     # Output path
     feat_path_1 = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_1.parquet')
     feat_path_2 = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_2.parquet')
-    feat_path_final = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_3.parquet')
+    feat_path_3 = pathlib.Path(result_dir / batch_name + '_annotated_normalized_feat_selected_3.parquet')
 
 
     print('Step 1 starting...')
@@ -58,7 +58,7 @@ def main():
                     image_features=False,
                     samples="all",
                     operation="correlation_threshold",
-                    output_file=feat_path_final,
+                    output_file=feat_path_3,
                     output_type='parquet',
                     compression_options="gzip",
                 )

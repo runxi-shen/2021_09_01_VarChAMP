@@ -1,23 +1,53 @@
-# 2021_09_01_VarCHAMP
+# VarChAMP: Variant Characterization across the Mendelian Proteome
 
-## Reproducibility
+We aim to functionally characterize approximately 100,000 coding variants across Mendelian disease genes, addressing the significant gap in understanding the impact of human genomic variations. 
+By analyzing the phenotypic impacts of these variants, we seek to elucidate genotype-phenotype relationships in inherited disorders. 
+We will create a searchable database detailing these variant effects, accessible through the [IGVF consortium](https://igvf.org/), which will contribute to public health by aiding in the diagnosis and treatment of Mendelian disorders.
 
-### Python environment
+## Documents
 
-We use [mamba](https://mamba.readthedocs.io/en/latest/) to manage the computational environment.
+**GDrive folder (internal)**: [link](https://drive.google.com/drive/folders/1HwRhkZFeNnrUFBL2zBwcojTiS5TSElFQ)
 
-To install mamba see [instructions](https://mamba.readthedocs.io/en/latest/installation.html).
+## What's in this repo?
 
-After installing mamba, execute the following to install and navigate to the environment:
+This repo contains the analysis scripts and notebooks for the VarChAMP project.
+The data is stored in a separate repo, [`2021_09_01_VarChAMP-data`](https://github.com/broadinstitute/2021_09_01_VarChAMP-data), which is added as a submodule to this repo.
+Profiles from all the plates are in `2021_09_01_VarChAMP-data/profiles`.
+All levels of profiles downstream of the aggregation step in the pycytominer workflow are in that folder.
 
-```bash
-# First, install the conda environment
-mamba env create --force --file environment.yml
+## How to use this repo?
 
-# If you had already installed this environment and now want to update it
-mamba env update --file environment.yml --prune
+1. Fork the repo
+2. Clone the repo
 
-# Then, activate the environment and you're all set!
-environment_name=$(grep "name:" environment.yml | awk '{print $2}')
-mamba activate $environment_name
-```
+    ```bash
+    git clone git@github.com:<YOUR USER NAME>/2021_09_01_VarChAMP.git
+    ```
+
+3. Download the contents of the submodule
+
+    ```bash
+    git submodule update --init --recursive
+    cd 2021_09_01_VarChAMP-data
+    dvc pull
+    git lfs pull
+    ```
+
+4. Install the conda environment within each folder before running the notebooks.
+   We use [mamba](https://mamba.readthedocs.io/en/latest/) to manage the computational environment.
+   To install mamba see [instructions](https://mamba.readthedocs.io/en/latest/installation.html).
+   After installing mamba, execute the following to install and navigate to the environment:
+
+    ```bash
+    # First, install the conda environment
+    mamba env create --force --file environment.yml
+
+    # If you had already installed this environment and now want to update it
+    mamba env update --file environment.yml --prune
+
+    # Then, activate the environment and you're all set!
+    environment_name=$(grep "name:" environment.yml | awk '{print $2}')
+    mamba activate $environment_name
+    ```
+
+5. Run the notebooks

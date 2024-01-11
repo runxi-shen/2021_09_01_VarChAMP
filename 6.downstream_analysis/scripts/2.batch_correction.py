@@ -3,10 +3,12 @@ Perform batch correction.
 '''
 import pathlib
 
+from concurrent import futures
 import pandas as pd 
 from tqdm import tqdm
 from sklearn.base import TransformerMixin
 from pycytominer.operations.transform import RobustMAD
+import time
 
 from utils import get_features, get_metadata
 
@@ -33,23 +35,31 @@ def main():
     result_dir.mkdir(exist_ok=True)
 
     # Input file paths
-    anno_file = pathlib.Path(data_dir / batch_name + '_cc_corrected.parquet')
+    anno_file = pathlib.Path(data_dir / f"{batch_name}_cc_corrected.parquet")
 
     # Output file paths
-    norm_file = pathlib.Path(result_dir / batch_name + '_annotated_corrected_normalized.parquet')
+    norm_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_normalized.parquet")
 
     df = pd.read_parquet(anno_file)
     
-    norm_plates = []
-    plate_list = df['Metadata_Plate'].unique().to_list()
-    for plate in tqdm(plate_list):
-        df_plate = df[df['Metadata_Plate']==plate].copy()
+    plate_list = list(df['Metadata_Plate'].unique())
 
+    def robust_mad_parallel_helper(plate):
+        df_plate = df[df['Metadata_Plate']==plate].copy()
         normalizer = RobustMAD(epsilon_mad)
         df_plate = apply_norm(normalizer, df_plate)
-        norm_plates.append(df_plate)
+        return df_plate
+    
+    start = time.perf_counter()
 
-    df_agg = pd.concat(norm_plates, index=False)
+    with futures.ThreadPoolExecutor() as executor:
+        results = executor.map(robust_mad_parallel_helper, plate_list)
+
+    end = time.perf_counter()
+    print(f'RobustMAD runtime: {end-start} secs.')
+
+    result_list = [res for res in results]
+    df_agg = pd.concat(result_list, ignore_index=True)
     df_agg.to_parquet(path=norm_file, compression="gzip", index=False)
 
 if __name__ == '__main__':

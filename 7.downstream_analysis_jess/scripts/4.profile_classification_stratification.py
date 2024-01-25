@@ -296,7 +296,7 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
 def main():
     data_dir = "/dgx1nas1/storage/data/sam/processed"
     feature_type = "_normalized_feature_selected"
-    batch = "2023_05_30_B1A1R1"
+    batch = "B1A1R1"
     run_name = 'Run7'
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     

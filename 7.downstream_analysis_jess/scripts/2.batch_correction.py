@@ -27,10 +27,10 @@ def apply_norm(normalizer: TransformerMixin, df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     epsilon_mad = 0.0
-    batch_name = '2023_05_30_B1A1R1'
+    batch_name = 'B1A1R1'
 
     # Data directories
-    data_dir = pathlib.Path("/dgx1nas1/storage/data/sam/processed_v2").resolve(strict=True)
+    data_dir = pathlib.Path("/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles").resolve(strict=True)
     result_dir = pathlib.Path(data_dir / 'batch_corrected/')
     result_dir.mkdir(exist_ok=True)
 

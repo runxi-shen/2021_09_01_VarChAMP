@@ -75,7 +75,7 @@ from tqdm import tqdm
 data_dir = '/dgx1nas1/storage/data/sam/varchamp'
 
 file_list = [os.path.join(path, name) for path, subdirs, files in os.walk(data_dir) for name in files ]
-dest_file_list = ['/dgx1nas1/storage/data/sam/profiles_test/' + i.split('/')[-1].split('.')[0] + '.parquet' for i in file_list]
+dest_file_list = ['/dgx1nas1/storage/data/jess/varchamp/sc_data/raw_profiles/' + i.split('/')[-1].split('.')[0] + '.parquet' for i in file_list]
 
 identifying_cols = (
                     "TableNumber",

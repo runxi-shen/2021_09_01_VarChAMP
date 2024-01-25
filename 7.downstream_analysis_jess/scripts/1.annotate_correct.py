@@ -13,7 +13,7 @@ import time
 
 from utils import get_features
 
-def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_path: str | None = None):
+def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_path: Optional[str] = None):
     """
     Annotate dataframe using platemap
 
@@ -140,21 +140,21 @@ def main():
     """Annotate and aggregate plate-level profiles.
     """
     
+    batch_name = 'B1A1R1'
+
     # Input directories
-    data_dir = pathlib.Path("/dgx1nas1/storage/data/sam/profiles").resolve(strict=True)
-    result_dir = pathlib.Path("/dgx1nas1/storage/data/sam/processed_v2")
+    data_dir = pathlib.Path("/dgx1nas1/storage/data/jess/varchamp/sc_data/raw_profiles").resolve(strict=True)
+    result_dir = pathlib.Path("/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles")
     result_dir.mkdir(exist_ok=True)
 
+    # Input files
+    platemap_file = f'/dgx1nas1/storage/data/jess/varchamp/platemaps/{batch_name}.csv'
+    df_well_path = f'/dgx1nas1/storage/data/jess/varchamp/well_data/{batch_name}_well_level.parquet'
+
     # Output file paths
-    batch_name = '2023_05_30_B1A1R1'
     anot_file = pathlib.Path(result_dir / f'{batch_name}_annotated.parquet')
     well_corrected_file = (result_dir / f'{batch_name}_well_corrected.parquet')
     cc_file = pathlib.Path(result_dir / f'{batch_name}_cc_corrected.parquet')
-    # norm_file = pathlib.Path(result_dir / batch_name + '_annotated_normalized.parquet')
-
-    # Platemap
-    platemap_file = '/dgx1nas1/storage/data/sam/codes/2021_09_01_VarChAMP/6.downstream_analysis/2023_05_30_B1A1R1.csv'
-    df_well_path = f'{data_dir}/VarChamp/Well_level/2023_05_30_B1A1R1_well_level.parquet'
     
     # Annotate profiles
     plate_list = []
@@ -164,12 +164,11 @@ def main():
         df_ann = annotate_with_platemap(orig_file, platemap_file)
         plate_list.append(df_ann)
 
-    # # Aggregate profiles and save
+    # # Aggregate all profiles from batch and save
     df_agg = pd.concat(plate_list, ignore_index=True)
     df_agg.to_parquet(path=anot_file, compression="gzip", index=False)
     
     # Well position correction
-
     start = time.perf_counter()
     df_agg = subtract_well_mean(df_agg)
     end = time.perf_counter()
@@ -177,8 +176,6 @@ def main():
     df_agg.to_parquet(path=well_corrected_file, compression="gzip", index=False)
     
     # Cell count regression
-    df_agg = pd.read_parquet(well_corrected_file)
-
     start = time.perf_counter()
     df_well = pd.read_parquet(df_well_path)
     df_agg = regress_out_cell_counts(df_well, df_agg,'Metadata_Object_Count')
@@ -186,20 +183,6 @@ def main():
     print(f'Cell count regression runtime: {end-start}.')
     df_agg.to_parquet(path=cc_file, compression="gzip", index=False)
     print(f"\n Position and cell count corrected profiles saved in: {cc_file}")
-
-    # Whole plate normalization
-    # normalize(
-    #     profiles=anot_file,
-    #     features="infer",
-    #     image_features=False,
-    #     meta_features="infer",
-    #     samples="all",
-    #     method='mad_robustize',
-    #     mad_robustize_epsilon=0,
-    #     output_file=norm_file,
-    #     output_type="parquet",
-    #     compression_options="gzip",
-    # )
     
 if __name__ == "__main__":
     main()

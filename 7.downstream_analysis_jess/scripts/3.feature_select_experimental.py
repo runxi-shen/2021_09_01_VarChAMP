@@ -15,7 +15,7 @@ def main():
     result_dir.mkdir(exist_ok=True)
 
     # Input path
-    batch_name = '2023_05_30_B1A1R1'
+    batch_name = 'B1A1R1'
     norm_path = pathlib.Path(data_dir / batch_name + '_annotated_corrected_normalized.parquet')
 
     # Output path

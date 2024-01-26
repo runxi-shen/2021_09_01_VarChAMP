@@ -31,8 +31,7 @@ def main():
 
     # Data directories
     data_dir = pathlib.Path("/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles").resolve(strict=True)
-    result_dir = pathlib.Path(data_dir / 'batch_corrected/')
-    result_dir.mkdir(exist_ok=True)
+    result_dir = data_dir
 
     # Input file paths
     anno_file = pathlib.Path(data_dir / f"{batch_name}_cc_corrected.parquet")

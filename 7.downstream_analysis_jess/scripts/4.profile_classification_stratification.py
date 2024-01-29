@@ -9,7 +9,6 @@ warnings.filterwarnings("ignore")
 
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.metrics import f1_score, classification_report
-# from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
 import xgboost as xgb
 import random
@@ -67,6 +66,7 @@ def drop_null_features(sc_profiles, cell_threshold=100):
     sc_profiles.reset_index(drop=True, inplace=True)
     print(f'Removed {len(feat_to_remove)} nan features and {len(row_to_remove)} nan rows.')
     feat_col = [i for i in sc_profiles.columns if "Metadata_" not in i]
+
     # Ensure no null rows or columns
     assert ~np.isnan(sc_profiles[feat_col]).any().any(), "Dataframe contain NaN features." 
     assert np.isfinite(sc_profiles[feat_col]).all().all(), "Dataframe contain infinite feature values."
@@ -111,9 +111,6 @@ def classifier(all_profiles_train, all_profiles_test, feat_col, target='Label', 
     feat_importances = pd.Series(
         model.feature_importances_, index=X_train.columns
     )
-    # feat_importances = pd.Series(
-    #     permutation_importance(model, X, y)['importances_mean'], index=X_train.columns
-    # )
     
     # Evaluate with metrics
     f1score_macro = f1_score(y_test, preds, average="macro")
@@ -160,8 +157,6 @@ def experimental_group_runner(experiments, gene_group, data_dir, feat_col, batch
 
             # Only compare profiles on the same plate
             plate_list = list(set(ref_plate_list) & set(var_plate_list))
-            # unique_ref_plate_list = list(set(ref_plate_list) - set(var_plate_list))
-            # unique_var_plate_list = list(set(var_plate_list) - set(ref_plate_list))
             
             for plate in plate_list:
                 # Train on data from other plates
@@ -184,22 +179,6 @@ def experimental_group_runner(experiments, gene_group, data_dir, feat_col, batch
                 gene_list.append(gene_key)
                 pair_list.append(var_key)
                 result_plate_list.append(plate)
-    
-            # if len(plate_list) == 0:
-            #     for i in range(min(len(unique_ref_plate_list), len(unique_var_plate_list))):
-            #         ref_plate_profiles = ref_profiles[ref_profiles['Metadata_Plate']==unique_ref_plate_list[i]]
-            #         var_plate_profiles = var_profiles[var_profiles['Metadata_Plate']==unique_var_plate_list[i]]
-    
-            #         all_profiles = pd.concat(
-            #         [ref_plate_profiles, var_plate_profiles], ignore_index=True
-            #         )
-    
-            #         feat_importances, f1score_macro = classifier(all_profiles, feat_col, stratify_label='Metadata_Plate')
-            
-            #         feat_list.append(feat_importances)
-            #         f1score_macro_list.append(f1score_macro)
-            #         gene_list.append(gene_key)
-            #         pair_list.append(var_key)
 
     df_feat_one = pd.DataFrame({"Gene": gene_list, "Variant": pair_list})
     df_feat_two = pd.DataFrame(feat_list)
@@ -294,26 +273,25 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
 
     
 def main():
-    data_dir = "/dgx1nas1/storage/data/sam/processed"
-    feature_type = "_normalized_feature_selected"
+    data_dir = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles"
+    feature_type = "_annotated_normalized_feat_selected_3"
     batch = "B1A1R1"
-    run_name = 'Run7'
+    run_name = 'Run1'
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
     drop_control_feat = False
     percent_dropping = 0.1
-    feat_rank_dir = '/dgx1nas1/storage/data/sam/results/Run7'
+    feat_rank_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/{run_name}')
     
-    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/sam/results/{run_name}')
+    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/{run_name}')
     result_dir.mkdir(exist_ok=True)
 
     sc_profile_path = f"{data_dir}/{batch}{feature_type}.parquet"
     sc_profile_cleaned_path = f"{data_dir}/{batch}{feature_type}_nonull.parquet"
 
     # Remove null values in dataframe 
-    if sc_profile_cleaned_path is None:
+    if not os.path.exists(sc_profile_cleaned_path):
         sc_profiles = pd.read_parquet(sc_profile_path)
-        # sc_profiles.drop(["ObjectNumber", "ObjectNumber_Cells"], axis=1, inplace=True)
 
         # Drop features that contributed to high performance in control
         if drop_control_feat:
@@ -330,7 +308,8 @@ def main():
         
     else: 
         sc_profiles = pd.read_parquet(sc_profile_cleaned_path)
-        
+
+    # Get all metadata variable names  
     feat_col = [i for i in sc_profiles.columns if "Metadata_" not in i]
     
     # Include only GFP features for protein channel 
@@ -342,6 +321,7 @@ def main():
         and ("AGP" not in i)
         and ("Mito" not in i)
     ]
+
     # Select non-protein channel features, where GFP does not exist in feat_cols
     feat_cols_non_protein = [i for i in feat_col if "GFP" not in i]
 
@@ -349,6 +329,7 @@ def main():
     gene_group = experiments.groupby("Metadata_Gene").groups
 
     controls = sc_profiles[sc_profiles["Metadata_control"].astype('bool')]
+
     # Drop transfection controls
     controls = controls[controls['Metadata_Symbol']!='516 - TC'].reset_index(drop=True)
     control_group = controls.groupby("Metadata_Sample_Unique").groups
@@ -360,7 +341,6 @@ def main():
         feat_cols_protein, 
         batch_name=batch,
         protein_prefix='protein')
-    print('Finished protein feature classification for control groups.\n')
 
     experimental_group_runner(
         experiments, 
@@ -369,7 +349,6 @@ def main():
         feat_cols_protein, 
         batch_name=batch,
         protein_prefix='protein')
-    print('Finished protein feature classification for experimental groups.\n')
     
     control_group_runner(
         controls, 
@@ -378,7 +357,6 @@ def main():
         feat_cols_non_protein, 
         batch_name=batch,
         protein_prefix='non_protein')
-    print('Finished non-protein feature classification for control groups.\n')
     
     
     experimental_group_runner(
@@ -388,7 +366,6 @@ def main():
         feat_cols_non_protein, 
         batch_name=batch,
         protein_prefix='non_protein')
-    print('Finished non-protein feature classification for experimental groups.\n')
 
 main()
             

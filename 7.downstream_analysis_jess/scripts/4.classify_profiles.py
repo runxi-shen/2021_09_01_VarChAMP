@@ -358,7 +358,6 @@ def main():
         batch_name=batch,
         protein_prefix='non_protein')
     
-    
     experimental_group_runner(
         experiments, 
         gene_group, 

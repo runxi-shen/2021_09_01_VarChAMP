@@ -28,43 +28,37 @@ def main():
 
     print('Step 1 starting...')
     # Perform batch level feature selection 
-    feature_select(
+    df_filter_1 = feature_select(
                     profiles=df,
                     features="infer",
                     image_features=False,
                     samples="all",
                     operation=["variance_threshold", "blocklist", "drop_na_columns"],
-                    output_file=feat_path_1,
-                    output_type='parquet',
-                    compression_options="gzip",
                 )
+    df_filter_1.to_parquet(path=feat_path_1, compression="gzip", index=False)
     print('Step 1 completed.')
 
     print('Step 2: Noise removal starting...')
-    feature_select(
-                    profiles=df,
+    df_filter_2 = feature_select(
+                    profiles=df_filter_1,
                     features="infer",
                     image_features=False,
                     samples="all",
                     operation="noise_removal",
-                    output_file=feat_path_2,
-                    output_type='parquet',
-                    compression_options="gzip",
                     noise_removal_perturb_groups = sample_allele,
                 )
+    df_filter_2.to_parquet(path=feat_path_2, compression="gzip", index=False)
     print('Step 2: Noise removal completed.')
 
     print('Step 3: corr_threshold starting...')
-    feature_select(
-                    profiles=df,
+    df_filter_3 = feature_select(
+                    profiles=df_filter_2,
                     features="infer",
                     image_features=False,
                     samples="all",
                     operation="correlation_threshold",
-                    output_file=feat_path_3,
-                    output_type='parquet',
-                    compression_options="gzip",
                 )
+    df_filter_3.to_parquet(path=feat_path_3, compression="gzip", index=False)
     print('Step 3: corr_threshold completed.')
 
 if __name__ == "__main__":

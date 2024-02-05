@@ -11,6 +11,11 @@ from statsmodels.formula.api import ols
 from sklearn.base import TransformerMixin
 from pycytominer.operations.transform import RobustMAD
 import time
+from copairs.map import aggregate
+from copairs.map import run_pipeline
+import numpy as np
+import polars as pl
+from datetime import datetime
 
 from utils import get_features, get_metadata
 
@@ -108,7 +113,28 @@ def apply_norm(normalizer: TransformerMixin, df: pd.DataFrame) -> pd.DataFrame:
                               index=df.index,
                               columns=feat_cols)
     df = pd.concat([meta, norm_feats], axis=1)
-    return df
+    return 
+
+def prep_for_map(df_path: str, map_cols: [str]):
+
+    # define filters
+    q = pl.scan_parquet(df_path).filter(
+        (pl.col("Metadata_node_type") != "TC") &  # remove transfection controls
+        (pl.sum_horizontal(pl.col(map_cols).is_null()) == 0)  # remove any row with missing values for selected meta columns
+        )
+    
+    # different data frames for metadata and profiling data
+    meta_cols = q.select(map_cols)
+    meta_cols = meta_cols.collect().to_pandas()
+
+    feat_col = [i for i in q.columns if "Metadata_" not in i] 
+    q = q.select(feat_col)
+    feat_cols = q.collect().to_pandas()
+
+    map_input = {'meta': meta_cols, 'feats': feat_cols}
+
+    return map_input
+
 
 def main():
     epsilon_mad = 0.0
@@ -127,23 +153,45 @@ def main():
     cc_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_cc.parquet")
     norm_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_normalized.parquet")
 
-    df = pd.read_parquet(anno_file)
-    plate_list = list(df['Metadata_Plate'].unique())
+    # Set paramters for mAP
+    pos_sameby = ['Metadata_allele']
+    pos_diffby = ['Metadata_Plate', 'Metadata_Well']
+    neg_sameby = ['Metadata_Plate']
+    neg_diffby = ['Metadata_allele']
+    null_size = 10000
+
+    map_cols = list(set(pos_sameby + pos_diffby + neg_sameby + neg_diffby))
+
+    start = time.perf_counter()
+    map_input = prep_for_map(anno_file, map_cols)
+    end = time.perf_counter()
+    print(f'Polars runtime: {end-start}.')
+
+    # compute map
+    start = time.perf_counter()
+    map_result = run_pipeline(map_input['meta'], map_input['feats'], pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    end = time.perf_counter()
+    print(f'map runtime: {end-start}.')
+
+    # Combine scores from samples with the same Metadata_Sample_Unique
+    map_result_agg = aggregate(map_result, 'Metadata_Sample_Unique', threshold = 0.05) # Need to change second parameter to match my exp design
+    map_result_agg[['above_p_threshold', 'above_q_threshold']].value_counts()
 
     # Well position correction
     start = time.perf_counter()
-    df_well_corrected = subtract_well_mean(df)
+    df_well_corrected = subtract_well_mean(pd.read_parquet(anno_file))
     end = time.perf_counter()
     print(f'Well position correction runtime: {end-start}.')
-    df_well_corrected.to_parquet(path=well_file, compression="gzip", index=False)
+    # df_well_corrected.to_parquet(path=well_file, compression="gzip", index=False)
     
     # Cell count regression
     start = time.perf_counter()
     df_well_level = pd.read_parquet(df_well_path)
+    plate_list = df_well_level['Metadata_Plate'].unique().tolist()
     df_cc_corrected = regress_out_cell_counts(df_well_level, df_well_corrected,'Metadata_Object_Count')
     end = time.perf_counter()
     print(f'Cell count regression runtime: {end-start}.')
-    df_cc_corrected.to_parquet(path=cc_file, compression="gzip", index=False)
+    # df_cc_corrected.to_parquet(path=cc_file, compression="gzip", index=False)
     print(f"\n Position and cell count corrected profiles saved in: {cc_file}")
 
 
@@ -161,7 +209,7 @@ def main():
 
     result_list = [res for res in results]
     df_norm = pd.concat(result_list, ignore_index=True)
-    df_norm.to_parquet(path=norm_file, compression="gzip", index=False)
+    # df_norm.to_parquet(path=norm_file, compression="gzip", index=False)
 
 if __name__ == '__main__':
     main()

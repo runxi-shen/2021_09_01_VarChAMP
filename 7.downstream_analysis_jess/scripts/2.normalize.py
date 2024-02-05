@@ -2,6 +2,10 @@
 Perform batch correction.
 '''
 import pathlib
+import logging 
+
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(message)s',
+                    level=logging.INFO)
 
 from concurrent import futures
 from typing import Optional
@@ -115,13 +119,17 @@ def apply_norm(normalizer: TransformerMixin, df: pd.DataFrame) -> pd.DataFrame:
     df = pd.concat([meta, norm_feats], axis=1)
     return 
 
-def prep_for_map(df_path: str, map_cols: [str]):
+def prep_for_map(df_path: str, map_cols: [str], sample_col: [str], sample_n: int = 50):
 
     # define filters
     q = pl.scan_parquet(df_path).filter(
         (pl.col("Metadata_node_type") != "TC") &  # remove transfection controls
         (pl.sum_horizontal(pl.col(map_cols).is_null()) == 0)  # remove any row with missing values for selected meta columns
-        )
+        ).with_columns(pl.concat_str(sample_col).alias('Metadata_samplecol'))
+    
+    # if a sample column name was provided, randomly sample sample_n rows from each column category
+    if sample_col:
+        q = q.filter(pl.int_range(0, pl.len()).shuffle().over('Metadata_samplecol') < sample_n)
     
     # different data frames for metadata and profiling data
     meta_cols = q.select(map_cols)
@@ -134,6 +142,7 @@ def prep_for_map(df_path: str, map_cols: [str]):
     map_input = {'meta': meta_cols, 'feats': feat_cols}
 
     return map_input
+    
 
 
 def main():
@@ -149,40 +158,48 @@ def main():
     df_well_path = f'/dgx1nas1/storage/data/jess/varchamp/well_data/{batch_name}_well_level.parquet'
 
     # Output file paths
+    map_dir = pathlib.Path("/dgx1nas1/storage/data/jess/varchamp/sc_data/map_results/").resolve(strict=True)
     well_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_wellmean.parquet")
     cc_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_cc.parquet")
     norm_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_normalized.parquet")
 
     # Set paramters for mAP
     pos_sameby = ['Metadata_allele']
-    pos_diffby = ['Metadata_Plate', 'Metadata_Well']
+    pos_diffby = ['Metadata_Plate']
     neg_sameby = ['Metadata_Plate']
     neg_diffby = ['Metadata_allele']
-    null_size = 10000
+    null_size = 1000
+    sample_n_cells = 2
 
     map_cols = list(set(pos_sameby + pos_diffby + neg_sameby + neg_diffby))
 
+    # sample 50 rows per well, remove TC, and format for copairs
     start = time.perf_counter()
-    map_input = prep_for_map(anno_file, map_cols)
+    map_input = prep_for_map(anno_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
     end = time.perf_counter()
     print(f'Polars runtime: {end-start}.')
 
-    # compute map
+    # compute baseline map
     start = time.perf_counter()
-    map_result = run_pipeline(map_input['meta'], map_input['feats'], pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result.to_parquet(path=f'{map_dir}/baseline_map.parquet', compression="gzip", index=False)
     end = time.perf_counter()
     print(f'map runtime: {end-start}.')
-
-    # Combine scores from samples with the same Metadata_Sample_Unique
-    map_result_agg = aggregate(map_result, 'Metadata_Sample_Unique', threshold = 0.05) # Need to change second parameter to match my exp design
-    map_result_agg[['above_p_threshold', 'above_q_threshold']].value_counts()
 
     # Well position correction
     start = time.perf_counter()
     df_well_corrected = subtract_well_mean(pd.read_parquet(anno_file))
     end = time.perf_counter()
     print(f'Well position correction runtime: {end-start}.')
-    # df_well_corrected.to_parquet(path=well_file, compression="gzip", index=False)
+    df_well_corrected.to_parquet(path=well_file, compression="gzip", index=False)
+
+    # compute map after well position correction
+    start = time.perf_counter()
+    map_input = prep_for_map(well_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result.to_parquet(path=f'{map_dir}well_corrected_map.parquet', compression="gzip", index=False)
+    end = time.perf_counter()
+    print(f'map runtime: {end-start}.')
     
     # Cell count regression
     start = time.perf_counter()
@@ -191,10 +208,17 @@ def main():
     df_cc_corrected = regress_out_cell_counts(df_well_level, df_well_corrected,'Metadata_Object_Count')
     end = time.perf_counter()
     print(f'Cell count regression runtime: {end-start}.')
-    # df_cc_corrected.to_parquet(path=cc_file, compression="gzip", index=False)
-    print(f"\n Position and cell count corrected profiles saved in: {cc_file}")
+    df_cc_corrected.to_parquet(path=cc_file, compression="gzip", index=False)
 
+    # compute map after cc regression
+    start = time.perf_counter()
+    map_input = prep_for_map(cc_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result.to_parquet(path=f'{map_dir}well_corrected_map.parquet', compression="gzip", index=False)
+    end = time.perf_counter()
+    print(f'map runtime: {end-start}.')
 
+    # perform MAD normalization
     def robust_mad_parallel_helper(plate):
         df_plate = df_cc_corrected[df_cc_corrected['Metadata_Plate']==plate].copy()
         normalizer = RobustMAD(epsilon_mad)
@@ -209,7 +233,15 @@ def main():
 
     result_list = [res for res in results]
     df_norm = pd.concat(result_list, ignore_index=True)
-    # df_norm.to_parquet(path=norm_file, compression="gzip", index=False)
+    df_norm.to_parquet(path=norm_file, compression="gzip", index=False)
+
+    # compute map after cc regression
+    start = time.perf_counter()
+    map_input = prep_for_map(cc_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result.to_parquet(path=f'{map_dir}well_corrected_map.parquet', compression="gzip", index=False)
+    end = time.perf_counter()
+    print(f'map runtime: {end-start}.')
 
 if __name__ == '__main__':
     main()

@@ -15,8 +15,7 @@ from statsmodels.formula.api import ols
 from sklearn.base import TransformerMixin
 from pycytominer.operations.transform import RobustMAD
 import time
-from copairs.map import aggregate
-from copairs.map import run_pipeline
+from copairs.map import average_precision
 import numpy as np
 import polars as pl
 from datetime import datetime
@@ -168,24 +167,22 @@ def main():
     pos_diffby = ['Metadata_Plate']
     neg_sameby = ['Metadata_Plate']
     neg_diffby = ['Metadata_allele']
-    null_size = 1000
-    sample_n_cells = 2
+    null_size = 20000
+    sample_n_cells = 50
+    sample_neg = 0.1
 
     map_cols = list(set(pos_sameby + pos_diffby + neg_sameby + neg_diffby))
 
-    # sample 50 rows per well, remove TC, and format for copairs
-    start = time.perf_counter()
-    map_input = prep_for_map(anno_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    end = time.perf_counter()
-    print(f'Polars runtime: {end-start}.')
-
     # compute baseline map
     start = time.perf_counter()
-    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    print('starting well sampling')
+    map_input = prep_for_map(anno_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+    print('finish well sampling')
+    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size, sample_neg = sample_neg)
     map_result.to_parquet(path=f'{map_dir}/baseline_map.parquet', compression="gzip", index=False)
     end = time.perf_counter()
-    print(f'map runtime: {end-start}.')
-
+    print(f'baseline map runtime: {end-start}.')
+    
     # Well position correction
     start = time.perf_counter()
     df_well_corrected = subtract_well_mean(pd.read_parquet(anno_file))
@@ -196,10 +193,10 @@ def main():
     # compute map after well position correction
     start = time.perf_counter()
     map_input = prep_for_map(well_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
     map_result.to_parquet(path=f'{map_dir}well_corrected_map.parquet', compression="gzip", index=False)
     end = time.perf_counter()
-    print(f'map runtime: {end-start}.')
+    print(f'well position map runtime: {end-start}.')
     
     # Cell count regression
     start = time.perf_counter()
@@ -213,10 +210,10 @@ def main():
     # compute map after cc regression
     start = time.perf_counter()
     map_input = prep_for_map(cc_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
     map_result.to_parquet(path=f'{map_dir}well_corrected_map.parquet', compression="gzip", index=False)
     end = time.perf_counter()
-    print(f'map runtime: {end-start}.')
+    print(f'cc regression map runtime: {end-start}.')
 
     # perform MAD normalization
     def robust_mad_parallel_helper(plate):
@@ -238,10 +235,10 @@ def main():
     # compute map after cc regression
     start = time.perf_counter()
     map_input = prep_for_map(cc_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    map_result = run_pipeline(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
+    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, null_size)
     map_result.to_parquet(path=f'{map_dir}well_corrected_map.parquet', compression="gzip", index=False)
     end = time.perf_counter()
-    print(f'map runtime: {end-start}.')
+    print(f'robustMAD map runtime: {end-start}.')
 
 if __name__ == '__main__':
     main()

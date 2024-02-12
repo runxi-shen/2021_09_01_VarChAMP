@@ -7,14 +7,13 @@ from typing import Optional
 
 from concurrent import futures
 import pandas as pd
+import polars as pl
 from tqdm import tqdm
 import time
 
-from utils import get_features
-
 def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_path: Optional[str] = None):
     """
-    Annotate dataframe using platemap
+    Annotate lazyframe using platemap
 
     Parameters
     ----------
@@ -26,31 +25,32 @@ def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_pa
 
     Returns
     -------
-    Annotated pandas DataFrame of profiles
+    Annotated polars LazyFrame of profiles
     """
-    
-    profile = pd.read_parquet(profile_path, engine="pyarrow")
-    platemap = pd.read_csv(platemap_path).copy()
+
+    profile = pl.scan_parquet(profile_path)
+    platemap = pl.scan_csv(platemap_path)
     
     # Append 'Metadata_' to platemap column names 
-    platemap.columns = [
-            f"Metadata_{x}" if not x.startswith("Metadata_") else x
-            for x in platemap.columns
-        ]
+    # Create a mapping of old column names to new column names
+    column_mapping = {col: f"Metadata_{col}" if "Metadata_" not in col else col for col in platemap.columns}
+
+    # Apply the column mapping to the lazy frame
+    platemap = platemap.select(
+        *[pl.col(col).alias(new_col) for col, new_col in column_mapping.items()]
+    )
 
     # Annotate with platemap
-    aligned_df = platemap.merge(profile, 
-                                on=["Metadata_Plate", "Metadata_Well"], 
-                                how="right")
+    merged_lf = profile.join(platemap, on = ["Metadata_Plate", "Metadata_Well"], how = "left")
 
     # Save or return dataframe
     if output_file_path != None:
-        aligned_df.to_parquet(path=output_file_path, 
+        merged_lf.sink_parquet(path=output_file_path, 
                               compression="gzip")
         print(f'\n Annotated profile saved at {output_file_path}')
         
     else: 
-        return aligned_df
+        return merged_lf
     
 def main():
     """Annotate and aggregate plate-level profiles.
@@ -70,16 +70,17 @@ def main():
     anot_file = pathlib.Path(result_dir / f'{batch_name}_annotated.parquet')
     
     # Annotate profiles
+    all_paths = os.listdir(data_dir)
     plate_list = []
-    for file in tqdm(os.listdir(data_dir)):
+    for file in tqdm(all_paths):
         if not file.endswith(".parquet"): continue
         orig_file = pathlib.Path(data_dir / file).resolve(strict=True)
         df_ann = annotate_with_platemap(orig_file, platemap_file)
         plate_list.append(df_ann)
 
     # # Aggregate all profiles from batch and save
-    df_agg = pd.concat(plate_list, ignore_index=True)
-    df_agg.to_parquet(path=anot_file, compression="gzip", index=False)
+    lf_agg = pl.concat(plate_list)
+    lf_agg.sink_parquet(path=anot_file, compression="gzip")
     
 if __name__ == "__main__":
     main()

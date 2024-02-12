@@ -45,8 +45,8 @@ def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_pa
 
     # Save or return dataframe
     if output_file_path != None:
-        merged_lf.sink_parquet(path=output_file_path, 
-                              compression="gzip")
+        merged_df = merged_lf.collect()
+        merged_df.write_parquet(output_file_path, compression="gzip")
         print(f'\n Annotated profile saved at {output_file_path}')
         
     else: 
@@ -80,7 +80,9 @@ def main():
 
     # # Aggregate all profiles from batch and save
     lf_agg = pl.concat(plate_list)
-    lf_agg.sink_parquet(path=anot_file, compression="gzip")
+    df_agg = lf_agg.collect()
+    print('finished aggregating')
+    df_agg.write_parquet(anot_file, compression="gzip")
     
 if __name__ == "__main__":
     main()

@@ -78,8 +78,16 @@ def main():
         df_ann = annotate_with_platemap(orig_file, platemap_file)
         plate_list.append(df_ann)
 
-    # # Aggregate all profiles from batch and save
+    # Aggregate all profiles from batch
     lf_agg = pl.concat(plate_list)
+
+    # Re-order columns so all metadata are on the left
+    metadata_columns = [col for col in lf_agg.columns if "Metadata_" in col]
+    other_columns = [col for col in lf_agg.columns if "Metadata_" not in col]
+    reordered_columns = metadata_columns + other_columns
+    lf_agg = lf_agg.select(*reordered_columns)
+
+    # Convert to dataframe and write out to parquet
     df_agg = lf_agg.collect()
     print('finished aggregating')
     df_agg.write_parquet(anot_file, compression="gzip")

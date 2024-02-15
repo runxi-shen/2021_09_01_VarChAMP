@@ -21,34 +21,8 @@ import polars as pl
 from datetime import datetime
 import os
 
-from utils import get_features, get_metadata
+from utils import get_features
 
-def subtract_well_mean(ann_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Subtract the mean of each feature per each well.
-
-    Parameters
-    ----------
-    ann_df : pandas.DataFrame
-        Dataframe with features and metadata.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Dataframe with features and metadata, with each feature subtracted by the mean of that feature per well.
-    """
-    feature_cols = ann_df.filter(regex="^(?!Metadata_)").columns.to_list()
-
-    def subtract_well_mean_parallel_helper(feature):
-        return {feature: ann_df[feature] - ann_df.groupby("Metadata_Well")[feature].mean()}
-    
-    with futures.ThreadPoolExecutor() as executor:
-        results = executor.map(subtract_well_mean_parallel_helper, feature_cols)
-
-    for res in results:
-        ann_df.update(pd.DataFrame(res))
-
-    return ann_df
 
 def regress_out_cell_counts(
     well_df: pd.DataFrame,
@@ -106,19 +80,6 @@ def regress_out_cell_counts(
 
     return df_sc
 
-def apply_norm(normalizer: TransformerMixin, df: pd.DataFrame) -> pd.DataFrame:
-    feat_cols = get_features(df)
-    meta_cols = get_metadata(df)
-    meta = df[meta_cols]
-
-    normalizer.fit(df[feat_cols])
-    norm_feats = normalizer.transform(df[feat_cols])
-    norm_feats = pd.DataFrame(norm_feats,
-                              index=df.index,
-                              columns=feat_cols)
-    df = pd.concat([meta, norm_feats], axis=1)
-    return 
-
 def prep_for_map(df_path: str, map_cols: [str], sample_col: [str], sample_n: int = 5): # type: ignore
 
     # define filters
@@ -161,7 +122,7 @@ def main():
     result_dir = data_dir
 
     # Input file paths
-    anno_file = pathlib.Path(data_dir / f"{batch_name}_annotated.parquet")
+    anno_file = pathlib.Path(data_dir / f"{batch_name}_annotated_sam.parquet")
     anno_cellID = pathlib.Path(data_dir / f"{batch_name}_annotated_cellID.parquet")
     df_well_path = f'/dgx1nas1/storage/data/jess/varchamp/well_data/{batch_name}_well_level.parquet'
 
@@ -170,6 +131,7 @@ def main():
         print("Creating cellID column!")
         lf = pl.scan_parquet(anno_file).with_columns(pl.concat_str([pl.col("Metadata_Plate"),
                                                                     pl.col("Metadata_Well"),
+                                                                    pl.col("Metadata_ImageNumber"),
                                                                     pl.col("Metadata_ObjectNumber")],
                                                                     separator="_").alias("Metadata_CellID"))
         df = lf.collect()
@@ -190,78 +152,107 @@ def main():
     sample_n_cells = 5
     sample_neg = True
 
+    # Initialize some variables
+    df_cc_corrected = None
+
     map_cols = list(set(pos_sameby + pos_diffby + neg_sameby + neg_diffby))
 
     # compute baseline map
-    start = time.perf_counter()
-    print("start map prep")
-    map_input = prep_for_map(anno_cellID, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    print("start map")
-    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
-                                   batch_size, sample_neg = sample_neg)
-    map_result.to_parquet(path=f'{map_dir}/baseline_map.parquet', compression="gzip", index=False)
-    end = time.perf_counter()
-    print(f'baseline map runtime: {end-start}.')
-    
-    # Well position correction
-    start = time.perf_counter()
-    df_well_corrected = subtract_well_mean(pd.read_parquet(anno_cellID))
-    end = time.perf_counter()
-    print(f'Well position correction runtime: {end-start}.')
-    df_well_corrected.to_parquet(path=well_file, compression="gzip", index=False)
+    if not os.path.exists(f'{map_dir}/baseline_map.parquet'):
+        start = time.perf_counter()
+        print("start map prep")
+        map_input = prep_for_map(anno_cellID, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+        print("start map")
+        map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
+                                    batch_size, sample_neg = sample_neg)
+        map_result.to_parquet(path=f'{map_dir}/baseline_map.parquet', compression="gzip", index=False)
+        end = time.perf_counter()
+        print(f'baseline map runtime: {end-start}.')
 
-    # compute map after well position correction
-    start = time.perf_counter()
-    map_input = prep_for_map(well_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
-                                   batch_size, sample_neg = sample_neg)
-    map_result.to_parquet(path=f'{map_dir}/well_corrected_map.parquet', compression="gzip", index=False)
-    end = time.perf_counter()
-    print(f'well position map runtime: {end-start}.')
+    # Well position correction
+    if not os.path.exists(well_file):
+        start = time.perf_counter()
+        lf = pl.scan_parquet(anno_cellID)
+        feature_cols = [i for i in lf.columns if "Metadata_" not in i] 
+        lf = lf.with_columns(pl.col(feature_cols) - pl.mean(feature_cols).over("Metadata_Well"))
+        df = lf.collect()
+        df.write_parquet(well_file, compression="gzip")
+        end = time.perf_counter()
+        print(f'Well position correction runtime: {end-start}.')
+
+    # Compute map after well position correction
+    if not os.path.exists(f'{map_dir}/well_corrected_map.parquet'):
+        start = time.perf_counter()
+        map_input = prep_for_map(well_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+        map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
+                                    batch_size, sample_neg = sample_neg)
+        map_result.to_parquet(path=f'{map_dir}/well_corrected_map.parquet', compression="gzip", index=False)
+        end = time.perf_counter()
+        print(f'well position map runtime: {end-start}.')
     
     # Cell count regression
-    start = time.perf_counter()
-    df_well_level = pd.read_parquet(df_well_path)
-    plate_list = df_well_level['Metadata_Plate'].unique().tolist()
-    df_cc_corrected = regress_out_cell_counts(df_well_level, df_well_corrected,'Metadata_Object_Count')
-    end = time.perf_counter()
-    print(f'Cell count regression runtime: {end-start}.')
-    df_cc_corrected.to_parquet(path=cc_file, compression="gzip", index=False)
+    if not os.path.exists(cc_file):
+        start = time.perf_counter()
+        df_well_level = pd.read_parquet(df_well_path)
+        plate_list = df_well_level['Metadata_Plate'].unique().tolist()
+        df_cc_corrected = regress_out_cell_counts(df_well_level, pd.read_parquet(well_file),'Metadata_Object_Count')
+        end = time.perf_counter()
+        print(f'Cell count regression runtime: {end-start}.')
+        df_cc_corrected.to_parquet(path=cc_file, compression="gzip", index=False)
 
     # compute map after cc regression
-    start = time.perf_counter()
-    map_input = prep_for_map(cc_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
-                                   batch_size, sample_neg = sample_neg)
-    map_result.to_parquet(path=f'{map_dir}/cc_regression_map.parquet', compression="gzip", index=False)
-    end = time.perf_counter()
-    print(f'cc regression map runtime: {end-start}.')
+    if not os.path.exists(f'{map_dir}/cc_regression_map.parquet'):
+        start = time.perf_counter()
+        map_input = prep_for_map(cc_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+        map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
+                                    batch_size, sample_neg = sample_neg)
+        map_result.to_parquet(path=f'{map_dir}/cc_regression_map.parquet', compression="gzip", index=False)
+        end = time.perf_counter()
+        print(f'cc regression map runtime: {end-start}.')
 
     # perform MAD normalization
-    def robust_mad_parallel_helper(plate):
-        df_plate = df_cc_corrected[df_cc_corrected['Metadata_Plate']==plate].copy()
-        normalizer = RobustMAD(epsilon_mad)
-        df_plate = apply_norm(normalizer, df_plate)
-        return df_plate
-    
-    start = time.perf_counter()
-    with futures.ThreadPoolExecutor() as executor:
-        results = executor.map(robust_mad_parallel_helper, plate_list)
-    end = time.perf_counter()
-    print(f'RobustMAD runtime: {end-start} secs.')
+    if not os.path.exists(norm_file):
 
-    result_list = [res for res in results]
-    df_norm = pd.concat(result_list, ignore_index=True)
-    df_norm.to_parquet(path=norm_file, compression="gzip", index=False)
+        if df_cc_corrected is None:
+            df_cc_corrected = pd.read_parquet(cc_file)
+        
+        df_well_level = pd.read_parquet(df_well_path)
+        plate_list = df_well_level['Metadata_Plate'].unique().tolist()[0:2]
+        
+        normalizer = RobustMAD(epsilon_mad)
+        result_list = []
+        for plate in plate_list:
+            print(plate)
+    
+            df_plate = df_cc_corrected[df_cc_corrected['Metadata_Plate']==plate].copy()
+            feat_cols = [i for i in df_plate.columns if "Metadata_" not in i] 
+            meta_cols = [i for i in df_plate.columns if "Metadata_" in i] 
+
+            meta = df_plate[meta_cols]
+            normalizer.fit(df_plate[feat_cols])
+            norm_feats = normalizer.transform(df_plate[feat_cols])
+            norm_feats = pd.DataFrame(norm_feats,
+                                      index=df_plate.index,
+                                      columns=feat_cols)
+            df_plate = pd.concat([meta, norm_feats], axis=1)
+            result_list.append(df_plate)
+
+        start = time.perf_counter()
+        end = time.perf_counter()
+        print(f'RobustMAD runtime: {end-start} secs.')
+
+        df_norm = pd.concat(result_list, ignore_index=True)
+        df_norm.to_parquet(path=norm_file, compression="gzip", index=False)
 
     # compute map after MAD
-    start = time.perf_counter()
-    map_input = prep_for_map(norm_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
-    map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
-                                   batch_size, sample_neg = sample_neg)
-    map_result.to_parquet(path=f'{map_dir}/mad_normalized_map.parquet', compression="gzip", index=False)
-    end = time.perf_counter()
-    print(f'robustMAD map runtime: {end-start}.')
+    if not os.path.exists(f'{map_dir}/mad_normalized_map.parquet'):
+        start = time.perf_counter()
+        map_input = prep_for_map(norm_file, map_cols, ['Metadata_Well', 'Metadata_Plate'], sample_n_cells)
+        map_result = average_precision(map_input['meta'], map_input['feats'].values, pos_sameby, pos_diffby, neg_sameby, neg_diffby, 
+                                    batch_size, sample_neg = sample_neg)
+        map_result.to_parquet(path=f'{map_dir}/mad_normalized_map.parquet', compression="gzip", index=False)
+        end = time.perf_counter()
+        print(f'robustMAD map runtime: {end-start}.')
 
 if __name__ == '__main__':
     main()

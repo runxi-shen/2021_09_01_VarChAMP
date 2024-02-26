@@ -201,6 +201,7 @@ def main():
         df_well_level = pd.read_parquet(df_well_path)
         plate_list = df_well_level['Metadata_Plate'].unique().tolist()
         
+        start = time.perf_counter()
         normalizer = RobustMAD(epsilon_mad)
         result_list = []
         for plate in plate_list:
@@ -218,8 +219,6 @@ def main():
                                       columns=feat_cols)
             df_plate = pd.concat([meta, norm_feats], axis=1)
             result_list.append(df_plate)
-
-        start = time.perf_counter()
         end = time.perf_counter()
         print(f'RobustMAD runtime: {end-start} secs.')
 

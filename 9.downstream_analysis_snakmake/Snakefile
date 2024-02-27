@@ -1,0 +1,21 @@
+configfile: "./inputs/configs/batch4.json"
+
+import load
+
+# batch = config["batches"]
+batches, plates = glob_wildcards("inputs/well_profiles/{batch}/{plate}")
+
+rule all:
+    input:
+        expand(
+            "outputs/single_cell_profiles/{batch}/{plate}.parquet",
+            batch=batches, 
+            plate=plates)
+
+rule parquet_convert:
+    input: 
+        "inputs/single_cell_profiles/{batch}/{plate}/{plate}.sqlite"
+    output:
+        "outputs/single_cell_profiles/{batch}/{plate}/{plate}.parquet"
+    run:
+        load.convert(*input, *output)

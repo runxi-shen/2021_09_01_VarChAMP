@@ -122,11 +122,11 @@ def main():
     result_dir = data_dir
 
     # Input file paths
-    anno_file = pathlib.Path(data_dir / f"{batch_name}_annotated_sam.parquet")
+    anno_file = pathlib.Path(data_dir / f"{batch_name}_annotated.parquet")
     anno_cellID = pathlib.Path(data_dir / f"{batch_name}_annotated_cellID.parquet")
     df_well_path = f'/dgx1nas1/storage/data/jess/varchamp/well_data/{batch_name}_well_level.parquet'
 
-    # add a column with unique cell ID
+    # Add a column with unique cell ID and filter out any column with NaNs
     if not os.path.exists(anno_cellID):
         print("Creating cellID column!")
         lf = pl.scan_parquet(anno_file).with_columns(pl.concat_str([pl.col("Metadata_Plate"),
@@ -135,6 +135,25 @@ def main():
                                                                     pl.col("Metadata_ObjectNumber")],
                                                                     separator="_").alias("Metadata_CellID"))
         df = lf.collect()
+
+        # drop a row if more than one hundred values are null
+        df = df.filter(pl.sum_horizontal(pl.all().is_null()) < 100)
+
+        # separate feature and metadata columns
+        feat_cols = [i for i in df.columns if "Metadata_" not in i] 
+        meta_cols = [i for i in df.columns if "Metadata_" in i]
+        df_meta = df.select(meta_cols)
+        df = df.drop(meta_cols)
+
+        # count number of NaNs in each column (feature)
+        nan_counts = df.select(pl.all().is_null().sum()).transpose().to_series()
+
+        # keep a column (feature) only if there are 0 nulls
+        df = df[[s.name for s in df if (s.null_count() == 0)]]
+
+        # join back with df_meta
+        df = pl.concat([df_meta, df], how = "horizontal")
+
         df.write_parquet(anno_cellID, compression="gzip")
 
     # Output file paths

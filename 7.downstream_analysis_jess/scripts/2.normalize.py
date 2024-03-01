@@ -20,6 +20,8 @@ import numpy as np
 import polars as pl
 from datetime import datetime
 import os
+import math
+import plotext as plt
 
 from utils import get_features
 
@@ -109,8 +111,34 @@ def prep_for_map(df_path: str, map_cols: [str], sample_col: [str], sample_n: int
     map_input = {'meta': meta_df, 'feats': feat_df}
 
     return map_input
-    
 
+def filter_nans(df_to_filt: pl.DataFrame):
+    
+    feat_cols = [i for i in df_to_filt.columns if "Metadata_" not in i] 
+    meta_cols = [i for i in df_to_filt.columns if "Metadata_" in i]
+
+    # remove a row if >90% of features are NaNs
+    num_rows = df_to_filt.shape[0]
+    tol_num = len(meta_cols) + math.ceil(0.9*len(feat_cols))
+    df_to_filt = df_to_filt.filter(pl.sum_horizontal(pl.all().is_null()) < tol_num)
+    num_profiles_filtered = num_rows - df_to_filt.shape[0]
+
+    # separate feature and meta
+    df_meta = df_to_filt.select(meta_cols)
+    df_to_filt = df_to_filt.drop(meta_cols)
+
+    # keep a column (feature) only if there are 0 nulls
+    num_cols = df_to_filt.shape[1]
+    df_to_filt = df_to_filt[[s.name for s in df_to_filt if (s.null_count() == 0)]]
+    num_feats_filtered = num_cols - df_to_filt.shape[1]
+
+    # join back with df_meta
+    df_to_filt = pl.concat([df_meta, df_to_filt], how = "horizontal")
+
+    print(f'{num_profiles_filtered} profiles (rows) were filtered because they had greater than 5% NaNs. {num_feats_filtered} features (columns) were filtered because they contained at least 1 NaN')
+
+    return df_to_filt
+    
 
 def main():
     print("Script started!")
@@ -136,23 +164,8 @@ def main():
                                                                     separator="_").alias("Metadata_CellID"))
         df = lf.collect()
 
-        # drop a row if more than one hundred values are null
-        df = df.filter(pl.sum_horizontal(pl.all().is_null()) < 100)
-        # separate feature and metadata columns
-        feat_cols = [i for i in df.columns if "Metadata_" not in i] 
-        meta_cols = [i for i in df.columns if "Metadata_" in i]
-        df_meta = df.select(meta_cols)
-        df = df.drop(meta_cols)
-
-        # count number of NaNs in each column (feature)
-        nan_counts = df.select(pl.all().is_null().sum()).transpose().to_series()
-
-        # keep a column (feature) only if there are 0 nulls
-        df = df[[s.name for s in df if (s.null_count() == 0)]]
-
-        # join back with df_meta
-        df = pl.concat([df_meta, df], how = "horizontal")
-
+        # remove rows/cols with too many NaNs
+        df = filter_nans(df)
         df.write_parquet(anno_cellID, compression="gzip")
 
     # Output file paths
@@ -243,7 +256,9 @@ def main():
         print(f'RobustMAD runtime: {end-start} secs.')
 
         df_norm = pd.concat(result_list, ignore_index=True)
-        df_norm.to_parquet(path=norm_file, compression="gzip", index=False)
+        df_norm = filter_nans(pl.from_pandas(df_norm))
+        # this removed 49 features
+        df_norm.write_parquet(norm_file, compression="gzip")
 
     # compute map after MAD
     if not os.path.exists(f'{map_dir}/mad_normalized_map.parquet'):
@@ -263,9 +278,13 @@ def main():
         df_well_level = pd.read_parquet(df_well_path)
         plate_list = df_well_level['Metadata_Plate'].unique().tolist()
         df_cc_corrected = regress_out_cell_counts(df_well_level, pd.read_parquet(norm_file),'Metadata_Object_Count')
+
+        df_cc_corrected = filter_nans(pl.from_pandas(df_cc_corrected))
+        # 591 features removed because of NaNs
+        
         end = time.perf_counter()
         print(f'Cell count regression runtime: {end-start}.')
-        df_cc_corrected.to_parquet(path=cc_file, compression="gzip", index=False)
+        df_cc_corrected.write_parquet(cc_file, compression="gzip")
 
     # compute map after cc regression
     if not os.path.exists(f'{map_dir}/cc_regression_map.parquet'):

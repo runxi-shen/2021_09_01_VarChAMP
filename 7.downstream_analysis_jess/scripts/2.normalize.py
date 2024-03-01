@@ -138,7 +138,6 @@ def main():
 
         # drop a row if more than one hundred values are null
         df = df.filter(pl.sum_horizontal(pl.all().is_null()) < 100)
-
         # separate feature and metadata columns
         feat_cols = [i for i in df.columns if "Metadata_" not in i] 
         meta_cols = [i for i in df.columns if "Metadata_" in i]
@@ -216,6 +215,8 @@ def main():
         print("Starting MAD normalization!")
         if df_well_corrected is None:
             df_well_corrected = pd.read_parquet(well_file)
+        else:
+            df_well_corrected = df_well_corrected.to_pandas()
         
         df_well_level = pd.read_parquet(df_well_path)
         plate_list = df_well_level['Metadata_Plate'].unique().tolist()

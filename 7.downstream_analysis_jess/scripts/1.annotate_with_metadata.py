@@ -4,14 +4,10 @@ Annotate and perform well-postion and cell count regression.
 import os
 import pathlib
 from typing import Optional
-
-from concurrent import futures
-import pandas as pd
 import polars as pl
 from tqdm import tqdm
-import time
 
-def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_path: Optional[str] = None):
+def annotate_with_platemap(profile_path: str, platemap_path: str, platemap_sep: str, output_file_path: Optional[str] = None):
     """
     Annotate lazyframe using platemap
 
@@ -29,7 +25,7 @@ def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_pa
     """
 
     profile = pl.scan_parquet(profile_path)
-    platemap = pl.scan_csv(platemap_path)
+    platemap = pl.scan_csv(platemap_path, separator = platemap_sep)
     
     # Append 'Metadata_' to platemap column names 
     # Create a mapping of old column names to new column names
@@ -39,9 +35,10 @@ def annotate_with_platemap(profile_path: str, platemap_path: str, output_file_pa
     platemap = platemap.select(
         *[pl.col(col).alias(new_col) for col, new_col in column_mapping.items()]
     )
+    platemap = platemap.rename({"Metadata_well_position": "Metadata_Well"})
 
     # Annotate with platemap
-    merged_lf = profile.join(platemap, on = ["Metadata_Plate", "Metadata_Well"], how = "left")
+    merged_lf = profile.join(platemap, on = ["Metadata_Well"], how = "left")
 
     # Save or return dataframe
     if output_file_path != None:
@@ -56,15 +53,15 @@ def main():
     """Annotate and aggregate plate-level profiles.
     """
     
-    batch_name = 'B1A1R1'
+    batch_name = 'B6A4R2'
 
     # Input directories
-    data_dir = pathlib.Path("/dgx1nas1/storage/data/jess/varchamp/sc_data/raw_profiles").resolve(strict=True)
-    result_dir = pathlib.Path("/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles")
+    data_dir = pathlib.Path(f"/dgx1nas1/storage/data/jess/varchamp/sc_data/raw_profiles/{batch_name}").resolve(strict=True)
+    result_dir = pathlib.Path(f"/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/{batch_name}")
     result_dir.mkdir(exist_ok=True)
 
     # Input files
-    platemap_file = f'/dgx1nas1/storage/data/jess/varchamp/platemaps/{batch_name}.csv'
+    platemap_file = f'/dgx1nas1/storage/data/jess/varchamp/platemaps/{batch_name}.txt'
 
     # Output file paths
     anot_file = pathlib.Path(result_dir / f'{batch_name}_annotated.parquet')
@@ -75,7 +72,7 @@ def main():
     for file in tqdm(all_paths):
         if not file.endswith(".parquet"): continue
         orig_file = pathlib.Path(data_dir / file).resolve(strict=True)
-        df_ann = annotate_with_platemap(orig_file, platemap_file)
+        df_ann = annotate_with_platemap(orig_file, platemap_file, "\t")
         plate_list.append(df_ann)
 
     # Aggregate all profiles from batch

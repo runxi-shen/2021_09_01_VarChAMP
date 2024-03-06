@@ -134,3 +134,9 @@ dmypy.json
 # DataFrame
 .csv
 .tsv
+
+# Jess added
+.vscode/
+runinfo/
+7.downstream_analysis_jess/scripts/runinfo/
+.gitignore.swp

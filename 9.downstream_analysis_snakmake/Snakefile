@@ -1,21 +1,68 @@
 configfile: "./inputs/configs/batch4.json"
 
-import load
+import preprocess
+import pandas as pd
+import os
 
-# batch = config["batches"]
-batches, plates = glob_wildcards("inputs/well_profiles/{batch}/{plate}")
+batch = config["Metadata_Batch"]
+plates = os.listdir(f"inputs/single_cell_profiles/{batch}/")
 
 rule all:
     input:
-        expand(
-            "outputs/single_cell_profiles/{batch}/{plate}.parquet",
-            batch=batches, 
-            plate=plates)
+        f"outputs/single_cell_profiles/{batch}/filtered.parquet"
 
 rule parquet_convert:
     input: 
         "inputs/single_cell_profiles/{batch}/{plate}/{plate}.sqlite"
     output:
-        "outputs/single_cell_profiles/{batch}/{plate}/{plate}.parquet"
+        "outputs/single_cell_profiles/{batch}/{plate}_raw.parquet"
     run:
-        load.convert(*input, *output)
+        preprocess.convert_parquet(*input, *output)
+
+rule annotate:
+    input:
+        "outputs/single_cell_profiles/{batch}/{plate}_raw.parquet",
+    output:
+        "outputs/single_cell_profiles/{batch}/{plate}_annotated.parquet"
+    run:
+        platemap = lambda wildcards: preprocess.get_platemap('inputs/metadata/platemaps/{batch}/barcode_platemap.csv'.format(batch=wildcards.batch), '{plate}'.format(plate=wildcards.plate))
+        preprocess.annotate(*input, platemap, *output)
+
+rule aggregate:
+    input:
+        expand(
+            "outputs/single_cell_profiles/{batch}/{plate}_annotated.parquet",
+            batch=batch, 
+            plate=plates)
+    output:
+        "outputs/single_cell_profiles/{batch}/{batch}.parquet"
+    run:
+        preprocess.aggregate(*input, *output)
+
+
+rule remove_nan:
+    input:
+        "outputs/single_cell_profiles/{batch}/{batch}.parquet"
+    output:
+        "outputs/single_cell_profiles/{batch}/filtered.parquet"
+    run:
+        preprocess.remove_nan_infs_columns(*input, *output)
+
+rule wellpos:
+    input:
+        "outputs/single_cell_profiles/{batch}/filtered.parquet"
+    output:
+        "outputs/single_cell_profiles/{batch}/wellpos.parquet"
+    params:
+        parallel = config['parallel']
+    run:
+        preprocess.subtract_well_mean(*input, *output, parallel=parallel)
+
+rule negcon_stats:
+    input:
+        "outputs/single_cell_profiles/{batch}/wellpos.parquet"
+    output:
+        "outputs/single_cell_profiles/{batch}/neg_stats.parquet"
+    run:
+        
+

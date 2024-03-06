@@ -40,7 +40,6 @@ COMMANDS = """
                 AND nuclei.Metadata_ObjectNumber = cytoplasm.Metadata_Cytoplasm_Parent_Nuclei
                 """
 
-
 def convert_parquet(
     input_file,
     output_file,
@@ -49,7 +48,6 @@ def convert_parquet(
     joins=COMMANDS,
 ):
     """Convert sqlite profiles to parquet"""
-
     convert(
         source_path=input_file,
         dest_path=output_file,

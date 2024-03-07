@@ -12,7 +12,7 @@ def annotate_with_platemap(
     profile_path: str, platemap_path: str, output_file_path: str
 ):
     """Annotate dataframe using platemap"""
-
+    
     profile = pd.read_parquet(profile_path, engine="pyarrow")
     platemap = pd.read_csv(platemap_path, sep="\t").copy()
 

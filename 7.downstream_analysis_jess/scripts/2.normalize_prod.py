@@ -51,60 +51,64 @@ def filter_nans(df_to_filt: pl.DataFrame):
 def main():
     print("Script started!")
     epsilon_mad = 0.0
-    batch_name = 'B6A4R2'
+    
+    batches = ['B4A3R1', 'B4A4R1', 'B6A3R2', 'B6A4R2']
+    
+    for batch_name in batches:
+        print(batch_name)
 
-    # Data directories
-    data_dir = pathlib.Path(f"/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/{batch_name}").resolve(strict=True)
-    result_dir = data_dir
+        # Data directories
+        data_dir = pathlib.Path(f"/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/{batch_name}").resolve(strict=True)
+        result_dir = data_dir
 
-    # Input file paths
-    anno_file = pathlib.Path(data_dir / f"{batch_name}_annotated.parquet")
-    
-    # Output file paths
-    norm_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_normalized.parquet")
-    
-    # Filter NaNs
-    df = pl.read_parquet(anno_file) 
-    
-    # 5678 features, 5390 filtered out if using 90% NaN filter. Why so many features? No cells had >90% NaNs so these are all "real" features
-    
-    # from histogram of NaNs per cell, more appropriate filter is 5% NaNs. 
-    df = filter_nans(df) # this results in filtering out 150 cells and 251 features.
-    
-    # Well position correction
-    feature_cols = [i for i in df.columns if "Metadata_" not in i] 
-    df = df.with_columns(pl.col(feature_cols) - pl.mean(feature_cols).over("Metadata_Well"))
-    df = filter_nans(df)
+        # Input file paths
+        anno_file = pathlib.Path(data_dir / f"{batch_name}_annotated.parquet")
+        
+        # Output file paths
+        norm_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_normalized.parquet")
+        
+        # Filter NaNs
+        df = pl.read_parquet(anno_file) 
+        
+        # 5678 features, 5390 filtered out if using 90% NaN filter. Why so many features? No cells had >90% NaNs so these are all "real" features
+        
+        # from histogram of NaNs per cell, more appropriate filter is 5% NaNs. 
+        df = filter_nans(df) # this results in filtering out 150 cells and 251 features.
+        
+        # Well position correction
+        feature_cols = [i for i in df.columns if "Metadata_" not in i] 
+        df = df.with_columns(pl.col(feature_cols) - pl.mean(feature_cols).over("Metadata_Well"))
+        df = filter_nans(df)
 
-    # perform MAD normalization
-    df = df.to_pandas()
-    plate_list = df['Metadata_Plate'].unique().tolist()
-    
-    start = time.perf_counter()
-    normalizer = RobustMAD(epsilon_mad)
-    result_list = []
-    for plate in plate_list:
-        print(plate)
+        # perform MAD normalization
+        df = df.to_pandas()
+        plate_list = df['Metadata_Plate'].unique().tolist()
+        
+        start = time.perf_counter()
+        normalizer = RobustMAD(epsilon_mad)
+        result_list = []
+        for plate in plate_list:
+            print(plate)
 
-        df_plate = df[df['Metadata_Plate']==plate].copy()
-        feat_cols = [i for i in df_plate.columns if "Metadata_" not in i] 
-        meta_cols = [i for i in df_plate.columns if "Metadata_" in i] 
+            df_plate = df[df['Metadata_Plate']==plate].copy()
+            feat_cols = [i for i in df_plate.columns if "Metadata_" not in i] 
+            meta_cols = [i for i in df_plate.columns if "Metadata_" in i] 
 
-        meta = df_plate[meta_cols]
-        normalizer.fit(df_plate[feat_cols])
-        norm_feats = normalizer.transform(df_plate[feat_cols])
-        norm_feats = pd.DataFrame(norm_feats,
-                                    index=df_plate.index,
-                                    columns=feat_cols)
-        df_plate = pd.concat([meta, norm_feats], axis=1)
-        result_list.append(df_plate)
-    end = time.perf_counter()
-    print(f'RobustMAD runtime: {end-start} secs.')
-    
-    df_norm = pd.concat(result_list, ignore_index=True)
-    df_norm = filter_nans(pl.from_pandas(df_norm)) # 0 cells filtered out. 111 additional features filtered out. 
-    
-    df_norm.write_parquet(norm_file, compression="gzip")
+            meta = df_plate[meta_cols]
+            normalizer.fit(df_plate[feat_cols])
+            norm_feats = normalizer.transform(df_plate[feat_cols])
+            norm_feats = pd.DataFrame(norm_feats,
+                                        index=df_plate.index,
+                                        columns=feat_cols)
+            df_plate = pd.concat([meta, norm_feats], axis=1)
+            result_list.append(df_plate)
+        end = time.perf_counter()
+        print(f'RobustMAD runtime: {end-start} secs.')
+        
+        df_norm = pd.concat(result_list, ignore_index=True)
+        df_norm = filter_nans(pl.from_pandas(df_norm)) # 0 cells filtered out. 111 additional features filtered out. 
+        
+        df_norm.write_parquet(norm_file, compression="gzip")
 
 if __name__ == '__main__':
     main()

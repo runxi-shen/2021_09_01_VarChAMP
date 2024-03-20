@@ -46,6 +46,8 @@ def filter_nans(df_to_filt: pl.DataFrame):
     print(f'{num_profiles_filtered} profiles (rows) were filtered because they had greater than 5% NaNs. {num_feats_filtered} features (columns) were filtered because they contained at least 1 NaN')
 
     return df_to_filt
+
+# If I use INT in the future the code is here: https://github.com/carpenter-singh-lab/2023_Arevalo_BatchCorrection/blob/main/preprocessing/transform.py
     
 
 def main():

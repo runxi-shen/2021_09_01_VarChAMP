@@ -165,9 +165,9 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
     
     
 def main():
-    data_dir = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/B4A3R1"
+    
     feature_type = "_annotated_normalized_featselected"
-    batch_list = ["B4A3R1", "B6A3R1"]
+    batch_list = ["B4A3R1", "B6A3R2"]
     run_name = 'ALK_WT_VAR'
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
@@ -175,6 +175,7 @@ def main():
         print("starting loop")
         print(batch)
         
+        data_dir = pathlib.Path(f"/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/{batch}")
         result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/{batch}/{run_name}')
         result_dir.mkdir(exist_ok=True)
         

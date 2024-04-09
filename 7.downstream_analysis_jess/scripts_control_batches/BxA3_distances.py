@@ -8,6 +8,7 @@ import pandas as pd
 import polars as pl
 import pathlib
 from sklearn.metrics.pairwise import euclidean_distances, cosine_distances
+from sklearn.preprocessing import StandardScaler
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -38,7 +39,7 @@ def main():
     sc_profiles.group_by("Metadata_Well").agg(pl.count()).head
     
     # randomly sample 100 cells per well
-    sampled_profs = sc_profiles.filter(pl.int_range(0, pl.count()).shuffle().over("Metadata_Well") < 100)
+    sampled_profs = sc_profiles.filter(pl.int_range(0, pl.count()).shuffle().over("Metadata_Well") < 250)
     sampled_profs.group_by("Metadata_Well").agg(pl.count()).head
     sampled_profs.shape # now there are < 10,000 cells - a more reasonable number for pairwise distances
     
@@ -47,7 +48,7 @@ def main():
     
     
     # Compute pairwise euclidean distances between all cells
-    euclid_dist = euclidean_distances(sampled_profs.select(feat_col).to_numpy())
+    euclid_dist = euclidean_distances(StandardScaler().fit_transform(sampled_profs.select(feat_col).to_numpy()))
     
     euclid_long = pd.DataFrame(euclid_dist).reset_index().melt('index').dropna()
     euclid_long = pl.from_pandas(euclid_long)
@@ -66,7 +67,7 @@ def main():
                                                                       pl.col("euclid_dist").median().alias("euclid_dist_median"))
     
     # Compute pairwise cosine distances between all cells
-    cosine_dist = cosine_distances(sampled_profs.select(feat_col).to_numpy())
+    cosine_dist = cosine_distances(StandardScaler().fit_transform(sampled_profs.select(feat_col).to_numpy()))
     
     cosine_long = pd.DataFrame(cosine_dist).reset_index().melt('index').dropna()
     cosine_long = pl.from_pandas(cosine_long)

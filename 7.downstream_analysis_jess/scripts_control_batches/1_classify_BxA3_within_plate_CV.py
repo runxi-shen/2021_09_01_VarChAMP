@@ -207,61 +207,61 @@ def main():
         references = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_').collect().to_pandas()
         ref_well_group = references.groupby("Metadata_Well").groups
         
-        # Run classification
-        control_group_runner(
-            references, 
-            ref_well_group, 
-            result_dir, 
-            feat_cols_protein, 
-            batch_name=batch,
-            protein_prefix='protein_REF')
-        print("Finish building null for REF well with protein features")
+        # # Run classification
+        # control_group_runner(
+        #     references, 
+        #     ref_well_group, 
+        #     result_dir, 
+        #     feat_cols_protein, 
+        #     batch_name=batch,
+        #     protein_prefix='protein_REF')
+        # print("Finish building null for REF well with protein features")
         
-        control_group_runner(
-            variants, 
-            var_well_group, 
-            result_dir, 
-            feat_cols_protein, 
-            batch_name=batch,
-            protein_prefix='protein_VAR')
-        print("Finish building null for VAR well with protein features")
+        # control_group_runner(
+        #     variants, 
+        #     var_well_group, 
+        #     result_dir, 
+        #     feat_cols_protein, 
+        #     batch_name=batch,
+        #     protein_prefix='protein_VAR')
+        # print("Finish building null for VAR well with protein features")
 
+        # experimental_group_runner(
+        #     var_profiles = variants, 
+        #     ref_profiles = references,
+        #     var_group = var_well_group, 
+        #     ref_group = ref_well_group,
+        #     data_dir = result_dir, 
+        #     feat_col = feat_cols_protein, 
+        #     batch_name = batch,
+        #     protein_prefix = 'protein')
+        # print("Finish WT-VAR classification with protein features")
+        
+        # control_group_runner(
+        #     references, 
+        #     ref_well_group, 
+        #     result_dir, 
+        #     feat_cols_non_protein, 
+        #     batch_name=batch,
+        #     protein_prefix='non_protein_REF')
+        # print("Finish building null for REF well with non-protein features")
+        
+        # control_group_runner(
+        #     variants, 
+        #     var_well_group, 
+        #     result_dir, 
+        #     feat_cols_non_protein, 
+        #     batch_name=batch,
+        #     protein_prefix='non_protein_VAR')
+        # print("Finish building null for VAR well with non-protein features")
+        
         experimental_group_runner(
             var_profiles = variants, 
             ref_profiles = references,
             var_group = var_well_group, 
             ref_group = ref_well_group,
             data_dir = result_dir, 
-            feat_col = feat_cols_protein, 
-            batch_name = batch,
-            protein_prefix = 'protein')
-        print("Finish WT-VAR classification with protein features")
-        
-        control_group_runner(
-            references, 
-            ref_well_group, 
-            result_dir, 
-            feat_cols_non_protein, 
-            batch_name=batch,
-            protein_prefix='non_protein_REF')
-        print("Finish building null for REF well with non-protein features")
-        
-        control_group_runner(
-            variants, 
-            var_well_group, 
-            result_dir, 
-            feat_cols_non_protein, 
-            batch_name=batch,
-            protein_prefix='non_protein_VAR')
-        print("Finish building null for VAR well with non-protein features")
-        
-        experimental_group_runner(
-            var_profiles = variants, 
-            ref_profiles = references,
-            var_group = var_well_group, 
-            ref_group = ref_well_group,
-            data_dir = result_dir, 
-            feat_col = feat_cols_protein, 
+            feat_col = feat_cols_non_protein, 
             batch_name = batch,
             protein_prefix = 'non_protein')
         print("Finish WT-VAR classification with non-protein features")

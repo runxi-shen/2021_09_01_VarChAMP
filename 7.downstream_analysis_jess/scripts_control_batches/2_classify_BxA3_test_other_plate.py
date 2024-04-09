@@ -62,20 +62,26 @@ def experimental_group_runner(var_profiles, ref_profiles, var_group, ref_group, 
     
     var_profiles['Label'] = 1
     ref_profiles['Label'] = 0
+    
+    var_profiles = pl.from_pandas(var_profiles)
+    ref_profiles = pl.from_pandas(ref_profiles)
 
     for var_key in tqdm(var_group.keys()):
         
-        var_profs = var_profiles.loc[var_group[var_key]]      
+        var_profs = var_profiles.filter(pl.col("Metadata_Well") == var_group[var_key])
         
         for ref_key in ref_group.keys():
-            ref_profs = ref_profiles.loc[ref_group[ref_key]]
+            ref_profs = ref_profiles.filter(pl.col("Metadata_Well") == ref_group[ref_key])
             
             # split data
-            ref_train, ref_test = train_test_split(ref_profs, test_size=0.2, random_state=123)
-            var_train, var_test = train_test_split(var_profs, test_size=0.2, random_state=124)
+            ref_train = ref_profs.filter(pl.col("Metadata_Batch") == 4)
+            ref_test = ref_profs.filter(pl.col("Metadata_Batch") == 6)
+
+            var_train = var_profs.filter(pl.col("Metadata_Batch") == 4)
+            var_test = var_profs.filter(pl.col("Metadata_Batch") == 6)
             
-            all_profiles_train = pd.concat([ref_train, var_train], ignore_index=True)
-            all_profiles_test = pd.concat([ref_test, var_test], ignore_index=True)
+            all_profiles_train = pl.concat([ref_train, var_train], how="vertical").to_pandas()
+            all_profiles_test = pl.concat([ref_test, var_test], how="vertical").to_pandas()
             
             # make classifier
             feat_importances, f1score_macro = classifier(all_profiles_train, all_profiles_test, feat_col)
@@ -129,12 +135,18 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
         well_two = controls.loc[control_group[idx_two]].reset_index(drop=True)
         well_two["Label"] = 0
         
-        # split data
-        w1_train, w1_test = train_test_split(well_one, test_size=0.2, random_state=123)
-        w2_train, w2_test = train_test_split(well_two, test_size=0.2, random_state=124)
+        well_one = pl.from_pandas(well_one)
+        well_two = pl.from_pandas(well_two)
         
-        all_profiles_train = pd.concat([w1_train, w2_train], ignore_index=True)
-        all_profiles_test = pd.concat([w1_test, w2_test], ignore_index=True)
+        # split data 
+        w1_train = well_one.filter(pl.col("Metadata_Batch") == 4)
+        w1_test = well_one.filter(pl.col("Metadata_Batch") == 6)
+        
+        w2_train = well_two.filter(pl.col("Metadata_Batch") == 4)
+        w2_test = well_two.filter(pl.col("Metadata_Batch") == 6)
+        
+        all_profiles_train = pl.concat([w1_train, w2_train], how="vertical").to_pandas()
+        all_profiles_test = pl.concat([w1_test, w2_test], how="vertical").to_pandas()
         
         # make classifier
         feat_importances, f1score_macro = classifier(all_profiles_train, all_profiles_test, feat_col)
@@ -165,10 +177,10 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
     
     
 def main():
-    print("Script started!")
+    
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
-    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen3')
+    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen2')
     result_dir.mkdir(exist_ok=True)
     
     data_path = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/Rep_Ctrls/annotated_normalized_featselected.parquet"
@@ -177,6 +189,7 @@ def main():
     sc_profiles = pl.scan_parquet(data_path)
     sc_profiles = sc_profiles.filter(pl.col("Metadata_SYMBOL") == "ALK")
     
+        
     # Get all metadata variable names  
     feat_col = [i for i in sc_profiles.columns if "Metadata_" not in i]
     
@@ -194,13 +207,11 @@ def main():
     feat_cols_non_protein = [i for i in feat_col if "GFP" not in i]
 
     # Define labels for classification
-    variants = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_R1275Q').collect().sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
+    variants = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_R1275Q').collect().to_pandas()
     var_well_group = variants.groupby("Metadata_Well").groups
 
-    references = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_').collect().sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
+    references = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_').collect().to_pandas()
     ref_well_group = references.groupby("Metadata_Well").groups
-    
-    print("Starting classification!")
     
     # Run classification
     control_group_runner(
@@ -208,7 +219,7 @@ def main():
         ref_well_group, 
         result_dir, 
         feat_cols_protein, 
-        batch_name='Rep_Ctrls_scen3',
+        batch_name='Rep_Ctrls_scen2',
         protein_prefix='protein_REF')
     print("Finish building null for REF well with protein features")
     
@@ -217,7 +228,7 @@ def main():
         var_well_group, 
         result_dir, 
         feat_cols_protein, 
-        batch_name='Rep_Ctrls_scen3',
+        batch_name='Rep_Ctrls_scen2',
         protein_prefix='protein_VAR')
     print("Finish building null for VAR well with protein features")
 
@@ -228,7 +239,7 @@ def main():
         ref_group = ref_well_group,
         data_dir = result_dir, 
         feat_col = feat_cols_protein, 
-        batch_name = 'Rep_Ctrls_scen3',
+        batch_name = 'Rep_Ctrls_scen2',
         protein_prefix = 'protein')
     print("Finish WT-VAR classification with protein features")
     
@@ -237,7 +248,7 @@ def main():
         ref_well_group, 
         result_dir, 
         feat_cols_non_protein, 
-        batch_name='Rep_Ctrls_scen3',
+        batch_name='Rep_Ctrls_scen2',
         protein_prefix='non_protein_REF')
     print("Finish building null for REF well with non-protein features")
     
@@ -246,7 +257,7 @@ def main():
         var_well_group, 
         result_dir, 
         feat_cols_non_protein, 
-        batch_name='Rep_Ctrls_scen3',
+        batch_name='Rep_Ctrls_scen2',
         protein_prefix='non_protein_VAR')
     print("Finish building null for VAR well with non-protein features")
     
@@ -257,7 +268,7 @@ def main():
         ref_group = ref_well_group,
         data_dir = result_dir, 
         feat_col = feat_cols_non_protein, 
-        batch_name = 'Rep_Ctrls_scen3',
+        batch_name = 'Rep_Ctrls_scen2',
         protein_prefix = 'non_protein')
     print("Finish WT-VAR classification with non-protein features")
     

@@ -12,11 +12,8 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 
-from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.metrics import f1_score, classification_report
-from sklearn.inspection import permutation_importance
+from sklearn.metrics import f1_score
 import xgboost as xgb
-import random
 from itertools import combinations
 
 
@@ -62,16 +59,14 @@ def experimental_group_runner(var_profiles, ref_profiles, var_group, ref_group, 
     
     var_profiles['Label'] = 1
     ref_profiles['Label'] = 0
-    
-    var_profiles = pl.from_pandas(var_profiles)
-    ref_profiles = pl.from_pandas(ref_profiles)
 
     for var_key in tqdm(var_group.keys()):
-        
-        var_profs = var_profiles.filter(pl.col("Metadata_Well") == var_group[var_key])
+        var_profs = var_profiles.loc[var_group[var_key]] 
+        var_profs = pl.from_pandas(var_profs)
         
         for ref_key in ref_group.keys():
-            ref_profs = ref_profiles.filter(pl.col("Metadata_Well") == ref_group[ref_key])
+            ref_profs = ref_profiles.loc[ref_group[ref_key]]
+            ref_profs = pl.from_pandas(ref_profs)
             
             # split data
             ref_train = ref_profs.filter(pl.col("Metadata_Batch") == 4)
@@ -214,23 +209,23 @@ def main():
     ref_well_group = references.groupby("Metadata_Well").groups
     
     # Run classification
-    control_group_runner(
-        references, 
-        ref_well_group, 
-        result_dir, 
-        feat_cols_protein, 
-        batch_name='Rep_Ctrls_scen2',
-        protein_prefix='protein_REF')
-    print("Finish building null for REF well with protein features")
+    # control_group_runner(
+    #     references, 
+    #     ref_well_group, 
+    #     result_dir, 
+    #     feat_cols_protein, 
+    #     batch_name='Rep_Ctrls_scen2',
+    #     protein_prefix='protein_REF')
+    # print("Finish building null for REF well with protein features")
     
-    control_group_runner(
-        variants, 
-        var_well_group, 
-        result_dir, 
-        feat_cols_protein, 
-        batch_name='Rep_Ctrls_scen2',
-        protein_prefix='protein_VAR')
-    print("Finish building null for VAR well with protein features")
+    # control_group_runner(
+    #     variants, 
+    #     var_well_group, 
+    #     result_dir, 
+    #     feat_cols_protein, 
+    #     batch_name='Rep_Ctrls_scen2',
+    #     protein_prefix='protein_VAR')
+    # print("Finish building null for VAR well with protein features")
 
     experimental_group_runner(
         var_profiles = variants, 

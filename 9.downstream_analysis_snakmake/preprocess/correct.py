@@ -5,6 +5,7 @@ from concurrent import futures
 import pandas as pd
 import numpy as np
 
+import utils
 
 def find_feat_cols(df: pd.DataFrame) -> list:
     """Return list of feature columns"""

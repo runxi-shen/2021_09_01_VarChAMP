@@ -26,6 +26,15 @@ rule plate_stats:
     run:
         preprocess.get_plate_stats(*input, *output)
 
+rule select_variant_feats:
+    input:
+        "outputs/batch_profiles/{batch}/{pipeline}.parquet",
+        "outputs/batch_profiles/{batch}/plate_stats.parquet"
+    output:
+        "outputs/batch_profiles/{batch}/{pipeline}_var.parquet",
+    run:
+        preprocess.select_variant_features(*input, *output)
+
 rule mad:
     input:
         "outputs/batch_profiles/{batch}/{pipeline}.parquet",
@@ -35,6 +44,14 @@ rule mad:
     run:
         preprocess.robustmad(input[0], input[1], *output)
 
+rule outlier_removal:
+    input: 
+        "outputs/batch_profiles/{batch}/{pipeline}.parquet",
+    output:
+        "outputs/batch_profiles/{batch}/{pipeline}_outlier.parquet",
+    run:
+        preprocess.clean.outlier_removal(*input, *output)
+
 rule feat_select:
     input:
         "outputs/batch_profiles/{batch}/{pipeline}.parquet"
@@ -42,3 +59,12 @@ rule feat_select:
         "outputs/batch_profiles/{batch}/{pipeline}_featselect.parquet"
     run:
         preprocess.feat_select(*input, *output)
+
+rule classify:
+    input:
+        "outputs/batch_profiles/{batch}/{pipeline}.parquet"
+    output:
+        "outputs/results/{batch}/{pipeline}/feat_importance.csv",
+        "outputs/results/{batch}/{pipeline}/f1_score.csv",
+    run:
+        classification.run_classify_workflow(*input, *output)

@@ -7,7 +7,7 @@ from scipy.stats import median_abs_deviation
 import numpy as np
 import pandas as pd
 
-from .correct import find_feat_cols, find_meta_cols, remove_nan_infs_columns
+from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +89,33 @@ def get_plate_stats(input_path: str, output_path: str):
     )
     add_metadata(stats, dframe[meta_cols])
     stats.to_parquet(output_path)
+
+
+def select_variant_features(parquet_path, norm_stats_path, variant_feats_path):
+    """
+    Filtered out features that have mad == 0 or abs_coef_var>1e-3 in any plate.
+    stats are computed using negative controls only
+    """
+    dframe = pd.read_parquet(parquet_path)
+    norm_stats = pd.read_parquet(norm_stats_path)
+
+    # Remove NaN and Inf
+    dframe = remove_nan_infs_columns(dframe)
+
+    # Select variant_features
+    norm_stats = norm_stats.query("mad!=0 and abs_coef_var>1e-3")
+    groups = norm_stats.groupby("Metadata_Plate", observed=True)["feature"]
+    variant_features = set.intersection(*groups.agg(set).tolist())
+
+    # Select plates with variant features
+    norm_stats = norm_stats.query("feature in @variant_features")
+    dframe = dframe.query("Metadata_Plate in @norm_stats.Metadata_Plate")
+
+    # Filter features
+    variant_features = sorted(variant_features)
+    meta = dframe[find_meta_cols(dframe)]
+    vals = dframe[variant_features].values
+    merge_parquet(meta, vals, variant_features, variant_feats_path)
 
 
 def robustmad(variant_feats_path, plate_stats_path, normalized_path):

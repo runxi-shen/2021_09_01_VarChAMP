@@ -171,6 +171,70 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
     result_csv.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_f1score{feature_type}.csv",index=False)
     
     
+def null_group_runner(controls, control_group, data_dir, feat_col, batch_name='', 
+    protein_prefix='protein', feature_type='_normalized_feature_selected'):
+    '''
+    This function runs the null control experiments. 
+    '''
+    w1_list = []
+    w2_list = []
+    feat_list = []
+    f1score_macro_list = []
+    w1_cc_list = []
+    w2_cc_list = []
+    
+    # get all possible pairs of wells
+    well_pairs = combinations(list(control_group.keys()), 2)
+    
+    for (idx_one, idx_two) in tqdm(well_pairs):
+        well_one = controls.loc[control_group[idx_one]].reset_index(drop=True)
+        well_one["Label"] = 1
+        well_two = controls.loc[control_group[idx_two]].reset_index(drop=True)
+        well_two["Label"] = 0
+        
+        well_one = pl.from_pandas(well_one)
+        well_two = pl.from_pandas(well_two)
+        
+        # split data 
+        w1_train = well_one.filter(pl.col("Metadata_Batch") == 4)
+        w1_test = well_one.filter(pl.col("Metadata_Batch") == 6)
+        
+        w2_train = well_two.filter(pl.col("Metadata_Batch") == 4)
+        w2_test = well_two.filter(pl.col("Metadata_Batch") == 6)
+        
+        # shuffle the training labels
+        all_profiles_train = pl.concat([w1_train, w2_train], how="vertical")
+        all_profiles_train = all_profiles_train.with_columns(pl.col("Label").shuffle(seed=123).alias("Label")).to_pandas()
+        all_profiles_test = pl.concat([w1_test, w2_test], how="vertical").to_pandas()
+        
+        # make classifier
+        feat_importances, f1score_macro = classifier(all_profiles_train, all_profiles_test, feat_col)
+            
+        feat_list.append(feat_importances)
+        f1score_macro_list.append(f1score_macro)
+        w1_list.append(idx_one)
+        w2_list.append(idx_two)
+        w1_cc_list.append(well_one.shape[0])
+        w2_cc_list.append(well_two.shape[0])
+    
+    
+    # Compile results
+    df_feat_one = pd.DataFrame({"Well_One": w1_list, "Well_Two": w2_list})
+    df_feat_two = pd.DataFrame(feat_list)
+    df_feat = pd.concat([df_feat_one, df_feat_two], axis=1)
+
+    df_feat.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_feat_importance{feature_type}.csv",index=False)
+
+    result_csv = pd.DataFrame({
+        "Well_One": w1_list,
+        "Well_Two": w2_list,
+        "F1_Score": f1score_macro_list,
+        "Well_One_CC": w1_cc_list,
+        "Well_Two_CC": w2_cc_list
+        })
+    result_csv.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_f1score{feature_type}.csv",index=False)
+    
+    
 def main():
     
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
@@ -227,45 +291,64 @@ def main():
     #     protein_prefix='protein_VAR')
     # print("Finish building null for VAR well with protein features")
 
-    experimental_group_runner(
-        var_profiles = variants, 
-        ref_profiles = references,
-        var_group = var_well_group, 
-        ref_group = ref_well_group,
-        data_dir = result_dir, 
-        feat_col = feat_cols_protein, 
-        batch_name = 'Rep_Ctrls_scen2',
-        protein_prefix = 'protein')
-    print("Finish WT-VAR classification with protein features")
+    # experimental_group_runner(
+    #     var_profiles = variants, 
+    #     ref_profiles = references,
+    #     var_group = var_well_group, 
+    #     ref_group = ref_well_group,
+    #     data_dir = result_dir, 
+    #     feat_col = feat_cols_protein, 
+    #     batch_name = 'Rep_Ctrls_scen2',
+    #     protein_prefix = 'protein')
+    # print("Finish WT-VAR classification with protein features")
     
-    control_group_runner(
+    # control_group_runner(
+    #     references, 
+    #     ref_well_group, 
+    #     result_dir, 
+    #     feat_cols_non_protein, 
+    #     batch_name='Rep_Ctrls_scen2',
+    #     protein_prefix='non_protein_REF')
+    # print("Finish building null for REF well with non-protein features")
+    
+    # control_group_runner(
+    #     variants, 
+    #     var_well_group, 
+    #     result_dir, 
+    #     feat_cols_non_protein, 
+    #     batch_name='Rep_Ctrls_scen2',
+    #     protein_prefix='non_protein_VAR')
+    # print("Finish building null for VAR well with non-protein features")
+    
+    # experimental_group_runner(
+    #     var_profiles = variants, 
+    #     ref_profiles = references,
+    #     var_group = var_well_group, 
+    #     ref_group = ref_well_group,
+    #     data_dir = result_dir, 
+    #     feat_col = feat_cols_non_protein, 
+    #     batch_name = 'Rep_Ctrls_scen2',
+    #     protein_prefix = 'non_protein')
+    # print("Finish WT-VAR classification with non-protein features")
+    
+    print("Start computing null")
+    null_group_runner(
+        references, 
+        ref_well_group, 
+        result_dir, 
+        feat_cols_protein, 
+        batch_name='Rep_Ctrls_scen2',
+        protein_prefix='protein_NULL')
+    print("Finish building NULL with protein features")
+    
+    null_group_runner(
         references, 
         ref_well_group, 
         result_dir, 
         feat_cols_non_protein, 
         batch_name='Rep_Ctrls_scen2',
-        protein_prefix='non_protein_REF')
-    print("Finish building null for REF well with non-protein features")
-    
-    control_group_runner(
-        variants, 
-        var_well_group, 
-        result_dir, 
-        feat_cols_non_protein, 
-        batch_name='Rep_Ctrls_scen2',
-        protein_prefix='non_protein_VAR')
-    print("Finish building null for VAR well with non-protein features")
-    
-    experimental_group_runner(
-        var_profiles = variants, 
-        ref_profiles = references,
-        var_group = var_well_group, 
-        ref_group = ref_well_group,
-        data_dir = result_dir, 
-        feat_col = feat_cols_non_protein, 
-        batch_name = 'Rep_Ctrls_scen2',
-        protein_prefix = 'non_protein')
-    print("Finish WT-VAR classification with non-protein features")
+        protein_prefix='non_protein_NULL')
+    print("Finish building NULL with non-protein features")
     
     
 if __name__ == '__main__':

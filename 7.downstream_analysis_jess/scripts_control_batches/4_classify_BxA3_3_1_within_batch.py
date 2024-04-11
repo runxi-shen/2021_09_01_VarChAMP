@@ -168,6 +168,67 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
         })
     result_csv.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_f1score{feature_type}.csv",index=False)
     
+
+def null_group_runner(controls, control_group, data_dir, feat_col, batch_name='', 
+    protein_prefix='protein', feature_type='_normalized_feature_selected'):
+    '''
+    This function runs the null control experiments. 
+    '''
+    w1_list = []
+    w2_list = []
+    feat_list = []
+    f1score_macro_list = []
+    w1_cc_list = []
+    w2_cc_list = []
+    
+    # get all possible pairs of wells
+    well_pairs = combinations(list(control_group.keys()), 2)
+    
+    for (idx_one, idx_two) in tqdm(well_pairs):
+        well_one = controls.loc[control_group[idx_one]].reset_index(drop=True)
+        well_one["Label"] = 1
+        well_two = controls.loc[control_group[idx_two]].reset_index(drop=True)
+        well_two["Label"] = 0
+        
+        # split data
+        w1_train = well_one[well_one["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
+        w1_test = well_one[well_one["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+        
+        w2_train = well_two[well_two["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
+        w2_test = well_two[well_two["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+        
+        all_profiles_train = pd.concat([w1_train, w2_train], ignore_index=True)
+        shuffled_labels = all_profiles_train['Label'].sample(frac=1, random_state=123).reset_index(drop=True)
+        all_profiles_train['Label'] = shuffled_labels
+        all_profiles_test = pd.concat([w1_test, w2_test], ignore_index=True)
+        
+        # make classifier
+        feat_importances, f1score_macro = classifier(all_profiles_train, all_profiles_test, feat_col)
+            
+        feat_list.append(feat_importances)
+        f1score_macro_list.append(f1score_macro)
+        w1_list.append(idx_one)
+        w2_list.append(idx_two)
+        w1_cc_list.append(well_one.shape[0])
+        w2_cc_list.append(well_two.shape[0])
+    
+    
+    # Compile results
+    df_feat_one = pd.DataFrame({"Well_One": w1_list, "Well_Two": w2_list})
+    df_feat_two = pd.DataFrame(feat_list)
+    df_feat = pd.concat([df_feat_one, df_feat_two], axis=1)
+
+    df_feat.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_feat_importance{feature_type}.csv",index=False)
+
+    result_csv = pd.DataFrame({
+        "Well_One": w1_list,
+        "Well_Two": w2_list,
+        "F1_Score": f1score_macro_list,
+        "Well_One_CC": w1_cc_list,
+        "Well_Two_CC": w2_cc_list
+        })
+    result_csv.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_f1score{feature_type}.csv",index=False)
+    
     
 def main():
     print("Script started!")
@@ -187,17 +248,28 @@ def main():
     feat_col = [i for i in sc_profiles.columns if "Metadata_" not in i]
     
     # Include only GFP features for protein channel 
-    feat_cols_protein = [
-        i
-        for i in feat_col
-        if ("GFP" in i)
-        and ("DNA" not in i)
-        and ("AGP" not in i)
-        and ("Mito" not in i)
-    ]
+    feat_cols_protein = [i
+                         for i in feat_col
+                         if ("GFP" in i)
+                         and ("DNA" not in i)
+                         and ("AGP" not in i)
+                         and ("Mito" not in i)
+                         and ("Brightfield" not in i)]
     
-    # Select non-protein channel features, where GFP does not exist in feat_cols
-    feat_cols_non_protein = [i for i in feat_col if "GFP" not in i]
+    # Select non-protein channel features, where GFP and Brightfield does not exist in feat_cols
+    feat_cols_non_protein = [i 
+                             for i in feat_col 
+                             if ("GFP" not in i)
+                             and ("Brightfield" not in i)]
+    
+    # Select only brightfield features
+    feat_cols_brightfield = [i 
+                             for i in feat_col
+                             if ("Brightfield" in i)
+                             and ("DNA" not in i)
+                             and ("AGP" not in i)
+                             and ("Mito" not in i)
+                             and ("GFP" not in i)]
 
     # Define labels for classification
     variants = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_R1275Q').collect().sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
@@ -209,6 +281,8 @@ def main():
     print("Starting classification!")
     
     # Run classification
+    
+    # Protein features
     control_group_runner(
         references, 
         ref_well_group, 
@@ -216,7 +290,7 @@ def main():
         feat_cols_protein, 
         batch_name='Rep_Ctrls_scen4',
         protein_prefix='protein_REF')
-    print("Finish building null for REF well with protein features")
+    print("Finish REF-REF with protein features")
     
     control_group_runner(
         variants, 
@@ -225,7 +299,7 @@ def main():
         feat_cols_protein, 
         batch_name='Rep_Ctrls_scen4',
         protein_prefix='protein_VAR')
-    print("Finish building null for VAR well with protein features")
+    print("Finish VAR-VAR with protein features")
 
     experimental_group_runner(
         var_profiles = variants, 
@@ -236,8 +310,18 @@ def main():
         feat_col = feat_cols_protein, 
         batch_name = 'Rep_Ctrls_scen4',
         protein_prefix = 'protein')
-    print("Finish WT-VAR classification with protein features")
+    print("Finish WT-VAR with protein features")
     
+    null_group_runner(
+        references, 
+        ref_well_group, 
+        result_dir, 
+        feat_cols_protein, 
+        batch_name='Rep_Ctrls_scen4',
+        protein_prefix='protein_NULL')
+    print("Finish NULL with protein features")    
+    
+    # Non-protein features
     control_group_runner(
         references, 
         ref_well_group, 
@@ -245,7 +329,7 @@ def main():
         feat_cols_non_protein, 
         batch_name='Rep_Ctrls_scen4',
         protein_prefix='non_protein_REF')
-    print("Finish building null for REF well with non-protein features")
+    print("Finish REF-REF with non-protein features")
     
     control_group_runner(
         variants, 
@@ -254,7 +338,7 @@ def main():
         feat_cols_non_protein, 
         batch_name='Rep_Ctrls_scen4',
         protein_prefix='non_protein_VAR')
-    print("Finish building null for VAR well with non-protein features")
+    print("Finish VAR-VAR with non-protein features")
     
     experimental_group_runner(
         var_profiles = variants, 
@@ -265,7 +349,55 @@ def main():
         feat_col = feat_cols_non_protein, 
         batch_name = 'Rep_Ctrls_scen4',
         protein_prefix = 'non_protein')
-    print("Finish WT-VAR classification with non-protein features")
+    print("Finish WT-VAR with non-protein features")
+    
+    null_group_runner(
+        references, 
+        ref_well_group, 
+        result_dir, 
+        feat_cols_non_protein, 
+        batch_name='Rep_Ctrls_scen4',
+        protein_prefix='non_protein_NULL')
+    print("Finish NULL with non-protein features")    
+    
+    # Brightfield features
+    control_group_runner(
+        references, 
+        ref_well_group, 
+        result_dir, 
+        feat_cols_brightfield, 
+        batch_name='Rep_Ctrls_scen4',
+        protein_prefix='brightfield_REF')
+    print("Finish REF-REF with brightfield features")
+    
+    control_group_runner(
+        variants, 
+        var_well_group, 
+        result_dir, 
+        feat_cols_brightfield, 
+        batch_name='Rep_Ctrls_scen4',
+        protein_prefix='brightfield_VAR')
+    print("Finish VAR-VAR with brightfield features")
+
+    experimental_group_runner(
+        var_profiles = variants, 
+        ref_profiles = references,
+        var_group = var_well_group, 
+        ref_group = ref_well_group,
+        data_dir = result_dir, 
+        feat_col = feat_cols_brightfield, 
+        batch_name = 'Rep_Ctrls_scen4',
+        protein_prefix = 'brightfield')
+    print("Finish WT-VAR with brightfield features")
+    
+    null_group_runner(
+        references, 
+        ref_well_group, 
+        result_dir, 
+        feat_cols_brightfield, 
+        batch_name='Rep_Ctrls_scen4',
+        protein_prefix='brightfield_NULL')
+    print("Finish NULL with brightfield features")   
     
     
 if __name__ == '__main__':

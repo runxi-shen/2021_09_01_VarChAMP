@@ -1,0 +1,30 @@
+"""Helper functions"""
+
+import pandas as pd
+import numpy as np
+from itertools import chain
+
+
+def find_feat_cols(df: pd.DataFrame) -> list:
+    """Return list of feature columns"""
+    return df.filter(regex="^(?!Metadata_)").columns.to_list()
+
+
+def find_meta_cols(df: pd.DataFrame) -> list:
+    """Return list of metadata columns"""
+    return df.filter(regex="^(Metadata_)").columns.to_list()
+
+
+def remove_nan_infs_columns(input_path: str, output_path: str | None = None):
+    """Remove columns with NaN and INF"""
+    dframe = pd.read_parquet(input_path)
+    feat_cols = find_feat_cols(dframe)
+    withnan = dframe[feat_cols].isna().sum()[lambda x: x > 0]
+    withinf = (dframe[feat_cols] == np.inf).sum()[lambda x: x > 0]
+    withninf = (dframe[feat_cols] == -np.inf).sum()[lambda x: x > 0]
+    redlist = set(chain(withinf.index, withnan.index, withninf.index))
+    dframe_filtered = dframe[[c for c in dframe.columns if c not in redlist]]
+    if output_path is not None:
+        dframe_filtered.to_parquet(output_path, index=False)
+    else:
+        return dframe_filtered

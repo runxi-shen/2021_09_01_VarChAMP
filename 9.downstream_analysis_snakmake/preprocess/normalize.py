@@ -7,6 +7,8 @@ from scipy.stats import median_abs_deviation
 import numpy as np
 import pandas as pd
 
+import sys
+sys.path.append('..')
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
 logger = logging.getLogger(__name__)

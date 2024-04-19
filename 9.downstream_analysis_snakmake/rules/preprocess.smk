@@ -1,4 +1,5 @@
 import preprocess
+import classification
 
 rule remove_nan:
     input:
@@ -65,6 +66,6 @@ rule classify:
         "outputs/batch_profiles/{batch}/{pipeline}.parquet"
     output:
         "outputs/results/{batch}/{pipeline}/feat_importance.csv",
-        "outputs/results/{batch}/{pipeline}/f1_score.csv",
+        "outputs/results/{batch}/{pipeline}/result.csv",
     run:
         classification.run_classify_workflow(*input, *output)

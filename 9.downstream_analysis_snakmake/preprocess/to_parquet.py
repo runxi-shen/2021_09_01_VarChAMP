@@ -1,5 +1,8 @@
 '''Download and prepare data.'''
 from cytotable import convert
+from parsl.config import Config
+from parsl.executors import ThreadPoolExecutor
+import random
 
 COLUMNS = (
     "TableNumber",
@@ -40,14 +43,28 @@ COMMANDS = """
                 AND nuclei.Metadata_ObjectNumber = cytoplasm.Metadata_Cytoplasm_Parent_Nuclei
                 """
 
+
+
 def convert_parquet(
     input_file,
     output_file,
     cols=COLUMNS,
     chunk_size=150000,
     joins=COMMANDS,
+    thread=2,
 ):
     """Convert sqlite profiles to parquet"""
+
+    hash_str = str(random.getrandbits(128))
+    parsl_config = Config(
+                        executors=[
+                            ThreadPoolExecutor(
+                                max_threads=thread
+                            )
+                        ],
+                        run_dir=f'./runinfo/{hash_str}'
+                    )
+   
     convert(
         source_path=input_file,
         dest_path=output_file,
@@ -55,5 +72,7 @@ def convert_parquet(
         dest_datatype='parquet',
         chunk_size=chunk_size,
         preset="cell-health-cellprofiler-to-cytominer-database",
-        joins=joins
+        joins=joins,
+        reload_parsl_config=True,
+        parsl_config=parsl_config
     )

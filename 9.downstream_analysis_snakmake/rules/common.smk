@@ -9,8 +9,9 @@ rule parquet_convert:
         "inputs/single_cell_profiles/{batch}/{plate}/{plate}.sqlite"
     output:
         "outputs/single_cell_profiles/{batch}/{plate}_raw.parquet"
+    threads: workflow.cores * 0.1
     run:
-        preprocess.convert_parquet(*input, *output)
+        preprocess.convert_parquet(*input, *output, thread=threads)
 
 rule annotate:
     input:
@@ -31,4 +32,4 @@ rule aggregate:
     output:
         "outputs/batch_profiles/{batch}/raw.parquet"
     run:
-        preprocess.aggregate(*input, *output)
+        preprocess.aggregate(input, *output)

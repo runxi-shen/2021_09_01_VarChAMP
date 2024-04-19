@@ -366,5 +366,6 @@ def main():
         batch_name=batch,
         protein_prefix='non_protein')
 
-main()
+if __name__ == '__main__':
+    main()
             

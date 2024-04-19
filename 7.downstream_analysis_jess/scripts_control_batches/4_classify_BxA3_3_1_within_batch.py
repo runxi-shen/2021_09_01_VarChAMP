@@ -61,6 +61,8 @@ def experimental_group_runner(var_profiles, ref_profiles, var_group, ref_group, 
     
     var_profiles['Label'] = 1
     ref_profiles['Label'] = 0
+    
+    plates = list(var_profiles["Metadata_Plate"].unique())
 
     for var_key in tqdm(var_group.keys()):
         
@@ -70,11 +72,11 @@ def experimental_group_runner(var_profiles, ref_profiles, var_group, ref_group, 
             ref_profs = ref_profiles.loc[ref_group[ref_key]]
             
             # split data
-            ref_train = ref_profs[ref_profs["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
-            ref_test = ref_profs[ref_profs["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+            ref_train = ref_profs[ref_profs["Metadata_Plate"].isin(plates[0:3])]
+            ref_test = ref_profs[ref_profs["Metadata_Plate"].isin([plates[3]])]
             
-            var_train = var_profs[var_profs["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
-            var_test = var_profs[var_profs["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+            var_train = var_profs[var_profs["Metadata_Plate"].isin(plates[0:3])]
+            var_test = var_profs[var_profs["Metadata_Plate"].isin([plates[3]])]
             
             all_profiles_train = pd.concat([ref_train, var_train], ignore_index=True)
             all_profiles_test = pd.concat([ref_test, var_test], ignore_index=True)
@@ -131,12 +133,14 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
         well_two = controls.loc[control_group[idx_two]].reset_index(drop=True)
         well_two["Label"] = 0
         
-        # split data
-        w1_train = well_one[well_one["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
-        w1_test = well_one[well_one["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+        plates = list(well_one["Metadata_Plate"].unique())
         
-        w2_train = well_two[well_two["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
-        w2_test = well_two[well_two["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+        # split data
+        w1_train = well_one[well_one["Metadata_Plate"].isin(plates[0:3])]
+        w1_test = well_one[well_one["Metadata_Plate"].isin([plates[3]])]
+        
+        w2_train = well_two[well_two["Metadata_Plate"].isin(plates[0:3])]
+        w2_test = well_two[well_two["Metadata_Plate"].isin([plates[3]])]
         
         all_profiles_train = pd.concat([w1_train, w2_train], ignore_index=True)
         all_profiles_test = pd.concat([w1_test, w2_test], ignore_index=True)
@@ -181,6 +185,8 @@ def null_group_runner(controls, control_group, data_dir, feat_col, batch_name=''
     w1_cc_list = []
     w2_cc_list = []
     
+    plates = list(controls["Metadata_Plate"].unique())
+    
     # get all possible pairs of wells
     well_pairs = combinations(list(control_group.keys()), 2)
     
@@ -191,11 +197,11 @@ def null_group_runner(controls, control_group, data_dir, feat_col, batch_name=''
         well_two["Label"] = 0
         
         # split data
-        w1_train = well_one[well_one["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
-        w1_test = well_one[well_one["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+        w1_train = well_one[well_one["Metadata_Plate"].isin(plates[0:3])]
+        w1_test = well_one[well_one["Metadata_Plate"].isin([plates[3]])]
         
-        w2_train = well_two[well_two["Metadata_Plate"].isin(["2023-12-15_B4A3R1_P1T2", "2023-12-18_B4A3R1_P1T3", "2023-12-15_B4A3R1_P1T1"])]
-        w2_test = well_two[well_two["Metadata_Plate"].isin(["2023-12-18_B4A3R1_P1T4"])]
+        w2_train = well_two[well_two["Metadata_Plate"].isin(plates[0:3])]
+        w2_test = well_two[well_two["Metadata_Plate"].isin([plates[3]])]
         
         all_profiles_train = pd.concat([w1_train, w2_train], ignore_index=True)
         shuffled_labels = all_profiles_train['Label'].sample(frac=1, random_state=123).reset_index(drop=True)
@@ -234,7 +240,7 @@ def main():
     print("Script started!")
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
-    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4')
+    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6')
     result_dir.mkdir(exist_ok=True)
     
     data_path = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/Rep_Ctrls/annotated_normalized_featselected.parquet"
@@ -242,7 +248,7 @@ def main():
     # Concatenate files from one
     sc_profiles = pl.scan_parquet(data_path)
     sc_profiles = sc_profiles.filter((pl.col("Metadata_SYMBOL") == "ALK") &
-                                     (pl.col("Metadata_Batch") == 4))
+                                     (pl.col("Metadata_Batch") == 6))
     
     # Get all metadata variable names  
     feat_col = [i for i in sc_profiles.columns if "Metadata_" not in i]

@@ -1,5 +1,8 @@
+import sys
+sys.path.append('..')
+from utils import find_feat_cols
+
 import pandas as pd 
-import utils
 import logging
 
 # logging.basicConfig(format='%(levelname)s:%(asctime)s:%(name)s:%(message)s', level=logging.WARN)
@@ -9,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def clip_features(dframe, threshold):
     '''Clip feature values to a given magnitude'''
-    feat_cols = utils.find_feat_cols(dframe.columns)
+    feat_cols = find_feat_cols(dframe.columns)
     counts = (dframe.loc[:, feat_cols].abs() > threshold).sum()[lambda x:x > 0]
     if len(counts) > 0:
         logger.info(f'Clipping {counts.sum()} values in {len(counts)} columns')
@@ -18,7 +21,7 @@ def clip_features(dframe, threshold):
 
 def drop_outlier_feats(dframe: pd.DataFrame, threshold: float):
     '''Remove columns with 1 percentile of absolute values larger than threshold'''
-    feat_cols = utils.find_feat_cols(dframe.columns)
+    feat_cols = find_feat_cols(dframe.columns)
     large_feat = dframe[feat_cols].abs().quantile(0.99) > threshold
     large_feat = set(large_feat[large_feat].index)
     keep_cols = [c for c in dframe.columns if c not in large_feat]

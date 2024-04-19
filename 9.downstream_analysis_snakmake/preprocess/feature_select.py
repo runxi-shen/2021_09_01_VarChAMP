@@ -5,6 +5,8 @@ import pandas as pd
 from pycytominer.operations import correlation_threshold, variance_threshold
 from pycytominer.feature_select import feature_select
 
+import sys
+sys.path.append('..')
 from utils import find_feat_cols
 
 logger = logging.getLogger(__name__)

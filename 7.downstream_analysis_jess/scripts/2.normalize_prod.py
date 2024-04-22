@@ -67,7 +67,7 @@ def main():
         anno_file = pathlib.Path(data_dir / f"{batch_name}_annotated.parquet")
         
         # Output file paths
-        norm_file = pathlib.Path(result_dir / f"{batch_name}_annotated_corrected_normalized.parquet")
+        norm_file = pathlib.Path(result_dir / f"{batch_name}_annotated_normalized.parquet")
         
         # Filter NaNs
         df = pl.read_parquet(anno_file) 
@@ -79,8 +79,8 @@ def main():
         
         # Well position correction
         feature_cols = [i for i in df.columns if "Metadata_" not in i] 
-        df = df.with_columns(pl.col(feature_cols) - pl.mean(feature_cols).over("Metadata_Well"))
-        df = filter_nans(df)
+        # df = df.with_columns(pl.col(feature_cols) - pl.mean(feature_cols).over("Metadata_Well"))
+        # df = filter_nans(df)
 
         # perform MAD normalization
         df = df.to_pandas()

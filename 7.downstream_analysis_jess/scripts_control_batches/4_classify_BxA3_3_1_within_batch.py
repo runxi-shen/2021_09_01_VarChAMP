@@ -72,11 +72,11 @@ def experimental_group_runner(var_profiles, ref_profiles, var_group, ref_group, 
             ref_profs = ref_profiles.loc[ref_group[ref_key]]
             
             # split data
-            ref_train = ref_profs[ref_profs["Metadata_Plate"].isin(plates[0:3])]
-            ref_test = ref_profs[ref_profs["Metadata_Plate"].isin([plates[3]])]
+            ref_train = ref_profs[ref_profs["Metadata_Plate"].isin([plates[0], plates[2], plates[3]])]
+            ref_test = ref_profs[ref_profs["Metadata_Plate"].isin([plates[1]])]
             
-            var_train = var_profs[var_profs["Metadata_Plate"].isin(plates[0:3])]
-            var_test = var_profs[var_profs["Metadata_Plate"].isin([plates[3]])]
+            var_train = var_profs[var_profs["Metadata_Plate"].isin([plates[0], plates[2], plates[3]])]
+            var_test = var_profs[var_profs["Metadata_Plate"].isin([plates[1]])]
             
             all_profiles_train = pd.concat([ref_train, var_train], ignore_index=True)
             all_profiles_test = pd.concat([ref_test, var_test], ignore_index=True)
@@ -136,11 +136,11 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
         plates = list(well_one["Metadata_Plate"].unique())
         
         # split data
-        w1_train = well_one[well_one["Metadata_Plate"].isin(plates[0:3])]
-        w1_test = well_one[well_one["Metadata_Plate"].isin([plates[3]])]
+        w1_train = well_one[well_one["Metadata_Plate"].isin([plates[0], plates[2], plates[3]])]
+        w1_test = well_one[well_one["Metadata_Plate"].isin([plates[1]])]
         
-        w2_train = well_two[well_two["Metadata_Plate"].isin(plates[0:3])]
-        w2_test = well_two[well_two["Metadata_Plate"].isin([plates[3]])]
+        w2_train = well_two[well_two["Metadata_Plate"].isin([plates[0], plates[2], plates[3]])]
+        w2_test = well_two[well_two["Metadata_Plate"].isin([plates[1]])]
         
         all_profiles_train = pd.concat([w1_train, w2_train], ignore_index=True)
         all_profiles_test = pd.concat([w1_test, w2_test], ignore_index=True)
@@ -197,11 +197,11 @@ def null_group_runner(controls, control_group, data_dir, feat_col, batch_name=''
         well_two["Label"] = 0
         
         # split data
-        w1_train = well_one[well_one["Metadata_Plate"].isin(plates[0:3])]
-        w1_test = well_one[well_one["Metadata_Plate"].isin([plates[3]])]
+        w1_train = well_one[well_one["Metadata_Plate"].isin([plates[0], plates[2], plates[3]])]
+        w1_test = well_one[well_one["Metadata_Plate"].isin([plates[1]])]
         
-        w2_train = well_two[well_two["Metadata_Plate"].isin(plates[0:3])]
-        w2_test = well_two[well_two["Metadata_Plate"].isin([plates[3]])]
+        w2_train = well_two[well_two["Metadata_Plate"].isin([plates[0], plates[2], plates[3]])]
+        w2_test = well_two[well_two["Metadata_Plate"].isin([plates[1]])]
         
         all_profiles_train = pd.concat([w1_train, w2_train], ignore_index=True)
         shuffled_labels = all_profiles_train['Label'].sample(frac=1, random_state=123).reset_index(drop=True)
@@ -240,15 +240,17 @@ def main():
     print("Script started!")
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
-    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6')
+    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6_MAPK_LPAR1')
     result_dir.mkdir(exist_ok=True)
     
     data_path = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/Rep_Ctrls/annotated_normalized_featselected.parquet"
     
     # Concatenate files from one
     sc_profiles = pl.scan_parquet(data_path)
-    sc_profiles = sc_profiles.filter((pl.col("Metadata_SYMBOL") == "ALK") &
+    sc_profiles = sc_profiles.filter((pl.col("Metadata_SYMBOL").is_in(["MAPK9", "LPAR1_81134"])) &
                                      (pl.col("Metadata_Batch") == 6))
+    
+    sc_profiles = sc_profiles.collect()
     
     # Get all metadata variable names  
     feat_col = [i for i in sc_profiles.columns if "Metadata_" not in i]
@@ -278,10 +280,10 @@ def main():
                              and ("GFP" not in i)]
 
     # Define labels for classification
-    variants = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_R1275Q').collect().sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
+    variants = sc_profiles.filter(pl.col("Metadata_SYMBOL") == "MAPK9").sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
     var_well_group = variants.groupby("Metadata_Well").groups
 
-    references = sc_profiles.filter(pl.col("Metadata_allele") == 'ALK_').collect().sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
+    references = sc_profiles.filter(pl.col("Metadata_SYMBOL") == "LPAR1_81134").sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
     ref_well_group = references.groupby("Metadata_Well").groups
     
     print("Starting classification!")

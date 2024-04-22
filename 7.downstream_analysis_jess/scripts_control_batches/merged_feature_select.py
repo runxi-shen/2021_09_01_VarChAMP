@@ -12,7 +12,7 @@ def main():
     print("Script started!")
 
     # Output path
-    feat_path = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/Rep_Ctrls/annotated_normalized_featselected.parquet"
+    feat_path = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/Rep_Ctrls/annotated_normalized_featselected_nocorrection.parquet"
     
     # Get unique columns
     lf1 = pl.scan_parquet("/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/B4A3R1/B4A3R1_annotated_corrected_normalized.parquet")

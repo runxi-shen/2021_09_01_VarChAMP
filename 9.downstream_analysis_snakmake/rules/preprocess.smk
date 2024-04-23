@@ -1,4 +1,5 @@
 import preprocess
+import utils
 import classification
 
 rule remove_nan:
@@ -7,7 +8,7 @@ rule remove_nan:
     output:
         "outputs/batch_profiles/{batch}/filtered.parquet"
     run:
-        preprocess.remove_nan_infs_columns(*input, *output)
+        preprocess.filter_nan(*input, *output)
 
 rule wellpos:
     input:
@@ -17,15 +18,15 @@ rule wellpos:
     params:
         parallel = config['parallel']
     run:
-        preprocess.subtract_well_mean(*input, *output, parallel=params.parallel)
+        preprocess.subtract_well_mean_polar(*input, *output)
 
 rule plate_stats:
     input:
-        "outputs/batch_profiles/{batch}/filtered_wellpos.parquet"
+        "outputs/batch_profiles/{batch}/filtered.parquet"
     output:
         "outputs/batch_profiles/{batch}/plate_stats.parquet"
     run:
-        preprocess.get_plate_stats(*input, *output)
+        preprocess.compute_norm_stats_polar(*input, *output)
 
 rule select_variant_feats:
     input:
@@ -34,7 +35,7 @@ rule select_variant_feats:
     output:
         "outputs/batch_profiles/{batch}/{pipeline}_var.parquet",
     run:
-        preprocess.select_variant_features(*input, *output)
+        preprocess.select_variant_features_polars(*input, *output)
 
 rule mad:
     input:
@@ -51,7 +52,7 @@ rule outlier_removal:
     output:
         "outputs/batch_profiles/{batch}/{pipeline}_outlier.parquet",
     run:
-        preprocess.clean.outlier_removal(*input, *output)
+        preprocess.clean.outlier_removal_polars(*input, *output)
 
 rule feat_select:
     input:

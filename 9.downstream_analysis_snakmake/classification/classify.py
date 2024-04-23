@@ -316,7 +316,7 @@ def run_classify_workflow(
             np.isfinite(dframe[feat_col]).all().all()
         ), "Dataframe contains finite feature values."
     except AssertionError:
-        dframe = remove_nan_infs_columns(input_path)
+        dframe = remove_nan_infs_columns(dframe)
 
     df_exp = dframe[~dframe["Metadata_control"].astype("bool")].reset_index(drop=True)
     df_control = dframe[dframe["Metadata_control"].astype("bool")].reset_index(

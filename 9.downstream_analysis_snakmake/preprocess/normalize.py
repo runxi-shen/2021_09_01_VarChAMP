@@ -6,9 +6,11 @@ from scipy.stats import median_abs_deviation
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 import sys
-sys.path.append('..')
+
+sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
 logger = logging.getLogger(__name__)
@@ -36,23 +38,76 @@ def merge_parquet(meta, vals, features, output_path) -> None:
     dframe.to_parquet(output_path)
 
 
-def add_metadata(stats: pd.DataFrame, meta: pd.DataFrame):
+def add_metadata(stats: pd.DataFrame):
     """Add metadata to plate statistics"""
-    source_map = meta[["Metadata_Source", "Metadata_Plate"]].drop_duplicates()
-    source_map = source_map.set_index("Metadata_Plate").Metadata_Source
-    stats["Metadata_Source"] = stats["Metadata_Plate"].map(source_map)
     parts = stats["feature"].str.split("_", expand=True)
     stats["compartment"] = parts[0].astype("category")
     stats["family"] = parts[range(3)].apply("_".join, axis=1).astype("category")
+    return stats
 
 
-def get_plate_stats(input_path: str, output_path: str):
+def get_plate_stats_polar(lf: pl.LazyFrame) -> pl.DataFrame:
+    """Compute plate level statistics with polars"""
+    feat_col = [col for col in lf.columns if not col.startswith("Metadata_")]
+    feat_col.append("Metadata_Plate")
+    lframe = lf.select(pl.col(feat_col))
+
+    groupby_plate = lframe.group_by("Metadata_Plate")
+    median = groupby_plate.agg(pl.col(feat_col).median().cast(pl.Float32))
+    max_ = groupby_plate.agg(pl.col(feat_col).max().cast(pl.Float32))
+    min_ = groupby_plate.agg(pl.col(feat_col).min().cast(pl.Float32))
+    count = groupby_plate.agg(pl.col(feat_col).count().cast(pl.Float32))
+    mad_ = groupby_plate.agg(
+        pl.col(feat_col)
+        .map_elements(lambda col: (col - col.median()).abs().median())
+        .cast(pl.Float32)
+    )
+
+    median = median.with_columns(stat=pl.lit("median"))
+    mad_ = mad_.with_columns(stat=pl.lit("mad"))
+    max_ = max_.with_columns(stat=pl.lit("max"))
+    min_ = min_.with_columns(stat=pl.lit("min"))
+    count = count.with_columns(stat=pl.lit("count"))
+
+    stats = pl.concat([median, mad_, min_, max_, count])
+    stats = stats.melt(id_vars=["Metadata_Plate", "stat"], variable_name="feature")
+    stats = stats.collect()
+    stats = stats.pivot(
+        index=["Metadata_Plate", "feature"], columns="stat", values="value"
+    )
+    stats = stats.with_columns(
+        abs_coef_var=pl.col("mad")
+        / pl.col("median").fill_nan(0).abs().replace(np.inf, 0)
+    )
+    stats = stats.cast(
+        {
+            "min": pl.Float32,
+            "max": pl.Float32,
+            "count": pl.Float32,
+            "median": pl.Float32,
+            "mad": pl.Float32,
+            "abs_coef_var": pl.Float32,
+            "feature": pl.Categorical,
+        }
+    )
+
+    return stats
+
+
+def compute_norm_stats_polar(parquet_path: str, df_stats_path: str):
+    """create platewise statistics for columns without nan/inf values only"""
+    lf = pl.scan_parquet(parquet_path)
+    lf_stats = get_plate_stats_polar(lf)
+    logger.info("stats done.")
+    dframe_stats = lf_stats.to_pandas()
+    dframe_stats = add_metadata(dframe_stats)
+    dframe_stats.to_parquet(df_stats_path, compression="gzip", index=False)
+
+
+def get_plate_stats(dframe: pd.DataFrame):
     """Compute plate level statistics"""
     mad_fn = partial(median_abs_deviation, nan_policy="omit", axis=0)
-    dframe = pd.read_parquet(input_path)
 
-    dframe = remove_nan_infs_columns(dframe)
-    meta_cols = find_meta_cols(dframe)
     feat_cols = find_feat_cols(dframe)
     dframe = dframe[feat_cols + ["Metadata_Plate"]]
     median = dframe.groupby("Metadata_Plate", observed=True).median()
@@ -89,8 +144,45 @@ def get_plate_stats(input_path: str, output_path: str):
             "feature": "category",
         }
     )
-    add_metadata(stats, dframe[meta_cols])
-    stats.to_parquet(output_path)
+    return stats
+
+
+def compute_norm_stats(parquet_path: str, df_stats_path: str):
+    """create platewise statistics for columns without nan/inf values only"""
+    dframe = pd.read_parquet(parquet_path)
+    logger.info("Removing nan and inf columns")
+    dframe = remove_nan_infs_columns(dframe)
+    dframe_stats = get_plate_stats(dframe)
+    logger.info("stats done.")
+    dframe_stats = add_metadata(dframe_stats)
+    dframe_stats.to_parquet(df_stats_path, commpression="gzip", index=False)
+
+
+def select_variant_features_polars(parquet_path, norm_stats_path, variant_feats_path):
+    """
+    Filtered out features that have mad == 0 or abs_coef_var>1e-3 in any plate.
+    Using polar instead of pandas.
+    """
+    lframe = pl.scan_parquet(parquet_path)
+    norm_stats = pl.scan_parquet(norm_stats_path)
+
+    meta_col = [col for col in lframe.columns if col.startswith("Metadata_")]
+
+    # Select variant_features
+    norm_stats = norm_stats.filter(
+        pl.col("mad") != 0, pl.col("abs_coef_var") > 1e-3
+    ).collect()
+
+    groups = norm_stats.group_by("Metadata_Plate").agg(pl.col("feature"))
+    variant_features = set.intersection(set(*list(groups.select("feature").rows()[0])))
+    # Select plates with variant features
+    norm_stats = norm_stats.filter(pl.col("feature").is_in(variant_features))
+    plate_list = norm_stats.select(pl.col("Metadata_Plate")).rows()
+    plate_list = [x[0] for x in plate_list]
+    lframe = lframe.filter(pl.col("Metadata_Plate").is_in(plate_list))
+    lframe = lframe.select(pl.col(meta_col + list(variant_features)))
+    lframe = lframe.collect().to_pandas()
+    lframe.to_parquet(variant_feats_path, compression="gzip", index=False)
 
 
 def select_variant_features(parquet_path, norm_stats_path, variant_feats_path):

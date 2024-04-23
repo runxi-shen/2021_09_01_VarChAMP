@@ -1,6 +1,8 @@
 """Annotate dataframe with platemap"""
 import pandas as pd
-
+import sys
+sys.path.append('..')
+from utils import remove_nan_infs_columns
 
 def get_platemap(csv_path: str, plate: str) -> str:
     """Get the platemap .txt file"""
@@ -40,3 +42,10 @@ def aggregate(plate_list: list[str], output_path: str):
         df_plate_list.append(df)
     df_agg = pd.concat(df_plate_list, ignore_index=True)
     df_agg.to_parquet(path=output_path, compression="gzip", index=False)
+
+def filter_nan(input_path: str, output_path: str):
+    '''Filter nan and inf columns'''
+    dframe = pd.read_parquet(input_path)
+    dframe = remove_nan_infs_columns(dframe)
+    dframe.to_parquet(output_path, compression="gzip", index=False)
+    

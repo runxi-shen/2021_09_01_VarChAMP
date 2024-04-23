@@ -1,6 +1,16 @@
 """Perform correction before feature selection"""
-from concurrent import futures
+from tqdm.contrib.concurrent import thread_map
+
 import pandas as pd
+import polars as pl
+
+def subtract_well_mean_polar(input_path: str, output_path: str):
+    """Subtract the mean of each feature per well position using polar."""
+    lf = pl.scan_parquet(input_path)
+    feature_cols = [i for i in lf.columns if "Metadata_" not in i]
+    lf = lf.with_columns(pl.col(feature_cols) - pl.mean(feature_cols).over("Metadata_Well"))
+    df_well_corrected = lf.collect().to_pandas()
+    df_well_corrected.to_parquet(output_path, compression="gzip")
 
 def subtract_well_mean(input_path: str, output_path: str, parallel: bool = True):
     """Subtract the mean of each feature per well position."""
@@ -13,8 +23,7 @@ def subtract_well_mean(input_path: str, output_path: str, parallel: bool = True)
                 feature: ann_df[feature] - ann_df.groupby("Metadata_Well")[feature].mean()
             }
 
-        with futures.ThreadPoolExecutor() as executor:
-            results = executor.map(subtract_well_mean_parallel_helper, feature_cols)
+        results = thread_map(subtract_well_mean_parallel_helper, feature_cols)
 
         for res in results:
             ann_df.update(pd.DataFrame(res))

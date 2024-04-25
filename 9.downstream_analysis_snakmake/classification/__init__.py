@@ -1,2 +1,2 @@
 '''import classfication modules'''
-from . import classify
+from .classify import run_classify_workflow

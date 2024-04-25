@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 def select_features(dframe_path, feat_selected_path):
     """Run feature selection"""
     dframe = pd.read_parquet(dframe_path)
-    features = find_feat_cols(dframe.columns)
+    features = find_feat_cols(dframe)
     low_variance = variance_threshold(dframe, features)
     features = [f for f in features if f not in low_variance]
     logger.info("%d features removed by variance_threshold", (len(low_variance)))

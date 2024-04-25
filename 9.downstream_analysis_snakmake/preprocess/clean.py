@@ -1,6 +1,6 @@
 import sys
 sys.path.append('..')
-from utils import find_feat_cols, find_feat_cols_polars, find_meta_cols_polars
+from utils import find_feat_cols, find_meta_cols
 
 import pandas as pd 
 import polars as pl
@@ -41,7 +41,7 @@ def outlier_removal(input_path: str, output_path: str):
 
 def clip_features_polar(lframe: pl.LazyFrame, threshold) -> pl.LazyFrame:
     '''Clip feature values to a given magnitude'''
-    feat_cols = find_feat_cols_polars(lframe)
+    feat_cols = find_feat_cols(lframe)
     clipped_frame = (
         lframe.with_columns(
             [
@@ -60,24 +60,18 @@ def drop_outlier_feats_polar(lframe: pl.LazyFrame, threshold: float) -> pl.LazyF
     Remove columns from a Polars LazyFrame where the 
     99th percentile of absolute values is larger than a threshold.
     """
-    feat_cols = find_feat_cols_polars(lframe)
-    meta_cols = find_meta_cols_polars(lframe)
+    meta_cols = find_meta_cols(lframe)
 
-    # Filter columns based on the condition
-    def filter_columns(col_name: str):
-        if (
-            lframe.select(pl.col(col_name).abs().quantile(0.99, interpolation="higher"))
-            .filter(pl.col(col_name) <= threshold)
-        ).collect().shape[0] > 0:
-            return True
-        else: 
-            return False
+    selected_col = lframe.select(
+        pl.all().exclude("^Metadata.*$")
+        .abs().quantile(0.99, interpolation="higher")
+    ).melt().filter(
+        pl.col('value')<=threshold
+    ).collect().get_column('variable')
 
-    feat_cols_filtered = [col for col in feat_cols if filter_columns(col)] 
     lframe_filtered = lframe.select(
-        [meta_cols + feat_cols_filtered]
+        pl.col(meta_cols), pl.col(selected_col)
     )
-
     return lframe_filtered
 
 def outlier_removal_polars(input_path: str, output_path: str):
@@ -85,5 +79,5 @@ def outlier_removal_polars(input_path: str, output_path: str):
     lframe = pl.scan_parquet(input_path)
     lframe = drop_outlier_feats_polar(lframe, threshold=1e2)
     lframe = clip_features_polar(lframe, threshold=1e2)
-    lframe.collect().to_pandas()
-    lframe.to_parquet(output_path, compression='gzip', index=False)
+    dframe = lframe.collect().to_pandas()
+    dframe.to_parquet(output_path, compression='gzip', index=False)

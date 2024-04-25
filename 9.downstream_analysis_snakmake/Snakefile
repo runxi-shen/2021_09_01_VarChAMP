@@ -1,4 +1,4 @@
-configfile: "./inputs/configs/batch7.json"
+configfile: "./inputs/configs/batch8.json"
 
 include: "rules/common.smk"
 include: "rules/preprocess.smk"

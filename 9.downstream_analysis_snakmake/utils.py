@@ -1,23 +1,12 @@
 """Helper functions"""
-
+from itertools import chain
 import pandas as pd
 import numpy as np
-from itertools import chain
 
-
-def find_feat_cols(df: pd.DataFrame) -> list:
-    """Return list of feature columns"""
-    return df.filter(regex="^(?!Metadata_)").columns.to_list()
-
-
-def find_meta_cols(df: pd.DataFrame) -> list:
-    """Return list of metadata columns"""
-    return df.filter(regex="^(Metadata_)").columns.to_list()
-
-def find_feat_cols_polars(lframe):
+def find_feat_cols(lframe):
     return [col for col in lframe.columns if not col.startswith('Metadata_')]
 
-def find_meta_cols_polars(lframe):
+def find_meta_cols(lframe):
     return [col for col in lframe.columns if col.startswith('Metadata_')]
 
 def remove_nan_infs_columns(dframe: pd.DataFrame):

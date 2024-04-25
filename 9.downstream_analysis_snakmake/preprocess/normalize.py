@@ -70,7 +70,7 @@ def get_plate_stats_polar(lf: pl.LazyFrame) -> pl.DataFrame:
     count = count.with_columns(stat=pl.lit("count"))
 
     stats = pl.concat([median, mad_, min_, max_, count])
-    stats = stats.melt(id_vars=["Metadata_Plate", "stat"], variable_name="feature")
+    stats = stats.melt(id_vars=["Metadata_Plate", "stat"], variable_name="feature", value_name="value")
     stats = stats.collect()
     stats = stats.pivot(
         index=["Metadata_Plate", "feature"], columns="stat", values="value"

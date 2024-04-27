@@ -389,6 +389,22 @@ def run_classify_workflow(
     dframe = add_control_annot(dframe)
     dframe = dframe[~dframe["Metadata_control"].isna()]
 
+    # Drop wells with cell counts lower than 1% of all wells
+    dframe['Metadata_Cell_ID'] = dframe.index
+    cell_count = dframe.groupby(
+        ['Metadata_Plate', 'Metadata_Well']
+        )['Metadata_Cell_ID'].count().reset_index(name='Metadata_Cell_Count')
+    thresh_protein = np.percentile(np.array(cell_count["Metadata_Cell_Count"]), 5)
+    dframe = dframe.merge(
+                    cell_count, 
+                    on=['Metadata_Plate', 'Metadata_Well'],
+                )
+    dframe = dframe[
+        dframe['Metadata_Cell_Count']>thresh_protein
+    ].drop(
+        columns=['Metadata_Cell_Count']
+    ).reset_index(drop=True)
+
     df_exp = dframe[~dframe["Metadata_control"].astype("bool")].reset_index(drop=True)
     df_control = dframe[dframe["Metadata_control"].astype("bool")].reset_index(
         drop=True

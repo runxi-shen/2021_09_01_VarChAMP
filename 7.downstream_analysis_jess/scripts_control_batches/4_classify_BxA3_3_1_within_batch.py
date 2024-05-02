@@ -240,20 +240,40 @@ def main():
     print("Script started!")
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
-    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6_MAPK_LPAR1')
+    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6_ALK_no_corr_intensity_02May2024')
     result_dir.mkdir(exist_ok=True)
     
-    data_path = "/dgx1nas1/storage/data/jess/varchamp/sc_data/processed_profiles/Rep_Ctrls/annotated_normalized_featselected.parquet"
+    data_path = "/dgx1nas1/storage/data/sam/codes/2021_09_01_VarChAMP/9.downstream_analysis_snakmake/outputs/batch_profiles/2023-12-21_B6A3R2/profiles_tcdropped_filtered_var_mad_outlier_featselect.parquet"
+    
+    # MAPK9, LPAR1_81134
+    #vars = ["MAPK9", "LPAR1_81134"]
+    vars = ["ALK_R1275Q", "ALK_"]
+    
+    # options = "cross_channel_corr", "intensity", "non_channel_metrics"
+    drop_features = ["cross_channel_corr", "intensity"]
+    
+    if "ALK_" in vars:
+        metadata_var = "Metadata_allele"
+    else:
+        metadata_var = "Metadata_SYMBOL"
     
     # Concatenate files from one
     sc_profiles = pl.scan_parquet(data_path)
-    sc_profiles = sc_profiles.filter((pl.col("Metadata_SYMBOL").is_in(["MAPK9", "LPAR1_81134"])) &
+    sc_profiles = sc_profiles.filter((pl.col(metadata_var).is_in(vars)) &
                                      (pl.col("Metadata_Batch") == 6))
     
     sc_profiles = sc_profiles.collect()
     
     # Get all metadata variable names  
     feat_col = [i for i in sc_profiles.columns if "Metadata_" not in i]
+    
+    if "cross_channel_corr" in drop_features:
+        cor_feats = [i for i in feat_col if "Correlation" in i]
+        cross_channel_feats = [i for i in cor_feats if "Texture" not in i]
+        feat_col = [i for i in feat_col if i not in cross_channel_feats]
+        
+    if "intensity" in drop_features:
+        feat_col = [i for i in feat_col if "Intensity" not in i]
     
     # Include only GFP features for protein channel 
     feat_cols_protein = [i
@@ -270,6 +290,13 @@ def main():
                              if ("GFP" not in i)
                              and ("Brightfield" not in i)]
     
+    if "non_channel_metrics" in drop_features:
+        feat_cols_non_protein = [i
+                                 for i in feat_cols_non_protein
+                                 if ("DNA" in i)
+                                 or ("AGP" in i)
+                                 or ("Mito" in i)]
+    
     # Select only brightfield features
     feat_cols_brightfield = [i 
                              for i in feat_col
@@ -278,12 +305,12 @@ def main():
                              and ("AGP" not in i)
                              and ("Mito" not in i)
                              and ("GFP" not in i)]
-
+    
     # Define labels for classification
-    variants = sc_profiles.filter(pl.col("Metadata_SYMBOL") == "MAPK9").sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
+    variants = sc_profiles.filter(pl.col(metadata_var) == vars[0]).sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
     var_well_group = variants.groupby("Metadata_Well").groups
 
-    references = sc_profiles.filter(pl.col("Metadata_SYMBOL") == "LPAR1_81134").sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
+    references = sc_profiles.filter(pl.col(metadata_var) == vars[1]).sample(fraction=1.0, shuffle=True, seed=123).to_pandas()
     ref_well_group = references.groupby("Metadata_Well").groups
     
     print("Starting classification!")

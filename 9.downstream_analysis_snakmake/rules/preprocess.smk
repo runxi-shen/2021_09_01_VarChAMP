@@ -8,7 +8,7 @@ rule remove_nan:
     output:
         "outputs/batch_profiles/{batch}/{pipeline}_filtered.parquet"
     benchmark:
-        "benchmarks/{pipeline}_filtered_{batch}.bwa.benchmark.txt"
+        "outputs/benchmarks/{batch}/{pipeline}_filtered.bwa.benchmark.txt"
     params:
         drop_threshold = 100
     run:
@@ -24,7 +24,7 @@ rule drop_empty_wells:
     output: 
         "outputs/batch_profiles/{batch}/profiles_tcdropped.parquet",
     benchmark:
-        "benchmarks/profiles_tcdropped_{batch}.bwa.benchmark.txt"
+        "outputs/benchmarks/{batch}/profiles_tcdropped.bwa.benchmark.txt"
     run:
         preprocess.drop_empty_wells(
             *input, 

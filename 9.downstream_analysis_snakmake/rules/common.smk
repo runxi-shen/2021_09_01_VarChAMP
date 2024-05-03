@@ -11,7 +11,7 @@ rule parquet_convert:
         "outputs/single_cell_profiles/{batch}/{plate}_raw.parquet"
     threads: workflow.cores * 0.1
     benchmark:
-        "benchmarks/parquet_convert_{batch}_{plate}.bwa.benchmark.txt"
+        "outputs/benchmarks/{batch}/parquet_convert_{plate}.bwa.benchmark.txt"
     run:
         preprocess.convert_parquet(*input, *output, thread=threads)
 
@@ -21,7 +21,7 @@ rule annotate:
     output:
         "outputs/single_cell_profiles/{batch}/{plate}_annotated.parquet"
     benchmark:
-        "benchmarks/annotate_{batch}_{plate}.bwa.benchmark.txt"
+        "outputs/benchmarks/{batch}/annotate_{plate}.bwa.benchmark.txt"
     run:
         platemap = preprocess.get_platemap(f'inputs/metadata/platemaps/{wildcards.batch}/barcode_platemap.csv', f'{wildcards.plate}')
         platemap_path = f"inputs/metadata/platemaps/{wildcards.batch}/platemap/{platemap}.txt"
@@ -36,6 +36,6 @@ rule aggregate:
     output:
         "outputs/batch_profiles/{batch}/profiles.parquet"
     benchmark:
-        "benchmarks/aggregate_{batch}.bwa.benchmark.txt"
+        "outputs/benchmarks/{batch}/aggregate.bwa.benchmark.txt"
     run:
         preprocess.aggregate(input, *output)

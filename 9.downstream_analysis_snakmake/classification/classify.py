@@ -3,6 +3,8 @@ import numpy as np
 from tqdm import tqdm
 import os
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
 from sklearn.metrics import precision_recall_curve, auc
 import xgboost as xgb
 import random
@@ -67,46 +69,42 @@ def classifier(
     feat_col = find_feat_cols(all_profiles_train)
     feat_col.remove(target)
     
-    if evaluate:
-        x_train, x_val, y_train, y_val = train_test_split(
-            all_profiles_train[feat_col],
-            all_profiles_train[[target]],
-            test_size=0.2,
-            random_state=1,
-        )
-        eval_set = [(x_train, y_train), (x_val, y_val)]
+    x_train, y_train = all_profiles_train[feat_col], all_profiles_train[[target]]
+    x_test, y_test = all_profiles_test[feat_col], all_profiles_test[[target]]
 
-        x_test, y_test = all_profiles_test[feat_col], all_profiles_test[[target]]
+    num_pos = all_profiles_train[all_profiles_train[target]==1].shape[0]
+    num_neg = all_profiles_train[all_profiles_train[target]==0].shape[0]
 
-        model = xgb.XGBClassifier(
-            objective="binary:logistic",
-            n_estimators=300,
-            tree_method="hist",
-            learning_rate=0.05,
-            early_stopping_rounds=100,
-            device="cuda",
-            verbosity=0,
-        )
+    if (num_pos==0) or (num_neg==0):
+        print(f'size of pos: {num_pos}, size of neg: {num_neg}')
+        feat_importances = pd.Series(np.nan, index=x_train.columns)
+        return feat_importances, np.nan
+    
+    scale_pos_weight = num_neg/num_pos
 
-        model.fit(x_train, y_train, eval_set=eval_set, verbose=False)
+    if (scale_pos_weight > 100) or (scale_pos_weight < 0.01):
+        print(f'scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}')
+        feat_importances = pd.Series(np.nan, index=x_train.columns)
+        return feat_importances, np.nan
 
-    else:
-        x_train, y_train = all_profiles_train[feat_col], all_profiles_train[[target]]
-        x_test, y_test = all_profiles_test[feat_col], all_profiles_test[[target]]
+    le = LabelEncoder()
+    y_train = le.fit_transform(y_train)
+    y_test = le.fit_transform(y_test)
 
-        # x_train_cp, y_train_cp, x_test_cp = cp.array(x_train), cp.array(y_train), cp.array(x_test)
-        if shuffle:
-            # Create shuffled train labels
-            y_train_shuff = y_train.copy()
-            y_train_shuff["Label"] = np.random.permutation(y_train.values)
+    # x_train_cp, y_train_cp, x_test_cp = cp.array(x_train), cp.array(y_train), cp.array(x_test)
+    if shuffle:
+        # Create shuffled train labels
+        y_train_shuff = y_train.copy()
+        y_train_shuff["Label"] = np.random.permutation(y_train.values)
 
-        model = xgb.XGBClassifier(
-            objective="binary:logistic",
-            n_estimators=150,
-            tree_method="hist",
-            learning_rate=0.05,
-            # device="cuda:7",
-        ).fit(x_train, y_train, verbose=False)
+    model = xgb.XGBClassifier(
+        objective="binary:logistic",
+        n_estimators=150,
+        tree_method="hist",
+        learning_rate=0.05,
+        scale_pos_weight=scale_pos_weight
+        # device="cuda:7",
+    ).fit(x_train, y_train, verbose=False)
 
     preds = model.predict(x_test)
 
@@ -186,7 +184,7 @@ def experimental_runner(
         dframe_grouped = dframe.loc[groups[key]].reset_index(drop=True)
 
         # Ensure this gene has both reference and variants
-        if dframe_grouped[threshold_key].unique().size != 2:
+        if dframe_grouped[threshold_key].unique().size < 2:
             continue
 
         df_group_one = dframe_grouped[
@@ -253,8 +251,9 @@ def get_common_plates(dframe1, dframe2):
 
 def control_group_runner(
     dframe: pd.DataFrame,
-    group_key_one="Metadata_hgnc_symbol",
-    group_key_two="Metadata_well_position",
+    group_key_one="Metadata_gene_allele",
+    group_key_two="Metadata_plate_map_name",
+    group_key_three="Metadata_well_position",
     threshold_key="Metadata_well_position",
     protein=True,
 ):
@@ -272,53 +271,56 @@ def control_group_runner(
     groups = dframe.groupby(group_key_one).groups
 
     for key in tqdm(groups.keys()):
+        # groupby alleles
         dframe_grouped = dframe.loc[groups[key]].reset_index(drop=True)
 
         # Skip controls with no replicates
         if dframe_grouped[threshold_key].unique().size < 2:
             continue
-
+            
+        # group by platemap
         subgroups = dframe_grouped.groupby(group_key_two).groups
+        
+        for key_two in subgroups.keys():
+            dframe_grouped_two = dframe_grouped.loc[subgroups[key_two]].reset_index(drop=True)
+            # If a well is not present on all four plates, drop well
+            well_count = dframe_grouped_two.groupby(['Metadata_Well'])['Metadata_Plate'].nunique()
+            well_to_drop = well_count[well_count<4].index
+            dframe_grouped_two = dframe_grouped_two[~dframe_grouped_two['Metadata_Well'].isin(well_to_drop)].reset_index(drop=True)
 
-        # Sample 4 out of 6 possible pairwise combinations of well pairs
-        sampled_pairs = random.choices(
-            list(combinations(list(subgroups.keys()), r=2)), k=4
-        )
+            # group by well
+            sub_sub_groups = dframe_grouped_two.groupby(group_key_three).groups
 
-        for idx1, idx2 in sampled_pairs:
-            df_group_one = dframe_grouped.loc[subgroups[idx1]].reset_index(drop=True)
-            df_group_one["Label"] = 1
-            df_group_two = dframe_grouped.loc[subgroups[idx2]].reset_index(drop=True)
-            df_group_two["Label"] = 0
-            df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
-
-            plate_list = get_common_plates(df_group_one, df_group_two)
-
-            def classify_by_plate_helper(plate):
-                df_train, df_test = stratify_by_plate(df_sampled, plate)
-                feat_importances, score = classifier(df_train, df_test)
-                return {plate: [feat_importances, score]}
-
-            result = thread_map(classify_by_plate_helper, plate_list)
-
-            for res in result:
-                feat_list.append(list(res.values())[0][0])
-                group_list.append(key)
-                pair_list.append(f"{idx1}_{idx2}")
-                plate_name_list.append(list(res.keys())[0])
-                prauc_list.append(list(res.values())[0][1])
-
-            # for plate in plate_list:
-            #     df_train, df_test = stratify_by_plate(df_sampled, plate)
-            #     feat_importances, f1score_macro = classifier(
-            #         df_train, df_test
-            #     )
-
-            #     feat_list.append(feat_importances)
-            #     group_list.append(key)
-            #     pair_list.append([idx1,idx2])
-            #     plate_list.append(plate)
-            #     f1score_list.append(f1score_macro)
+            # Sample 4 out of 6 possible pairwise combinations of well pairs
+            if len(list(sub_sub_groups.keys()))>=4:
+                sampled_pairs = random.choices(
+                    list(combinations(list(sub_sub_groups.keys()), r=2)), k=4
+                )
+            else:
+                sampled_pairs = list(combinations(list(sub_sub_groups.keys()), r=2))
+    
+            for idx1, idx2 in sampled_pairs:
+                df_group_one = dframe_grouped_two.loc[sub_sub_groups[idx1]].reset_index(drop=True)
+                df_group_one["Label"] = 1
+                df_group_two = dframe_grouped_two.loc[sub_sub_groups[idx2]].reset_index(drop=True)
+                df_group_two["Label"] = 0
+                df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
+    
+                plate_list = get_common_plates(df_group_one, df_group_two)
+    
+                def classify_by_plate_helper(plate):
+                    df_train, df_test = stratify_by_plate(df_sampled, plate)
+                    feat_importances, score = classifier(df_train, df_test)
+                    return {plate: [feat_importances, score]}
+    
+                result = thread_map(classify_by_plate_helper, plate_list)
+    
+                for res in result:
+                    feat_list.append(list(res.values())[0][0])
+                    group_list.append(key)
+                    pair_list.append(f"{idx1}_{idx2}")
+                    plate_name_list.append(list(res.keys())[0])
+                    prauc_list.append(list(res.values())[0][1])
 
     # Store feature importance
     df_feat_one = pd.DataFrame({'Group1': group_list, 'Group2': pair_list})
@@ -353,11 +355,30 @@ def control_type_helper(col_annot: str):
 def add_control_annot(dframe):
     """annotating column "Metadata_control" """
     if "Metadata_control" not in dframe.columns:
-        dframe["Metadata_control"] = dframe["Metadata_control_type"].apply(
+        dframe["Metadata_control"] = dframe["Metadata_node_type"].apply(
             lambda x: control_type_helper(x)
         )
     return dframe
 
+def drop_low_cc_wells(dframe, thresh_protein=None):
+    # Drop wells with cell counts lower than 5% of all wells
+    dframe['Metadata_Cell_ID'] = dframe.index
+    cell_count = dframe.groupby(
+        ['Metadata_Plate', 'Metadata_Well']
+        )['Metadata_Cell_ID'].count().reset_index(name='Metadata_Cell_Count')
+    
+    if thresh_protein is None:
+        thresh_protein = np.percentile(np.array(cell_count["Metadata_Cell_Count"]), 5)
+    dframe = dframe.merge(
+                    cell_count, 
+                    on=['Metadata_Plate', 'Metadata_Well'],
+                )
+    dframe = dframe[
+        dframe['Metadata_Cell_Count']>thresh_protein
+    ].drop(
+        columns=['Metadata_Cell_Count']
+    ).reset_index(drop=True)
+    return dframe
 
 def run_classify_workflow(
     input_path: str,
@@ -389,22 +410,6 @@ def run_classify_workflow(
     dframe = add_control_annot(dframe)
     dframe = dframe[~dframe["Metadata_control"].isna()]
 
-    # Drop wells with cell counts lower than 1% of all wells
-    dframe['Metadata_Cell_ID'] = dframe.index
-    cell_count = dframe.groupby(
-        ['Metadata_Plate', 'Metadata_Well']
-        )['Metadata_Cell_ID'].count().reset_index(name='Metadata_Cell_Count')
-    thresh_protein = np.percentile(np.array(cell_count["Metadata_Cell_Count"]), 5)
-    dframe = dframe.merge(
-                    cell_count, 
-                    on=['Metadata_Plate', 'Metadata_Well'],
-                )
-    dframe = dframe[
-        dframe['Metadata_Cell_Count']>thresh_protein
-    ].drop(
-        columns=['Metadata_Cell_Count']
-    ).reset_index(drop=True)
-
     df_exp = dframe[~dframe["Metadata_control"].astype("bool")].reset_index(drop=True)
     df_control = dframe[dframe["Metadata_control"].astype("bool")].reset_index(
         drop=True
@@ -413,7 +418,8 @@ def run_classify_workflow(
     df_control = df_control[df_control["Metadata_control_type"] != "TC"].reset_index(
         drop=True
     )
-
+    df_control = drop_low_cc_wells(df_control, thresh_protein=8)
+    
     df_feat_pro_con, df_result_pro_con = control_group_runner(
         df_control, protein=True
     )
@@ -426,6 +432,8 @@ def run_classify_workflow(
     df_feat_no_pro_exp, df_result_no_pro_exp = experimental_runner(
         df_exp, protein=False
     )
+
+    
 
     df_feat = pd.concat(
         [df_feat_pro_con, df_feat_no_pro_con, df_feat_pro_exp, df_feat_no_pro_exp],

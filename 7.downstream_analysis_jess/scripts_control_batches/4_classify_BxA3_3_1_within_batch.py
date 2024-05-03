@@ -240,17 +240,17 @@ def main():
     print("Script started!")
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
-    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6_ALK_no_corr_intensity_02May2024')
+    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6_MAPK_LPAR1_no_corr_03May2024')
     result_dir.mkdir(exist_ok=True)
     
     data_path = "/dgx1nas1/storage/data/sam/codes/2021_09_01_VarChAMP/9.downstream_analysis_snakmake/outputs/batch_profiles/2023-12-21_B6A3R2/profiles_tcdropped_filtered_var_mad_outlier_featselect.parquet"
     
     # MAPK9, LPAR1_81134
-    #vars = ["MAPK9", "LPAR1_81134"]
-    vars = ["ALK_R1275Q", "ALK_"]
+    vars = ["MAPK9", "LPAR1_81134"]
+    #vars = ["ALK_R1275Q", "ALK_"]
     
     # options = "cross_channel_corr", "intensity", "non_channel_metrics"
-    drop_features = ["cross_channel_corr", "intensity"]
+    drop_features = ["cross_channel_corr"]
     
     if "ALK_" in vars:
         metadata_var = "Metadata_allele"

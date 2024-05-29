@@ -1,23 +1,21 @@
 """Classification pipeline"""
-import numpy as np
-from tqdm import tqdm
-import os
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-
-from sklearn.metrics import precision_recall_curve, auc
-import xgboost as xgb
 import random
 from itertools import combinations
-from tqdm.contrib.concurrent import thread_map
-
+import os
 import warnings
-warnings.filterwarnings("ignore")
-
 import sys
+
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+from tqdm.contrib.concurrent import thread_map
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import precision_recall_curve, auc
+import xgboost as xgb
+
+warnings.filterwarnings("ignore")
 sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
-import pandas as pd
 
 def drop_top_control_feat(sc_profiles, feat_rank_dir, percent_dropping=0.1):
     """
@@ -163,7 +161,7 @@ def stratify_by_plate(df_sampled: pd.DataFrame, plate: str):
 def experimental_runner(
     dframe: pd.DataFrame,
     protein=True,
-    group_key_one="Metadata_hgnc_symbol",
+    group_key_one="Metadata_symbol",
     group_key_two="Metadata_gene_allele",
     threshold_key="Metadata_node_type",
 ):
@@ -423,11 +421,11 @@ def run_classify_workflow(
     df_feat_pro_con, df_result_pro_con = control_group_runner(
         df_control, protein=True
     )
-    df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
-        df_control, protein=False
-    )
     df_feat_pro_exp, df_result_pro_exp = experimental_runner(
         df_exp, protein=True
+    )
+    df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
+        df_control, protein=False
     )
     df_feat_no_pro_exp, df_result_no_pro_exp = experimental_runner(
         df_exp, protein=False

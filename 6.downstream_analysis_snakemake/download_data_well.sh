@@ -5,7 +5,8 @@ HOMEPATH="/dgx1nas1/storage/data/sam/codes"
 # batches=`aws s3 ls --no-sign-request "$BASEPATH/backend/" | awk '{print substr($2, 1, length($2)-1)}'`
 
 # batches="2023-12-15_B4A3R1 2023-12-15_B4A4R1 2023-12-21_B6A3R2 2023-12-22_B6A4R2"
-batches="2023-12-15_B4A4R1"
+# batches="2024_01_23_Batch_7 2024_02_06_Batch_8"
+batches="2024_01_23_Batch_7"
 
 mkdir -p inputs/well_profiles
 mkdir -p inputs/metadata/platemaps

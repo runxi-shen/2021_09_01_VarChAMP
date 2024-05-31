@@ -240,14 +240,14 @@ def main():
     print("Script started!")
     os.environ["CUDA_VISIBLE_DEVICES"]="6,7"
     
-    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6_MAPK_LPAR1_sep_morph_06May2024')
+    result_dir = pathlib.Path(f'/dgx1nas1/storage/data/jess/varchamp/sc_data/classification_results/Rep_Ctrls_scen4_B6_ALK_sep_morph_31May2024')
     result_dir.mkdir(exist_ok=True)
     
-    data_path = "/dgx1nas1/storage/data/sam/codes/2021_09_01_VarChAMP/9.downstream_analysis_snakmake/outputs/batch_profiles/2023-12-21_B6A3R2/profiles_tcdropped_filtered_var_mad_outlier_featselect.parquet"
+    data_path = "/dgx1nas1/storage/data/sam/codes/2021_09_01_VarChAMP/6.downstream_analysis_snakemake/outputs/batch_profiles/2023-12-21_B6A3R2/profiles_tcdropped_filtered_var_mad_outlier_featselect.parquet"
     
     # MAPK9, LPAR1_81134
-    vars = ["MAPK9", "LPAR1_81134"]
-    #vars = ["ALK_R1275Q", "ALK_"]
+    #vars = ["MAPK9", "LPAR1_81134"]
+    vars = ["ALK_R1275Q", "ALK_"]
     
     if "ALK_" in vars:
         metadata_var = "Metadata_allele"

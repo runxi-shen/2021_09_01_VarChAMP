@@ -255,11 +255,10 @@ def getIntensities(sel_plate, rep, sel_channel, well, site):
     return df
 
 
-def plotMultiImages(df, sel_channel, max_intensity, display=True, plotpath=""):
+def plotMultiImages(df, sel_channel, max_intensity, n_rows, display=True, plotpath=""):
     
     # Determine the layout of the subplots
-    n_cols = math.ceil(df.shape[0]/4)
-    n_rows = 4
+    n_cols = math.ceil(df.shape[0]/n_rows)
     fig, axes = plt.subplots(n_rows, n_cols, figsize=(6 * n_cols, 6 * n_rows))
     axes = axes.ravel()
     counter = 0

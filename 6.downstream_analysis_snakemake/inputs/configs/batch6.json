@@ -1,0 +1,8 @@
+{
+    "Metadata_Batch": "2023-12-21_B6A3R2",
+    "cell_count_col": "Metadata_Object_Count",
+    "parallel": true,
+    "pipeline": "profiles_tcdropped_filtered_var_mad_outlier_featselect",
+    "transfection_col": "Metadata_node_type",
+    "trasfection_pert": ["TC"]
+}

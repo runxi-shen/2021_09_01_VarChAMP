@@ -1,0 +1,451 @@
+"""Classification pipeline"""
+import random
+from itertools import combinations
+import os
+import warnings
+import sys
+
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+from tqdm.contrib.concurrent import thread_map
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import precision_recall_curve, auc
+import xgboost as xgb
+
+warnings.filterwarnings("ignore")
+sys.path.append("..")
+from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
+
+def drop_top_control_feat(sc_profiles, feat_rank_dir, percent_dropping=0.1):
+    """
+    This function drops the features with highest weight in previous run of control experiments.
+    """
+    df_protein_feat_rank = pd.read_csv(f"{feat_rank_dir}/ctrl_protein_feat_rank.csv")
+    df_non_protein_feat_rank = pd.read_csv(
+        f"{feat_rank_dir}/ctrl_non_protein_feat_rank.csv"
+    )
+
+    df_protein_drop = list(
+        df_protein_feat_rank["feature"][
+            0 : int(df_protein_feat_rank.shape[0] * percent_dropping)
+        ]
+    )
+    df_non_protein_drop = list(
+        df_non_protein_feat_rank["feature"][
+            0 : int(df_non_protein_feat_rank.shape[0] * percent_dropping)
+        ]
+    )
+    sc_profiles.drop(df_protein_drop + df_non_protein_drop, axis=1, inplace=True)
+    print(
+        f"Removed {len(df_protein_drop+df_non_protein_drop)} features that dominated control predictions."
+    )
+    return sc_profiles
+
+
+def drop_meta_null(sc_profiles, check_col="Metadata_Batch"):
+    """
+    This function drops the rows that contain null value in metadata (failure in merging).
+    """
+    row_count = int(sc_profiles.shape[0])
+    sc_profiles.drop(np.where(sc_profiles[check_col].isna())[0], axis=0, inplace=True)
+    sc_profiles.reset_index(drop=True, inplace=True)
+    print(f"Removed {row_count-sc_profiles.shape[0]} rows with NaN metadata values.")
+    return sc_profiles
+
+
+def classifier(
+    all_profiles_train,
+    all_profiles_test,
+    target="Label",
+    evaluate=False,
+    shuffle=False
+):
+    """
+    This function runs classification.
+    """
+    feat_col = find_feat_cols(all_profiles_train)
+    feat_col.remove(target)
+    
+    x_train, y_train = all_profiles_train[feat_col], all_profiles_train[[target]]
+    x_test, y_test = all_profiles_test[feat_col], all_profiles_test[[target]]
+
+    num_pos = all_profiles_train[all_profiles_train[target]==1].shape[0]
+    num_neg = all_profiles_train[all_profiles_train[target]==0].shape[0]
+
+    if (num_pos==0) or (num_neg==0):
+        print(f'size of pos: {num_pos}, size of neg: {num_neg}')
+        feat_importances = pd.Series(np.nan, index=x_train.columns)
+        return feat_importances, np.nan
+    
+    scale_pos_weight = num_neg/num_pos
+
+    if (scale_pos_weight > 100) or (scale_pos_weight < 0.01):
+        print(f'scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}')
+        feat_importances = pd.Series(np.nan, index=x_train.columns)
+        return feat_importances, np.nan
+
+    le = LabelEncoder()
+    y_train = le.fit_transform(y_train)
+    y_test = le.fit_transform(y_test)
+
+    # x_train_cp, y_train_cp, x_test_cp = cp.array(x_train), cp.array(y_train), cp.array(x_test)
+    if shuffle:
+        # Create shuffled train labels
+        y_train_shuff = y_train.copy()
+        y_train_shuff["Label"] = np.random.permutation(y_train.values)
+
+    model = xgb.XGBClassifier(
+        objective="binary:logistic",
+        n_estimators=150,
+        tree_method="hist",
+        learning_rate=0.05,
+        scale_pos_weight=scale_pos_weight
+        # device="cuda:7",
+    ).fit(x_train, y_train, verbose=False)
+
+    preds = model.predict(x_test)
+
+    # Store feature importance
+    feat_importances = pd.Series(model.feature_importances_, index=x_train.columns)
+
+    # Evaluate with metrics
+    precision, recall, _ = precision_recall_curve(y_test, preds)
+    pr_auc = auc(recall, precision)
+
+    return feat_importances, pr_auc
+
+
+def get_protein_features(dframe: pd.DataFrame, protein_feat: bool):
+    """Helper function to get dframe containing protein or non-protein features"""
+    feat_col = find_feat_cols(dframe)
+    meta_col = find_meta_cols(dframe)
+
+    if protein_feat:
+        feat_col = [
+            i
+            for i in feat_col
+            if ("GFP" in i)
+            and ("DNA" not in i)
+            and ("AGP" not in i)
+            and ("Mito" not in i)
+            and ("Brightfield" not in i)
+        ]
+    else:
+        feat_col = [
+            i 
+            for i in feat_col 
+            if ("GFP" not in i) 
+            and ("Brightfield" not in i)
+        ]
+
+    dframe = pd.concat([dframe[meta_col], dframe[feat_col]], axis=1)
+    return dframe
+
+
+def stratify_by_plate(df_sampled: pd.DataFrame, plate: str):
+    """Stratify dframe by plate"""
+    platemap = "_".join(plate.split("T")[0].split("_")[-2:])
+
+    # Train on data from same platemap but other plates
+    df_train = df_sampled[
+        (df_sampled["Metadata_plate_map_name"] == platemap)
+        & (df_sampled["Metadata_Plate"] != plate)
+    ].reset_index(drop=True)
+
+    df_test = df_sampled[df_sampled["Metadata_Plate"] == plate].reset_index(drop=True)
+
+    return df_train, df_test
+
+
+def experimental_runner(
+    dframe: pd.DataFrame,
+    protein=True,
+    group_key_one="Metadata_symbol",
+    group_key_two="Metadata_gene_allele",
+    threshold_key="Metadata_node_type",
+):
+    """
+    Run Reference v.s. Variant experiments
+    """
+    dframe = get_protein_features(dframe, protein)
+
+    prauc_list = []
+    group_list = []
+    pair_list = []
+    feat_list = []
+    plate_name_list = []
+
+    groups = dframe.groupby(group_key_one).groups
+
+    for key in tqdm(groups.keys()):
+        dframe_grouped = dframe.loc[groups[key]].reset_index(drop=True)
+
+        # Ensure this gene has both reference and variants
+        if dframe_grouped[threshold_key].unique().size < 2:
+            continue
+
+        df_group_one = dframe_grouped[
+            dframe_grouped["Metadata_node_type"] == "disease_wt"
+        ].reset_index(drop=True)
+        df_group_one["Label"] = 1
+
+        subgroups = (
+            dframe_grouped[dframe_grouped["Metadata_node_type"] == "allele"]
+            .groupby(group_key_two)
+            .groups
+        )
+
+        for subkey in subgroups.keys():
+            df_group_two = dframe_grouped.loc[subgroups[subkey]].reset_index(drop=True)
+            df_group_two["Label"] = 0
+
+            df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
+
+            plate_list = get_common_plates(df_group_one, df_group_two)
+
+            def classify_by_plate_helper(plate):
+                df_train, df_test = stratify_by_plate(df_sampled, plate)
+                feat_importances, score = classifier(df_train, df_test)
+                return {plate: [feat_importances, score]}
+
+            result = thread_map(classify_by_plate_helper, plate_list)
+
+            for res in result:
+                feat_list.append(list(res.values())[0][0])
+                group_list.append(key)
+                pair_list.append(f"{key}_{subkey}")
+                plate_name_list.append(list(res.keys())[0])
+                prauc_list.append(list(res.values())[0][1])
+
+    # Store feature importance
+    df_feat_one = pd.DataFrame({'Group1': group_list, 'Group2': pair_list})
+    df_feat_two = pd.DataFrame(feat_list)
+    df_feat = pd.concat([df_feat_one, df_feat_two], axis=1)
+    df_feat["Metadata_Protein"] = protein
+    df_feat["Metadata_Control"] = False
+
+    df_result = pd.DataFrame(
+        {
+            'Group1': group_list,
+            'Group2': pair_list,
+            "Metadata_Plate": plate_name_list,
+            "PR_AUC": prauc_list,
+        }
+    )
+    df_result["Metadata_Protein"] = protein
+    df_result["Metadata_Control"] = False
+    return df_feat, df_result
+
+
+def get_common_plates(dframe1, dframe2):
+    """Helper func: get common plates in two dataframes"""
+    plate_list = list(
+        set(list(dframe1["Metadata_Plate"].unique()))
+        & set(list(dframe2["Metadata_Plate"].unique()))
+    )
+    return plate_list
+
+
+def control_group_runner(
+    dframe: pd.DataFrame,
+    group_key_one="Metadata_gene_allele",
+    group_key_two="Metadata_plate_map_name",
+    group_key_three="Metadata_well_position",
+    threshold_key="Metadata_well_position",
+    protein=True,
+):
+    """
+    Run null control experiments.
+    """
+    dframe = get_protein_features(dframe, protein)
+
+    prauc_list = []
+    group_list = []
+    pair_list = []
+    feat_list = []
+    plate_name_list = []
+
+    groups = dframe.groupby(group_key_one).groups
+
+    for key in tqdm(groups.keys()):
+        # groupby alleles
+        dframe_grouped = dframe.loc[groups[key]].reset_index(drop=True)
+
+        # Skip controls with no replicates
+        if dframe_grouped[threshold_key].unique().size < 2:
+            continue
+            
+        # group by platemap
+        subgroups = dframe_grouped.groupby(group_key_two).groups
+        
+        for key_two in subgroups.keys():
+            dframe_grouped_two = dframe_grouped.loc[subgroups[key_two]].reset_index(drop=True)
+            # If a well is not present on all four plates, drop well
+            well_count = dframe_grouped_two.groupby(['Metadata_Well'])['Metadata_Plate'].nunique()
+            well_to_drop = well_count[well_count<4].index
+            dframe_grouped_two = dframe_grouped_two[~dframe_grouped_two['Metadata_Well'].isin(well_to_drop)].reset_index(drop=True)
+
+            # group by well
+            sub_sub_groups = dframe_grouped_two.groupby(group_key_three).groups
+
+            # Sample 4 out of 6 possible pairwise combinations of well pairs
+            if len(list(sub_sub_groups.keys()))>=4:
+                sampled_pairs = random.choices(
+                    list(combinations(list(sub_sub_groups.keys()), r=2)), k=4
+                )
+            else:
+                sampled_pairs = list(combinations(list(sub_sub_groups.keys()), r=2))
+    
+            for idx1, idx2 in sampled_pairs:
+                df_group_one = dframe_grouped_two.loc[sub_sub_groups[idx1]].reset_index(drop=True)
+                df_group_one["Label"] = 1
+                df_group_two = dframe_grouped_two.loc[sub_sub_groups[idx2]].reset_index(drop=True)
+                df_group_two["Label"] = 0
+                df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
+    
+                plate_list = get_common_plates(df_group_one, df_group_two)
+    
+                def classify_by_plate_helper(plate):
+                    df_train, df_test = stratify_by_plate(df_sampled, plate)
+                    feat_importances, score = classifier(df_train, df_test)
+                    return {plate: [feat_importances, score]}
+    
+                result = thread_map(classify_by_plate_helper, plate_list)
+    
+                for res in result:
+                    feat_list.append(list(res.values())[0][0])
+                    group_list.append(key)
+                    pair_list.append(f"{idx1}_{idx2}")
+                    plate_name_list.append(list(res.keys())[0])
+                    prauc_list.append(list(res.values())[0][1])
+
+    # Store feature importance
+    df_feat_one = pd.DataFrame({'Group1': group_list, 'Group2': pair_list})
+    df_feat_two = pd.DataFrame(feat_list)
+    df_feat = pd.concat([df_feat_one, df_feat_two], axis=1)
+    df_feat["Metadata_Protein"] = protein
+    df_feat["Metadata_Control"] = True
+
+    df_result = pd.DataFrame(
+        {
+            'Group1': group_list,
+            'Group2': pair_list,
+            "Metadata_Plate": plate_name_list,
+            "PR_AUC": prauc_list,
+        }
+    )
+    df_result["Metadata_Protein"] = protein
+    df_result["Metadata_Control"] = True
+    return df_feat, df_result
+
+
+def control_type_helper(col_annot: str):
+    """helper func for annotating column "Metadata_control" """
+    if col_annot in ["TC", "NC", "PC", "cPC", "cNC"]:
+        return True
+    elif col_annot in ["disease_wt", "allele"]:
+        return False
+    else:
+        return None
+
+
+def add_control_annot(dframe):
+    """annotating column "Metadata_control" """
+    if "Metadata_control" not in dframe.columns:
+        dframe["Metadata_control"] = dframe["Metadata_node_type"].apply(
+            lambda x: control_type_helper(x)
+        )
+    return dframe
+
+def drop_low_cc_wells(dframe, thresh_protein=None):
+    # Drop wells with cell counts lower than 5% of all wells
+    dframe['Metadata_Cell_ID'] = dframe.index
+    cell_count = dframe.groupby(
+        ['Metadata_Plate', 'Metadata_Well']
+        )['Metadata_Cell_ID'].count().reset_index(name='Metadata_Cell_Count')
+    
+    if thresh_protein is None:
+        thresh_protein = np.percentile(np.array(cell_count["Metadata_Cell_Count"]), 5)
+    dframe = dframe.merge(
+                    cell_count, 
+                    on=['Metadata_Plate', 'Metadata_Well'],
+                )
+    dframe = dframe[
+        dframe['Metadata_Cell_Count']>thresh_protein
+    ].drop(
+        columns=['Metadata_Cell_Count']
+    ).reset_index(drop=True)
+    return dframe
+
+def run_classify_workflow(
+    input_path: str,
+    feat_output_path: str,
+    result_output_path: str,
+    use_gpu: str | None = "6,7",
+):
+    """
+    Run workflow for single-cell classification
+    """
+    if use_gpu is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = use_gpu
+
+    dframe = pd.read_parquet(input_path)
+    feat_col = find_feat_cols(dframe)
+
+    try:
+        assert (
+            ~np.isnan(dframe[feat_col]).any().any()
+        ), "Dataframe contains no NaN features."
+        assert (
+            np.isfinite(dframe[feat_col]).all().all()
+        ), "Dataframe contains finite feature values."
+    except AssertionError:
+        dframe = remove_nan_infs_columns(dframe)
+
+    # Filter rows with NaN Metadata
+    dframe = dframe[~dframe["Metadata_well_position"].isna()]
+    dframe = add_control_annot(dframe)
+    dframe = dframe[~dframe["Metadata_control"].isna()]
+
+    df_exp = dframe[~dframe["Metadata_control"].astype("bool")].reset_index(drop=True)
+    df_control = dframe[dframe["Metadata_control"].astype("bool")].reset_index(
+        drop=True
+    )
+
+    df_control = df_control[df_control["Metadata_control_type"] != "TC"].reset_index(
+        drop=True
+    )
+    df_control = drop_low_cc_wells(df_control, thresh_protein=8)
+    
+    df_feat_pro_con, df_result_pro_con = control_group_runner(
+        df_control, protein=True
+    )
+    df_feat_pro_exp, df_result_pro_exp = experimental_runner(
+        df_exp, protein=True
+    )
+    df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
+        df_control, protein=False
+    )
+    df_feat_no_pro_exp, df_result_no_pro_exp = experimental_runner(
+        df_exp, protein=False
+    )
+
+    
+
+    df_feat = pd.concat(
+        [df_feat_pro_con, df_feat_no_pro_con, df_feat_pro_exp, df_feat_no_pro_exp],
+        ignore_index=True,
+    )
+    df_result = pd.concat(
+        [
+            df_result_pro_con,
+            df_result_no_pro_con,
+            df_result_pro_exp,
+            df_result_no_pro_exp,
+        ],
+        ignore_index=True,
+    )
+
+    df_feat.to_csv(feat_output_path, index=False)
+    df_result.to_csv(result_output_path, index=False)

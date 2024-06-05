@@ -1,0 +1,13 @@
+configfile: "./inputs/configs/batch8.json"
+
+include: "rules/common.smk"
+include: "rules/preprocess.smk"
+
+BATCH = config["Metadata_Batch"]
+PIPELINE = config["pipeline"]
+
+rule all:
+    input:
+        f"outputs/batch_profiles/{BATCH}/{PIPELINE}.parquet",
+        f"outputs/results/{BATCH}/{PIPELINE}/feat_importance.csv",
+        f"outputs/results/{BATCH}/{PIPELINE}/result.csv",

@@ -134,3 +134,8 @@ dmypy.json
 # DataFrame
 .csv
 .tsv
+.parquet
+.sqlite
+
+# Cytotable log
+runinfo/

@@ -261,13 +261,13 @@ def control_group_runner(controls, control_group, data_dir, feat_col, batch_name
     df_feat.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_feat_importance{feature_type}.csv",index=False)
 
     result_csv = pd.DataFrame(
-    {
-        "Treatment": gene_list,
-        "Well_Pair": pair_list,
-        "Plate": result_plate_list,
-        "F1_Score": f1score_macro_list
-    }
-)
+        {
+            "Treatment": gene_list,
+            "Well_Pair": pair_list,
+            "Plate": result_plate_list,
+            "F1_Score": f1score_macro_list
+        }
+    )
     result_csv.to_csv(f"{data_dir}/{batch_name}_{protein_prefix}_control_f1score{feature_type}.csv",index=False)
     
 
@@ -366,5 +366,6 @@ def main():
         batch_name=batch,
         protein_prefix='non_protein')
 
-main()
+if __name__ == '__main__':
+    main()
             

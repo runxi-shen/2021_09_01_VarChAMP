@@ -7,6 +7,7 @@ from scipy.stats import median_abs_deviation
 import numpy as np
 import pandas as pd
 import polars as pl
+from typing import List, Tuple
 
 import sys
 
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def split_parquet(
     dframe_path, features=None
-) -> tuple[pd.DataFrame, np.ndarray, list[str]]:
+) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
     """Split dframe into metadata, feature values, feature columns"""
     dframe = pd.read_parquet(dframe_path)
     if features is None:

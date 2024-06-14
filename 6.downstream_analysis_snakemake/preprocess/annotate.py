@@ -5,7 +5,7 @@ sys.path.append("..")
 import pandas as pd
 import numpy as np
 from utils import remove_nan_infs_columns
-
+from typing import List
 
 def get_platemap(csv_path: str, plate: str) -> str:
     """Get the platemap .txt file"""
@@ -37,7 +37,7 @@ def annotate_with_platemap(
     aligned_df.to_parquet(path=output_file_path, compression="gzip", index=False)
 
 
-def aggregate(plate_list: list[str], output_path: str):
+def aggregate(plate_list: List[str], output_path: str):
     """Aggregate profiles and save"""
     df_plate_list = []
     for file in plate_list:

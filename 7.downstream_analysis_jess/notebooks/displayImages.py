@@ -271,6 +271,7 @@ def plotMultiImages(df, sel_channel, max_intensity, n_rows, display=True, plotpa
         site = img['Site']
         well = img['Well']
         rep = img['Replicate']
+        allele = img['Allele']
         
         # construct image name and aws path
         letter = well[0]
@@ -284,7 +285,7 @@ def plotMultiImages(df, sel_channel, max_intensity, n_rows, display=True, plotpa
 
         channel = channel_dict[sel_channel]
         
-        plot_label = f"{sel_channel}: platemap = {sel_plate}, rep = {rep}, site = {site}, well = {well}"
+        plot_label = f"{sel_channel}: {sel_plate}, {rep}, {site}, {well}, {allele}"
         
         if sel_channel == "GFP":
             cmap = mpl.colors.LinearSegmentedColormap.from_list("green_cmap", ["#000","#65fe08"])
@@ -316,9 +317,18 @@ def plotMultiImages(df, sel_channel, max_intensity, n_rows, display=True, plotpa
         
         # Plotting the image
         ax = axes[counter]
-        im = ax.imshow(img, vmin=0, vmax=max_intensity, cmap=cmap)
+        if isinstance(max_intensity, int):
+            im = ax.imshow(img, vmin=0, vmax=max_intensity, cmap=cmap)
+        else:
+            int_perc = np.percentile(img, max_intensity*100)
+            im = ax.imshow(img, vmin=0, vmax=int_perc, cmap=cmap)
+            
         ax.axis("off")
         ax.text(20, 30, plot_label, color='white', bbox=dict(facecolor='black', alpha=0.5, linewidth=2))
+        
+        int_95 = str(int(round(np.percentile(img, 95))))
+        ax.text(0.95, 0.05, int_95, color='white', fontsize=20,
+        verticalalignment='bottom', horizontalalignment='right', transform=ax.transAxes)
         
         # increase axis index
         counter = counter + 1

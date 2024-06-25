@@ -7,89 +7,57 @@ import sys
 
 import numpy as np
 import pandas as pd
+import polars as pl
 from tqdm import tqdm
 from tqdm.contrib.concurrent import thread_map
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import precision_recall_curve, auc
 import xgboost as xgb
+from typing import Union
+import pyarrow.parquet as pq
+import pyarrow as pa
+import cupy as cp
 
 warnings.filterwarnings("ignore")
 sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
-def drop_top_control_feat(sc_profiles, feat_rank_dir, percent_dropping=0.1):
-    """
-    This function drops the features with highest weight in previous run of control experiments.
-    """
-    df_protein_feat_rank = pd.read_csv(f"{feat_rank_dir}/ctrl_protein_feat_rank.csv")
-    df_non_protein_feat_rank = pd.read_csv(
-        f"{feat_rank_dir}/ctrl_non_protein_feat_rank.csv"
-    )
-
-    df_protein_drop = list(
-        df_protein_feat_rank["feature"][
-            0 : int(df_protein_feat_rank.shape[0] * percent_dropping)
-        ]
-    )
-    df_non_protein_drop = list(
-        df_non_protein_feat_rank["feature"][
-            0 : int(df_non_protein_feat_rank.shape[0] * percent_dropping)
-        ]
-    )
-    sc_profiles.drop(df_protein_drop + df_non_protein_drop, axis=1, inplace=True)
-    print(
-        f"Removed {len(df_protein_drop+df_non_protein_drop)} features that dominated control predictions."
-    )
-    return sc_profiles
-
-
-def drop_meta_null(sc_profiles, check_col="Metadata_Batch"):
-    """
-    This function drops the rows that contain null value in metadata (failure in merging).
-    """
-    row_count = int(sc_profiles.shape[0])
-    sc_profiles.drop(np.where(sc_profiles[check_col].isna())[0], axis=0, inplace=True)
-    sc_profiles.reset_index(drop=True, inplace=True)
-    print(f"Removed {row_count-sc_profiles.shape[0]} rows with NaN metadata values.")
-    return sc_profiles
-
 
 def classifier(
-    all_profiles_train,
-    all_profiles_test,
+    df_train,
+    df_test,
     target="Label",
-    evaluate=False,
     shuffle=False
 ):
     """
     This function runs classification.
     """
-    feat_col = find_feat_cols(all_profiles_train)
+    
+    feat_col = find_feat_cols(df_train)
     feat_col.remove(target)
     
-    x_train, y_train = all_profiles_train[feat_col], all_profiles_train[[target]]
-    x_test, y_test = all_profiles_test[feat_col], all_profiles_test[[target]]
+    x_train, y_train = cp.array(df_train[feat_col].to_numpy()), df_train[[target]]
+    x_test, y_test = cp.array(df_test[feat_col].to_numpy()), df_test[[target]]
 
-    num_pos = all_profiles_train[all_profiles_train[target]==1].shape[0]
-    num_neg = all_profiles_train[all_profiles_train[target]==0].shape[0]
+    num_pos = df_train[df_train[target]==1].shape[0]
+    num_neg = df_train[df_train[target]==0].shape[0]
 
     if (num_pos==0) or (num_neg==0):
         print(f'size of pos: {num_pos}, size of neg: {num_neg}')
-        feat_importances = pd.Series(np.nan, index=x_train.columns)
+        feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
         return feat_importances, np.nan
     
     scale_pos_weight = num_neg/num_pos
 
     if (scale_pos_weight > 100) or (scale_pos_weight < 0.01):
         print(f'scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}')
-        feat_importances = pd.Series(np.nan, index=x_train.columns)
+        feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
         return feat_importances, np.nan
 
     le = LabelEncoder()
-    y_train = le.fit_transform(y_train)
-    y_test = le.fit_transform(y_test)
+    y_train = cp.array(le.fit_transform(y_train))
+    y_test = cp.array(le.fit_transform(y_test))
 
-    # x_train_cp, y_train_cp, x_test_cp = cp.array(x_train), cp.array(y_train), cp.array(x_test)
     if shuffle:
         # Create shuffled train labels
         y_train_shuff = y_train.copy()
@@ -99,21 +67,44 @@ def classifier(
         objective="binary:logistic",
         n_estimators=150,
         tree_method="hist",
+        device="cuda",
         learning_rate=0.05,
         scale_pos_weight=scale_pos_weight
-        # device="cuda:7",
     ).fit(x_train, y_train, verbose=False)
 
-    preds = model.predict(x_test)
+    # get predictions and scores
+    pred_score = model.predict_proba(x_test)[:, 1]
+    
+    # Return classifier info
+    info_0 = df_test[df_test['Label'] == 0].iloc[0]
+    info_1 = df_test[df_test['Label'] == 1].iloc[0]
+    class_ID = info_0["Metadata_Plate"] + "_" + info_0["Metadata_well_position"] + "_" + info_1["Metadata_well_position"]
+    classifier_df = pd.DataFrame({
+        "Classifier_ID": [class_ID],
+        "Plate": [info_0["Metadata_Plate"]],
+        "trainsize_0": [sum(y_train.get() == 0)],
+        "testsize_0": [sum(y_test.get() == 0)],
+        "well_0": [info_0["Metadata_well_position"]],
+        "allele_0": [info_0["Metadata_gene_allele"]],
+        "trainsize_1": [sum(y_train.get() == 1)],
+        "testsize_1": [sum(y_test.get() == 1)],
+        "well_1": [info_1["Metadata_well_position"]],
+        "allele_1": [info_1["Metadata_gene_allele"]]
+    })
 
     # Store feature importance
-    feat_importances = pd.Series(model.feature_importances_, index=x_train.columns)
+    feat_importances = pd.Series(model.feature_importances_, index=df_train[feat_col].columns)
+    
+    # Return cell-level predictions
+    cellID = df_test.apply(lambda row: f"{row['Metadata_Plate']}_{row['Metadata_well_position']}_{row['Metadata_ImageNumber']}_{row['Metadata_ObjectNumber']}",
+                            axis=1).to_list()
+    
+    pred_df = pd.DataFrame({"Classifier_ID": class_ID,
+                            "CellID": cellID,
+                            "Label": y_test.get(),
+                            "Prediction": pred_score})
 
-    # Evaluate with metrics
-    precision, recall, _ = precision_recall_curve(y_test, preds)
-    pr_auc = auc(recall, precision)
-
-    return feat_importances, pr_auc
+    return feat_importances, classifier_df, pred_df
 
 
 def get_protein_features(dframe: pd.DataFrame, protein_feat: bool):
@@ -157,9 +148,9 @@ def stratify_by_plate(df_sampled: pd.DataFrame, plate: str):
 
     return df_train, df_test
 
-
 def experimental_runner(
-    dframe: pd.DataFrame,
+    exp_dframe: pd.DataFrame,
+    pq_writer,
     protein=True,
     group_key_one="Metadata_symbol",
     group_key_two="Metadata_gene_allele",
@@ -168,18 +159,18 @@ def experimental_runner(
     """
     Run Reference v.s. Variant experiments
     """
-    dframe = get_protein_features(dframe, protein)
+    exp_dframe = get_protein_features(exp_dframe, protein)
+    feat_cols = find_feat_cols(exp_dframe)
+    feat_cols = [i for i in feat_cols if i != "Label"]
 
-    prauc_list = []
     group_list = []
     pair_list = []
     feat_list = []
-    plate_name_list = []
-
-    groups = dframe.groupby(group_key_one).groups
-
+    info_list = []
+    
+    groups = exp_dframe.groupby(group_key_one).groups
     for key in tqdm(groups.keys()):
-        dframe_grouped = dframe.loc[groups[key]].reset_index(drop=True)
+        dframe_grouped = exp_dframe.loc[groups[key]].reset_index(drop=True)
 
         # Ensure this gene has both reference and variants
         if dframe_grouped[threshold_key].unique().size < 2:
@@ -206,17 +197,35 @@ def experimental_runner(
 
             def classify_by_plate_helper(plate):
                 df_train, df_test = stratify_by_plate(df_sampled, plate)
-                feat_importances, score = classifier(df_train, df_test)
-                return {plate: [feat_importances, score]}
+                feat_importances, classifier_info, predictions = classifier(df_train, df_test)
+                return {plate: [feat_importances, classifier_info, predictions]}
 
-            result = thread_map(classify_by_plate_helper, plate_list)
+            # try run classifier
+            try:
+                result = thread_map(classify_by_plate_helper, plate_list)
 
-            for res in result:
-                feat_list.append(list(res.values())[0][0])
-                group_list.append(key)
-                pair_list.append(f"{key}_{subkey}")
-                plate_name_list.append(list(res.keys())[0])
-                prauc_list.append(list(res.values())[0][1])
+                pred_list = []
+                for res in result:
+                    if len(list(res.values())[0]) == 3:
+                        feat_list.append(list(res.values())[0][0])
+                        group_list.append(key)
+                        pair_list.append(f"{key}_{subkey}")
+                        info_list.append(list(res.values())[0][1])
+                        pred_list.append(list(res.values())[0][2])
+                    else:
+                        print("res length not 3!")
+                        feat_list.append([None]*len(feat_cols))
+                        group_list.append(key)
+                        pair_list.append(f"{key}_{subkey}")
+                        info_list.append([None]*10)
+                
+                cell_preds = pd.concat(pred_list, axis=0)
+                cell_preds["Metadata_Protein"] = protein
+                cell_preds["Metadata_Control"] = False
+                table = pa.Table.from_pandas(cell_preds, preserve_index=False)
+                pq_writer.write_table(table)
+            except Exception as e:
+                print(e)
 
     # Store feature importance
     df_feat_one = pd.DataFrame({'Group1': group_list, 'Group2': pair_list})
@@ -225,15 +234,8 @@ def experimental_runner(
     df_feat["Metadata_Protein"] = protein
     df_feat["Metadata_Control"] = False
 
-    df_result = pd.DataFrame(
-        {
-            'Group1': group_list,
-            'Group2': pair_list,
-            "Metadata_Plate": plate_name_list,
-            "PR_AUC": prauc_list,
-        }
-    )
-    df_result["Metadata_Protein"] = protein
+    # process classifier info
+    df_result = pd.concat(info_list, ignore_index=True)
     df_result["Metadata_Control"] = False
     return df_feat, df_result
 
@@ -248,7 +250,8 @@ def get_common_plates(dframe1, dframe2):
 
 
 def control_group_runner(
-    dframe: pd.DataFrame,
+    ctrl_dframe: pd.DataFrame,
+    pq_writer,
     group_key_one="Metadata_gene_allele",
     group_key_two="Metadata_plate_map_name",
     group_key_three="Metadata_well_position",
@@ -257,20 +260,21 @@ def control_group_runner(
 ):
     """
     Run null control experiments.
-    """
-    dframe = get_protein_features(dframe, protein)
+    """  
+    ctrl_dframe = get_protein_features(ctrl_dframe, protein)
+    feat_cols = find_feat_cols(ctrl_dframe)
+    feat_cols = [i for i in feat_cols if i != "Label"]
 
-    prauc_list = []
     group_list = []
     pair_list = []
     feat_list = []
-    plate_name_list = []
+    info_list = []
 
-    groups = dframe.groupby(group_key_one).groups
+    groups = ctrl_dframe.groupby(group_key_one).groups
 
     for key in tqdm(groups.keys()):
         # groupby alleles
-        dframe_grouped = dframe.loc[groups[key]].reset_index(drop=True)
+        dframe_grouped = ctrl_dframe.loc[groups[key]].reset_index(drop=True)
 
         # Skip controls with no replicates
         if dframe_grouped[threshold_key].unique().size < 2:
@@ -288,14 +292,7 @@ def control_group_runner(
 
             # group by well
             sub_sub_groups = dframe_grouped_two.groupby(group_key_three).groups
-
-            # Sample 4 out of 6 possible pairwise combinations of well pairs
-            if len(list(sub_sub_groups.keys()))>=4:
-                sampled_pairs = random.choices(
-                    list(combinations(list(sub_sub_groups.keys()), r=2)), k=4
-                )
-            else:
-                sampled_pairs = list(combinations(list(sub_sub_groups.keys()), r=2))
+            sampled_pairs = list(combinations(list(sub_sub_groups.keys()), r=2))
     
             for idx1, idx2 in sampled_pairs:
                 df_group_one = dframe_grouped_two.loc[sub_sub_groups[idx1]].reset_index(drop=True)
@@ -303,22 +300,39 @@ def control_group_runner(
                 df_group_two = dframe_grouped_two.loc[sub_sub_groups[idx2]].reset_index(drop=True)
                 df_group_two["Label"] = 0
                 df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
-    
-                plate_list = get_common_plates(df_group_one, df_group_two)
-    
-                def classify_by_plate_helper(plate):
-                    df_train, df_test = stratify_by_plate(df_sampled, plate)
-                    feat_importances, score = classifier(df_train, df_test)
-                    return {plate: [feat_importances, score]}
-    
-                result = thread_map(classify_by_plate_helper, plate_list)
-    
-                for res in result:
-                    feat_list.append(list(res.values())[0][0])
-                    group_list.append(key)
-                    pair_list.append(f"{idx1}_{idx2}")
-                    plate_name_list.append(list(res.keys())[0])
-                    prauc_list.append(list(res.values())[0][1])
+
+                try:
+                    plate_list = get_common_plates(df_group_one, df_group_two)
+        
+                    def classify_by_plate_helper(plate):
+                        df_train, df_test = stratify_by_plate(df_sampled, plate)
+                        feat_importances, classifier_info, predictions = classifier(df_train, df_test)
+                        return {plate: [feat_importances, classifier_info, predictions]}
+        
+                    result = thread_map(classify_by_plate_helper, plate_list)
+                    
+                    pred_list = []
+                    for res in result:
+                        if len(list(res.values())[0]) == 3:
+                            feat_list.append(list(res.values())[0][0])
+                            group_list.append(key)
+                            pair_list.append(f"{idx1}_{idx2}")
+                            info_list.append(list(res.values())[0][1])
+                            pred_list.append(list(res.values())[0][2])
+                        else:
+                            print("res length does not equal three!")
+                            feat_list.append([None]*len(feat_cols))
+                            group_list.append(key)
+                            pair_list.append(f"{idx1}_{idx2}")
+                            info_list.append([None]*10) 
+                
+                    cell_preds = pd.concat(pred_list, axis=0)
+                    cell_preds["Metadata_Protein"] = protein
+                    cell_preds["Metadata_Control"] = True
+                    table = pa.Table.from_pandas(cell_preds, preserve_index=False)
+                    pq_writer.write_table(table)
+                except Exception as e:
+                    print(e)            
 
     # Store feature importance
     df_feat_one = pd.DataFrame({'Group1': group_list, 'Group2': pair_list})
@@ -327,15 +341,8 @@ def control_group_runner(
     df_feat["Metadata_Protein"] = protein
     df_feat["Metadata_Control"] = True
 
-    df_result = pd.DataFrame(
-        {
-            'Group1': group_list,
-            'Group2': pair_list,
-            "Metadata_Plate": plate_name_list,
-            "PR_AUC": prauc_list,
-        }
-    )
-    df_result["Metadata_Protein"] = protein
+    # process classifier info
+    df_result = pd.concat(info_list, ignore_index=True)
     df_result["Metadata_Control"] = True
     return df_feat, df_result
 
@@ -381,8 +388,9 @@ def drop_low_cc_wells(dframe, thresh_protein=None):
 def run_classify_workflow(
     input_path: str,
     feat_output_path: str,
-    result_output_path: str,
-    use_gpu: str | None = "6,7",
+    info_output_path: str,
+    preds_output_path: str,
+    use_gpu: Union[str, None] = "6,7",
 ):
     """
     Run workflow for single-cell classification
@@ -390,6 +398,20 @@ def run_classify_workflow(
     if use_gpu is not None:
         os.environ["CUDA_VISIBLE_DEVICES"] = use_gpu
 
+    # Initialize parquet for cell-level predictions
+    if os.path.exists(preds_output_path):
+        os.remove(preds_output_path)
+    schema = pa.schema([
+        ('Classifier_ID', pa.string()),
+        ('CellID', pa.string()),
+        ('Label', pa.int64()),
+        ('Prediction', pa.float32()),
+        ('Metadata_Protein', pa.bool_()),
+        ('Metadata_Control', pa.bool_()),
+    ])
+    writer = pq.ParquetWriter(preds_output_path, schema, compression='gzip')
+    
+    # read in input data
     dframe = pd.read_parquet(input_path)
     feat_col = find_feat_cols(dframe)
 
@@ -416,22 +438,21 @@ def run_classify_workflow(
     df_control = df_control[df_control["Metadata_control_type"] != "TC"].reset_index(
         drop=True
     )
-    df_control = drop_low_cc_wells(df_control, thresh_protein=8)
+    #df_control = drop_low_cc_wells(df_control, thresh_protein=8)
     
     df_feat_pro_con, df_result_pro_con = control_group_runner(
-        df_control, protein=True
+        df_control, pq_writer=writer, protein=True
     )
     df_feat_pro_exp, df_result_pro_exp = experimental_runner(
-        df_exp, protein=True
+        df_exp, pq_writer=writer, protein=True
     )
     df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
-        df_control, protein=False
+        df_control, pq_writer=writer, protein=False
     )
     df_feat_no_pro_exp, df_result_no_pro_exp = experimental_runner(
-        df_exp, protein=False
+        df_exp, pq_writer=writer, protein=False
     )
-
-    
+    writer.close()
 
     df_feat = pd.concat(
         [df_feat_pro_con, df_feat_no_pro_con, df_feat_pro_exp, df_feat_no_pro_exp],
@@ -446,6 +467,7 @@ def run_classify_workflow(
         ],
         ignore_index=True,
     )
+    df_result = df_result.drop_duplicates()
 
     df_feat.to_csv(feat_output_path, index=False)
-    df_result.to_csv(result_output_path, index=False)
+    df_result.to_csv(info_output_path, index=False)

@@ -102,7 +102,8 @@ rule classify:
         "outputs/batch_profiles/{batch}/{pipeline}.parquet"
     output:
         "outputs/results/{batch}/{pipeline}/feat_importance.csv",
-        "outputs/results/{batch}/{pipeline}/result.csv",
+        "outputs/results/{batch}/{pipeline}/classifier_info.csv",
+        "outputs/results/{batch}/{pipeline}/predictions.parquet",
     benchmark:
         "benchmarks/{pipeline}_classify_{batch}.bwa.benchmark.txt"
     run:

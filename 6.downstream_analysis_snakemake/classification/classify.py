@@ -22,7 +22,6 @@ warnings.filterwarnings("ignore")
 sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
-
 def classifier(
     df_train,
     df_test,
@@ -390,7 +389,8 @@ def run_classify_workflow(
     feat_output_path: str,
     info_output_path: str,
     preds_output_path: str,
-    use_gpu: Union[str, None] = "6,7",
+    filter_cells: bool,
+    use_gpu: Union[str, None] = "6,7"
 ):
     """
     Run workflow for single-cell classification
@@ -411,8 +411,26 @@ def run_classify_workflow(
     ])
     writer = pq.ParquetWriter(preds_output_path, schema, compression='gzip')
     
-    # read in input data
-    dframe = pd.read_parquet(input_path)
+    if filter_cells:
+        # filter cells based on nuclear:cellular area
+        profiles_path = input_path.replace("profiles_tcdropped_filtered_var_mad_outlier_featselect", "profiles")
+        cell_IDs = pl.scan_parquet(profiles_path).select(
+            ['Metadata_well_position', 'Metadata_Plate', 'Metadata_ImageNumber', 'Metadata_ObjectNumber', 'Nuclei_AreaShape_Area', 'Cells_AreaShape_Area']
+            ).with_columns(
+                (pl.col("Nuclei_AreaShape_Area")/pl.col("Cells_AreaShape_Area")).alias("Nucleus_Cell_Area"),
+                pl.concat_str(['Metadata_Plate', 'Metadata_well_position', 'Metadata_ImageNumber', 'Metadata_ObjectNumber'], separator="_").alias("Metadata_CellID")
+        ).filter((pl.col("Nucleus_Cell_Area") > 0.1) & (pl.col("Nucleus_Cell_Area") < 0.4)).collect()
+        cell_IDs = cell_IDs.select("Metadata_CellID").to_series().to_list()
+        
+        # read in input data
+        dframe = pl.scan_parquet(input_path).with_columns(
+            pl.concat_str(['Metadata_Plate', 'Metadata_well_position', 'Metadata_ImageNumber', 'Metadata_ObjectNumber'], separator="_").alias("Metadata_CellID")
+        ).filter(pl.col("Metadata_CellID").is_in(cell_IDs)).collect().to_pandas()
+    else:
+        dframe = pl.scan_parquet(input_path).with_columns(
+            pl.concat_str(['Metadata_Plate', 'Metadata_well_position', 'Metadata_ImageNumber', 'Metadata_ObjectNumber'], separator="_").alias("Metadata_CellID")
+            ).collect().to_pandas()
+    
     feat_col = find_feat_cols(dframe)
 
     try:

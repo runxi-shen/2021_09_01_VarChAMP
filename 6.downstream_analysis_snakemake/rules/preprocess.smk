@@ -103,8 +103,8 @@ rule classify:
     output:
         "outputs/results/{batch}/{pipeline}/feat_importance.csv",
         "outputs/results/{batch}/{pipeline}/classifier_info.csv",
-        "outputs/results/{batch}/{pipeline}/predictions.parquet",
+        "outputs/results/{batch}/{pipeline}/predictions.parquet"
     benchmark:
         "benchmarks/{pipeline}_classify_{batch}.bwa.benchmark.txt"
     run:
-        classification.run_classify_workflow(*input, *output)
+        classification.run_classify_workflow(*input, *output, config['filter_cells'])

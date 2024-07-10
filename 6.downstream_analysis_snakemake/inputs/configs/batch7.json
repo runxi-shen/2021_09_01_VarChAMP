@@ -4,5 +4,6 @@
     "parallel": true,
     "pipeline": "profiles_tcdropped_filtered_var_mad_outlier_featselect",
     "transfection_col": "Metadata_control_type",
-    "trasfection_pert": ["TC"]
+    "trasfection_pert": ["TC"],
+    "filter_cells": true
 }

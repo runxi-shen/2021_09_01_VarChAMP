@@ -135,4 +135,4 @@ rule classify:
     benchmark:
         "benchmarks/{pipeline}_classify_{batch}.bwa.benchmark.txt"
     run:
-        classification.run_classify_workflow(*input, *output)
+        classification.run_classify_workflow(*input, *output, config["cc_threshold"])

@@ -115,7 +115,7 @@ def classifier(df_train, df_test, target="Label", shuffle=False):
     return feat_importances, classifier_df, pred_df
 
 
-def get_protein_features(dframe: pd.DataFrame, protein_feat: bool):
+def get_classifier_features(dframe: pd.DataFrame, protein_feat: bool):
     """Helper function to get dframe containing protein or non-protein features"""
     feat_col = find_feat_cols(dframe)
     meta_col = find_meta_cols(dframe)
@@ -132,7 +132,9 @@ def get_protein_features(dframe: pd.DataFrame, protein_feat: bool):
         ]
     else:
         feat_col = [
-            i for i in feat_col if ("GFP" not in i) and ("Brightfield" not in i)
+            i
+            for i in feat_col
+            if ("GFP" not in i) and ("Brightfield" not in i) and ("AGP" not in i)
         ]
 
     dframe = pd.concat([dframe[meta_col], dframe[feat_col]], axis=1)
@@ -165,7 +167,7 @@ def experimental_runner(
     """
     Run Reference v.s. Variant experiments
     """
-    exp_dframe = get_protein_features(exp_dframe, protein)
+    exp_dframe = get_classifier_features(exp_dframe, protein)
     feat_cols = find_feat_cols(exp_dframe)
     feat_cols = [i for i in feat_cols if i != "Label"]
 
@@ -269,7 +271,7 @@ def control_group_runner(
     """
     Run null control experiments.
     """
-    ctrl_dframe = get_protein_features(ctrl_dframe, protein)
+    ctrl_dframe = get_classifier_features(ctrl_dframe, protein)
     feat_cols = find_feat_cols(ctrl_dframe)
     feat_cols = [i for i in feat_cols if i != "Label"]
 
@@ -386,8 +388,9 @@ def add_control_annot(dframe):
     return dframe
 
 
-def drop_low_cc_wells(dframe, thresh_protein=None):
-    # Drop wells with cell counts lower than 5% of all wells
+def drop_low_cc_wells(dframe, cc_thresh):
+    # Drop wells with cell counts lower than the threshold
+
     dframe["Metadata_Cell_ID"] = dframe.index
     cell_count = (
         dframe.groupby(["Metadata_Plate", "Metadata_Well"])["Metadata_Cell_ID"]
@@ -395,14 +398,12 @@ def drop_low_cc_wells(dframe, thresh_protein=None):
         .reset_index(name="Metadata_Cell_Count")
     )
 
-    if thresh_protein is None:
-        thresh_protein = np.percentile(np.array(cell_count["Metadata_Cell_Count"]), 5)
     dframe = dframe.merge(
         cell_count,
         on=["Metadata_Plate", "Metadata_Well"],
     )
     dframe = (
-        dframe[dframe["Metadata_Cell_Count"] > thresh_protein]
+        dframe[dframe["Metadata_Cell_Count"] > cc_thresh]
         .drop(columns=["Metadata_Cell_Count"])
         .reset_index(drop=True)
     )
@@ -414,7 +415,7 @@ def run_classify_workflow(
     feat_output_path: str,
     info_output_path: str,
     preds_output_path: str,
-    filter_cells: bool,
+    cc_threshold: int,
     use_gpu: Union[str, None] = "6,7",
 ):
     """
@@ -436,78 +437,23 @@ def run_classify_workflow(
     ])
     writer = pq.ParquetWriter(preds_output_path, schema, compression="gzip")
 
-    if filter_cells:
-        # filter cells based on nuclear:cellular area
-        profiles_path = input_path.replace(
-            "profiles_tcdropped_filtered_var_mad_outlier_featselect", "profiles"
+    # Add CellID column
+    dframe = (
+        pl.scan_parquet(input_path)
+        .with_columns(
+            pl.concat_str(
+                [
+                    "Metadata_Plate",
+                    "Metadata_well_position",
+                    "Metadata_ImageNumber",
+                    "Metadata_ObjectNumber",
+                ],
+                separator="_",
+            ).alias("Metadata_CellID")
         )
-        cell_IDs = (
-            pl.scan_parquet(profiles_path)
-            .select([
-                "Metadata_well_position",
-                "Metadata_Plate",
-                "Metadata_ImageNumber",
-                "Metadata_ObjectNumber",
-                "Nuclei_AreaShape_Area",
-                "Cells_AreaShape_Area",
-            ])
-            .with_columns(
-                (
-                    pl.col("Nuclei_AreaShape_Area") / pl.col("Cells_AreaShape_Area")
-                ).alias("Nucleus_Cell_Area"),
-                pl.concat_str(
-                    [
-                        "Metadata_Plate",
-                        "Metadata_well_position",
-                        "Metadata_ImageNumber",
-                        "Metadata_ObjectNumber",
-                    ],
-                    separator="_",
-                ).alias("Metadata_CellID"),
-            )
-            .filter(
-                (pl.col("Nucleus_Cell_Area") > 0.1)
-                & (pl.col("Nucleus_Cell_Area") < 0.4)
-            )
-            .collect()
-        )
-        cell_IDs = cell_IDs.select("Metadata_CellID").to_series().to_list()
-
-        # read in input data
-        dframe = (
-            pl.scan_parquet(input_path)
-            .with_columns(
-                pl.concat_str(
-                    [
-                        "Metadata_Plate",
-                        "Metadata_well_position",
-                        "Metadata_ImageNumber",
-                        "Metadata_ObjectNumber",
-                    ],
-                    separator="_",
-                ).alias("Metadata_CellID")
-            )
-            .filter(pl.col("Metadata_CellID").is_in(cell_IDs))
-            .collect()
-            .to_pandas()
-        )
-    else:
-        dframe = (
-            pl.scan_parquet(input_path)
-            .with_columns(
-                pl.concat_str(
-                    [
-                        "Metadata_Plate",
-                        "Metadata_well_position",
-                        "Metadata_ImageNumber",
-                        "Metadata_ObjectNumber",
-                    ],
-                    separator="_",
-                ).alias("Metadata_CellID")
-            )
-            .collect()
-            .to_pandas()
-        )
+        .collect()
+        .to_pandas()
+    )
 
     feat_col = find_feat_cols(dframe)
 
@@ -526,22 +472,30 @@ def run_classify_workflow(
     dframe = add_control_annot(dframe)
     dframe = dframe[~dframe["Metadata_control"].isna()]
 
+    # Split data into controls and alleles
     df_exp = dframe[~dframe["Metadata_control"].astype("bool")].reset_index(drop=True)
     df_control = dframe[dframe["Metadata_control"].astype("bool")].reset_index(
         drop=True
     )
 
+    # Remove any remaining TC from analysis
     df_control = df_control[df_control["Metadata_control_type"] != "TC"].reset_index(
         drop=True
     )
-    # df_control = drop_low_cc_wells(df_control, thresh_protein=8)
 
+    # Filter out wells with fewer than the cell count threhsold
+    df_control = drop_low_cc_wells(df_control, cc_threshold)
+    df_exp = drop_low_cc_wells(df_exp, cc_threshold)
+
+    # Protein feature analysis
     df_feat_pro_con, df_result_pro_con = control_group_runner(
         df_control, pq_writer=writer, protein=True
     )
     df_feat_pro_exp, df_result_pro_exp = experimental_runner(
         df_exp, pq_writer=writer, protein=True
     )
+
+    # Non-protein feature analysis
     df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
         df_control, pq_writer=writer, protein=False
     )
@@ -550,6 +504,7 @@ def run_classify_workflow(
     )
     writer.close()
 
+    # Concatenate results for both protein and non-protein
     df_feat = pd.concat(
         [df_feat_pro_con, df_feat_no_pro_con, df_feat_pro_exp, df_feat_no_pro_exp],
         ignore_index=True,
@@ -565,5 +520,6 @@ def run_classify_workflow(
     )
     df_result = df_result.drop_duplicates()
 
+    # Write out feature importance and classifier info
     df_feat.to_csv(feat_output_path, index=False)
     df_result.to_csv(info_output_path, index=False)

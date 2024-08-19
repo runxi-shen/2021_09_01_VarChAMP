@@ -1,55 +1,52 @@
 """Classification pipeline"""
-import random
-from itertools import combinations
-import os
-import warnings
-import sys
 
+import os
+import sys
+import warnings
+from itertools import combinations
+from typing import Union
+
+import cupy as cp
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow as pa
+import pyarrow.parquet as pq
+import xgboost as xgb
+from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 from tqdm.contrib.concurrent import thread_map
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import precision_recall_curve, auc
-import xgboost as xgb
-from typing import Union
-import pyarrow.parquet as pq
-import pyarrow as pa
-import cupy as cp
 
 warnings.filterwarnings("ignore")
 sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
-def classifier(
-    df_train,
-    df_test,
-    target="Label",
-    shuffle=False
-):
+
+def classifier(df_train, df_test, target="Label", shuffle=False):
     """
     This function runs classification.
     """
-    
+
     feat_col = find_feat_cols(df_train)
     feat_col.remove(target)
-    
+
     x_train, y_train = cp.array(df_train[feat_col].to_numpy()), df_train[[target]]
     x_test, y_test = cp.array(df_test[feat_col].to_numpy()), df_test[[target]]
 
-    num_pos = df_train[df_train[target]==1].shape[0]
-    num_neg = df_train[df_train[target]==0].shape[0]
+    num_pos = df_train[df_train[target] == 1].shape[0]
+    num_neg = df_train[df_train[target] == 0].shape[0]
 
-    if (num_pos==0) or (num_neg==0):
-        print(f'size of pos: {num_pos}, size of neg: {num_neg}')
+    if (num_pos == 0) or (num_neg == 0):
+        print(f"size of pos: {num_pos}, size of neg: {num_neg}")
         feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
         return feat_importances, np.nan
-    
-    scale_pos_weight = num_neg/num_pos
+
+    scale_pos_weight = num_neg / num_pos
 
     if (scale_pos_weight > 100) or (scale_pos_weight < 0.01):
-        print(f'scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}')
+        print(
+            f"scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}"
+        )
         feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
         return feat_importances, np.nan
 
@@ -68,16 +65,22 @@ def classifier(
         tree_method="hist",
         device="cuda",
         learning_rate=0.05,
-        scale_pos_weight=scale_pos_weight
+        scale_pos_weight=scale_pos_weight,
     ).fit(x_train, y_train, verbose=False)
 
     # get predictions and scores
     pred_score = model.predict_proba(x_test)[:, 1]
-    
+
     # Return classifier info
-    info_0 = df_test[df_test['Label'] == 0].iloc[0]
-    info_1 = df_test[df_test['Label'] == 1].iloc[0]
-    class_ID = info_0["Metadata_Plate"] + "_" + info_0["Metadata_well_position"] + "_" + info_1["Metadata_well_position"]
+    info_0 = df_test[df_test["Label"] == 0].iloc[0]
+    info_1 = df_test[df_test["Label"] == 1].iloc[0]
+    class_ID = (
+        info_0["Metadata_Plate"]
+        + "_"
+        + info_0["Metadata_well_position"]
+        + "_"
+        + info_1["Metadata_well_position"]
+    )
     classifier_df = pd.DataFrame({
         "Classifier_ID": [class_ID],
         "Plate": [info_0["Metadata_Plate"]],
@@ -88,20 +91,26 @@ def classifier(
         "trainsize_1": [sum(y_train.get() == 1)],
         "testsize_1": [sum(y_test.get() == 1)],
         "well_1": [info_1["Metadata_well_position"]],
-        "allele_1": [info_1["Metadata_gene_allele"]]
+        "allele_1": [info_1["Metadata_gene_allele"]],
     })
 
     # Store feature importance
-    feat_importances = pd.Series(model.feature_importances_, index=df_train[feat_col].columns)
-    
+    feat_importances = pd.Series(
+        model.feature_importances_, index=df_train[feat_col].columns
+    )
+
     # Return cell-level predictions
-    cellID = df_test.apply(lambda row: f"{row['Metadata_Plate']}_{row['Metadata_well_position']}_{row['Metadata_ImageNumber']}_{row['Metadata_ObjectNumber']}",
-                            axis=1).to_list()
-    
-    pred_df = pd.DataFrame({"Classifier_ID": class_ID,
-                            "CellID": cellID,
-                            "Label": y_test.get(),
-                            "Prediction": pred_score})
+    cellID = df_test.apply(
+        lambda row: f"{row['Metadata_Plate']}_{row['Metadata_well_position']}_{row['Metadata_ImageNumber']}_{row['Metadata_ObjectNumber']}",
+        axis=1,
+    ).to_list()
+
+    pred_df = pd.DataFrame({
+        "Classifier_ID": class_ID,
+        "CellID": cellID,
+        "Label": y_test.get(),
+        "Prediction": pred_score,
+    })
 
     return feat_importances, classifier_df, pred_df
 
@@ -123,10 +132,7 @@ def get_protein_features(dframe: pd.DataFrame, protein_feat: bool):
         ]
     else:
         feat_col = [
-            i 
-            for i in feat_col 
-            if ("GFP" not in i) 
-            and ("Brightfield" not in i)
+            i for i in feat_col if ("GFP" not in i) and ("Brightfield" not in i)
         ]
 
     dframe = pd.concat([dframe[meta_col], dframe[feat_col]], axis=1)
@@ -147,6 +153,7 @@ def stratify_by_plate(df_sampled: pd.DataFrame, plate: str):
 
     return df_train, df_test
 
+
 def experimental_runner(
     exp_dframe: pd.DataFrame,
     pq_writer,
@@ -166,7 +173,7 @@ def experimental_runner(
     pair_list = []
     feat_list = []
     info_list = []
-    
+
     groups = exp_dframe.groupby(group_key_one).groups
     for key in tqdm(groups.keys()):
         dframe_grouped = exp_dframe.loc[groups[key]].reset_index(drop=True)
@@ -196,7 +203,9 @@ def experimental_runner(
 
             def classify_by_plate_helper(plate):
                 df_train, df_test = stratify_by_plate(df_sampled, plate)
-                feat_importances, classifier_info, predictions = classifier(df_train, df_test)
+                feat_importances, classifier_info, predictions = classifier(
+                    df_train, df_test
+                )
                 return {plate: [feat_importances, classifier_info, predictions]}
 
             # try run classifier
@@ -213,11 +222,11 @@ def experimental_runner(
                         pred_list.append(list(res.values())[0][2])
                     else:
                         print("res length not 3!")
-                        feat_list.append([None]*len(feat_cols))
+                        feat_list.append([None] * len(feat_cols))
                         group_list.append(key)
                         pair_list.append(f"{key}_{subkey}")
-                        info_list.append([None]*10)
-                
+                        info_list.append([None] * 10)
+
                 cell_preds = pd.concat(pred_list, axis=0)
                 cell_preds["Metadata_Protein"] = protein
                 cell_preds["Metadata_Control"] = False
@@ -227,7 +236,7 @@ def experimental_runner(
                 print(e)
 
     # Store feature importance
-    df_feat_one = pd.DataFrame({'Group1': group_list, 'Group2': pair_list})
+    df_feat_one = pd.DataFrame({"Group1": group_list, "Group2": pair_list})
     df_feat_two = pd.DataFrame(feat_list)
     df_feat = pd.concat([df_feat_one, df_feat_two], axis=1)
     df_feat["Metadata_Protein"] = protein
@@ -259,7 +268,7 @@ def control_group_runner(
 ):
     """
     Run null control experiments.
-    """  
+    """
     ctrl_dframe = get_protein_features(ctrl_dframe, protein)
     feat_cols = find_feat_cols(ctrl_dframe)
     feat_cols = [i for i in feat_cols if i != "Label"]
@@ -278,38 +287,50 @@ def control_group_runner(
         # Skip controls with no replicates
         if dframe_grouped[threshold_key].unique().size < 2:
             continue
-            
+
         # group by platemap
         subgroups = dframe_grouped.groupby(group_key_two).groups
-        
+
         for key_two in subgroups.keys():
-            dframe_grouped_two = dframe_grouped.loc[subgroups[key_two]].reset_index(drop=True)
+            dframe_grouped_two = dframe_grouped.loc[subgroups[key_two]].reset_index(
+                drop=True
+            )
             # If a well is not present on all four plates, drop well
-            well_count = dframe_grouped_two.groupby(['Metadata_Well'])['Metadata_Plate'].nunique()
-            well_to_drop = well_count[well_count<4].index
-            dframe_grouped_two = dframe_grouped_two[~dframe_grouped_two['Metadata_Well'].isin(well_to_drop)].reset_index(drop=True)
+            well_count = dframe_grouped_two.groupby(["Metadata_Well"])[
+                "Metadata_Plate"
+            ].nunique()
+            well_to_drop = well_count[well_count < 4].index
+            dframe_grouped_two = dframe_grouped_two[
+                ~dframe_grouped_two["Metadata_Well"].isin(well_to_drop)
+            ].reset_index(drop=True)
 
             # group by well
             sub_sub_groups = dframe_grouped_two.groupby(group_key_three).groups
             sampled_pairs = list(combinations(list(sub_sub_groups.keys()), r=2))
-    
+
             for idx1, idx2 in sampled_pairs:
-                df_group_one = dframe_grouped_two.loc[sub_sub_groups[idx1]].reset_index(drop=True)
+                df_group_one = dframe_grouped_two.loc[sub_sub_groups[idx1]].reset_index(
+                    drop=True
+                )
                 df_group_one["Label"] = 1
-                df_group_two = dframe_grouped_two.loc[sub_sub_groups[idx2]].reset_index(drop=True)
+                df_group_two = dframe_grouped_two.loc[sub_sub_groups[idx2]].reset_index(
+                    drop=True
+                )
                 df_group_two["Label"] = 0
                 df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
 
                 try:
                     plate_list = get_common_plates(df_group_one, df_group_two)
-        
+
                     def classify_by_plate_helper(plate):
                         df_train, df_test = stratify_by_plate(df_sampled, plate)
-                        feat_importances, classifier_info, predictions = classifier(df_train, df_test)
+                        feat_importances, classifier_info, predictions = classifier(
+                            df_train, df_test
+                        )
                         return {plate: [feat_importances, classifier_info, predictions]}
-        
+
                     result = thread_map(classify_by_plate_helper, plate_list)
-                    
+
                     pred_list = []
                     for res in result:
                         if len(list(res.values())[0]) == 3:
@@ -320,21 +341,21 @@ def control_group_runner(
                             pred_list.append(list(res.values())[0][2])
                         else:
                             print("res length does not equal three!")
-                            feat_list.append([None]*len(feat_cols))
+                            feat_list.append([None] * len(feat_cols))
                             group_list.append(key)
                             pair_list.append(f"{idx1}_{idx2}")
-                            info_list.append([None]*10) 
-                
+                            info_list.append([None] * 10)
+
                     cell_preds = pd.concat(pred_list, axis=0)
                     cell_preds["Metadata_Protein"] = protein
                     cell_preds["Metadata_Control"] = True
                     table = pa.Table.from_pandas(cell_preds, preserve_index=False)
                     pq_writer.write_table(table)
                 except Exception as e:
-                    print(e)            
+                    print(e)
 
     # Store feature importance
-    df_feat_one = pd.DataFrame({'Group1': group_list, 'Group2': pair_list})
+    df_feat_one = pd.DataFrame({"Group1": group_list, "Group2": pair_list})
     df_feat_two = pd.DataFrame(feat_list)
     df_feat = pd.concat([df_feat_one, df_feat_two], axis=1)
     df_feat["Metadata_Protein"] = protein
@@ -364,25 +385,29 @@ def add_control_annot(dframe):
         )
     return dframe
 
+
 def drop_low_cc_wells(dframe, thresh_protein=None):
     # Drop wells with cell counts lower than 5% of all wells
-    dframe['Metadata_Cell_ID'] = dframe.index
-    cell_count = dframe.groupby(
-        ['Metadata_Plate', 'Metadata_Well']
-        )['Metadata_Cell_ID'].count().reset_index(name='Metadata_Cell_Count')
-    
+    dframe["Metadata_Cell_ID"] = dframe.index
+    cell_count = (
+        dframe.groupby(["Metadata_Plate", "Metadata_Well"])["Metadata_Cell_ID"]
+        .count()
+        .reset_index(name="Metadata_Cell_Count")
+    )
+
     if thresh_protein is None:
         thresh_protein = np.percentile(np.array(cell_count["Metadata_Cell_Count"]), 5)
     dframe = dframe.merge(
-                    cell_count, 
-                    on=['Metadata_Plate', 'Metadata_Well'],
-                )
-    dframe = dframe[
-        dframe['Metadata_Cell_Count']>thresh_protein
-    ].drop(
-        columns=['Metadata_Cell_Count']
-    ).reset_index(drop=True)
+        cell_count,
+        on=["Metadata_Plate", "Metadata_Well"],
+    )
+    dframe = (
+        dframe[dframe["Metadata_Cell_Count"] > thresh_protein]
+        .drop(columns=["Metadata_Cell_Count"])
+        .reset_index(drop=True)
+    )
     return dframe
+
 
 def run_classify_workflow(
     input_path: str,
@@ -390,7 +415,7 @@ def run_classify_workflow(
     info_output_path: str,
     preds_output_path: str,
     filter_cells: bool,
-    use_gpu: Union[str, None] = "6,7"
+    use_gpu: Union[str, None] = "6,7",
 ):
     """
     Run workflow for single-cell classification
@@ -402,35 +427,88 @@ def run_classify_workflow(
     if os.path.exists(preds_output_path):
         os.remove(preds_output_path)
     schema = pa.schema([
-        ('Classifier_ID', pa.string()),
-        ('CellID', pa.string()),
-        ('Label', pa.int64()),
-        ('Prediction', pa.float32()),
-        ('Metadata_Protein', pa.bool_()),
-        ('Metadata_Control', pa.bool_()),
+        ("Classifier_ID", pa.string()),
+        ("CellID", pa.string()),
+        ("Label", pa.int64()),
+        ("Prediction", pa.float32()),
+        ("Metadata_Protein", pa.bool_()),
+        ("Metadata_Control", pa.bool_()),
     ])
-    writer = pq.ParquetWriter(preds_output_path, schema, compression='gzip')
-    
+    writer = pq.ParquetWriter(preds_output_path, schema, compression="gzip")
+
     if filter_cells:
         # filter cells based on nuclear:cellular area
-        profiles_path = input_path.replace("profiles_tcdropped_filtered_var_mad_outlier_featselect", "profiles")
-        cell_IDs = pl.scan_parquet(profiles_path).select(
-            ['Metadata_well_position', 'Metadata_Plate', 'Metadata_ImageNumber', 'Metadata_ObjectNumber', 'Nuclei_AreaShape_Area', 'Cells_AreaShape_Area']
-            ).with_columns(
-                (pl.col("Nuclei_AreaShape_Area")/pl.col("Cells_AreaShape_Area")).alias("Nucleus_Cell_Area"),
-                pl.concat_str(['Metadata_Plate', 'Metadata_well_position', 'Metadata_ImageNumber', 'Metadata_ObjectNumber'], separator="_").alias("Metadata_CellID")
-        ).filter((pl.col("Nucleus_Cell_Area") > 0.1) & (pl.col("Nucleus_Cell_Area") < 0.4)).collect()
+        profiles_path = input_path.replace(
+            "profiles_tcdropped_filtered_var_mad_outlier_featselect", "profiles"
+        )
+        cell_IDs = (
+            pl.scan_parquet(profiles_path)
+            .select([
+                "Metadata_well_position",
+                "Metadata_Plate",
+                "Metadata_ImageNumber",
+                "Metadata_ObjectNumber",
+                "Nuclei_AreaShape_Area",
+                "Cells_AreaShape_Area",
+            ])
+            .with_columns(
+                (
+                    pl.col("Nuclei_AreaShape_Area") / pl.col("Cells_AreaShape_Area")
+                ).alias("Nucleus_Cell_Area"),
+                pl.concat_str(
+                    [
+                        "Metadata_Plate",
+                        "Metadata_well_position",
+                        "Metadata_ImageNumber",
+                        "Metadata_ObjectNumber",
+                    ],
+                    separator="_",
+                ).alias("Metadata_CellID"),
+            )
+            .filter(
+                (pl.col("Nucleus_Cell_Area") > 0.1)
+                & (pl.col("Nucleus_Cell_Area") < 0.4)
+            )
+            .collect()
+        )
         cell_IDs = cell_IDs.select("Metadata_CellID").to_series().to_list()
-        
+
         # read in input data
-        dframe = pl.scan_parquet(input_path).with_columns(
-            pl.concat_str(['Metadata_Plate', 'Metadata_well_position', 'Metadata_ImageNumber', 'Metadata_ObjectNumber'], separator="_").alias("Metadata_CellID")
-        ).filter(pl.col("Metadata_CellID").is_in(cell_IDs)).collect().to_pandas()
+        dframe = (
+            pl.scan_parquet(input_path)
+            .with_columns(
+                pl.concat_str(
+                    [
+                        "Metadata_Plate",
+                        "Metadata_well_position",
+                        "Metadata_ImageNumber",
+                        "Metadata_ObjectNumber",
+                    ],
+                    separator="_",
+                ).alias("Metadata_CellID")
+            )
+            .filter(pl.col("Metadata_CellID").is_in(cell_IDs))
+            .collect()
+            .to_pandas()
+        )
     else:
-        dframe = pl.scan_parquet(input_path).with_columns(
-            pl.concat_str(['Metadata_Plate', 'Metadata_well_position', 'Metadata_ImageNumber', 'Metadata_ObjectNumber'], separator="_").alias("Metadata_CellID")
-            ).collect().to_pandas()
-    
+        dframe = (
+            pl.scan_parquet(input_path)
+            .with_columns(
+                pl.concat_str(
+                    [
+                        "Metadata_Plate",
+                        "Metadata_well_position",
+                        "Metadata_ImageNumber",
+                        "Metadata_ObjectNumber",
+                    ],
+                    separator="_",
+                ).alias("Metadata_CellID")
+            )
+            .collect()
+            .to_pandas()
+        )
+
     feat_col = find_feat_cols(dframe)
 
     try:
@@ -456,8 +534,8 @@ def run_classify_workflow(
     df_control = df_control[df_control["Metadata_control_type"] != "TC"].reset_index(
         drop=True
     )
-    #df_control = drop_low_cc_wells(df_control, thresh_protein=8)
-    
+    # df_control = drop_low_cc_wells(df_control, thresh_protein=8)
+
     df_feat_pro_con, df_result_pro_con = control_group_runner(
         df_control, pq_writer=writer, protein=True
     )

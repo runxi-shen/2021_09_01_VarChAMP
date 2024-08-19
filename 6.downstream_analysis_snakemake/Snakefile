@@ -5,10 +5,11 @@ include: "rules/preprocess.smk"
 
 BATCH = config["Metadata_Batch"]
 PIPELINE = config["pipeline"]
+METACORR = config["metadata_corr"]
 
 rule all:
     input:
         f"outputs/batch_profiles/{BATCH}/{PIPELINE}.parquet",
-        f"outputs/results/{BATCH}/{PIPELINE}/feat_importance.csv",
-        f"outputs/results/{BATCH}/{PIPELINE}/classifier_info.csv",
-        f"outputs/results/{BATCH}/{PIPELINE}/predictions.parquet",
+        #f"outputs/results/{BATCH}/{PIPELINE}/feat_importance.csv",
+        #f"outputs/results/{BATCH}/{PIPELINE}/classifier_info.csv",
+        #f"outputs/results/{BATCH}/{PIPELINE}/predictions.parquet",

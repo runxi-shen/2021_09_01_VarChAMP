@@ -479,7 +479,7 @@ def run_classify_workflow(
     )
 
     # Remove any remaining TC from analysis
-    df_control = df_control[df_control["Metadata_control_type"] != "TC"].reset_index(
+    df_control = df_control[df_control["Metadata_node_type"] != "TC"].reset_index(
         drop=True
     )
 

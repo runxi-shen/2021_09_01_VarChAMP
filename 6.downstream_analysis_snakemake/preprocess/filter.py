@@ -2,6 +2,35 @@
 
 import polars as pl
 
+# define control types
+TC = ["EGFP"]
+NC = ["RHEB", "MAPK9", "PRKACB", "SLIRP"]
+PC = ["ALK", "ALK_Arg1275Gln", "PTK2B"]
+cNC = ["Renilla"]
+cPC = [
+    "KRAS",
+    "PTK2B",
+    "GHSR",
+    "ABL1",
+    "BRD4",
+    "OPRM1",
+    "RB1",
+    "ADA",
+    "WT PMP22",
+    "LYN",
+    "TNF",
+    "CYP2A6",
+    "CSK",
+    "PAK1",
+    "ALDH2",
+    "CHRM3",
+    "KCNQ2",
+    "ALK T1151M",
+    "PRKCE",
+    "LPAR1",
+    "PLP1",
+]
+
 
 def filter_cells(input_path: str, output_path: str) -> None:
     # filter cells based on nuclear:cellular area
@@ -98,6 +127,53 @@ def correct_metadata(input_data: str, meta_path: str, output_data: str) -> None:
 
     # filter wells with NA (allele mixture or empty)
     profiles = profiles.filter(~pl.col("Metadata_symbol").is_null())
+
+    # Create new Metadata_node_type annotations
+    profiles = profiles.drop([
+        "Metadata_node_type",
+        "Metadata_control_type",
+    ]).with_columns(
+        pl.when(pl.col("Metadata_symbol") == pl.col("Metadata_gene_allele"))
+        .then(pl.lit("disease_wt"))
+        .otherwise(pl.lit("allele"))
+        .alias("Metadata_node_type")
+    )
+
+    # Add control annotations
+    profiles = profiles.with_columns(
+        pl.when(pl.col("Metadata_gene_allele").is_in(TC))
+        .then(pl.lit("TC"))
+        .otherwise(pl.col("Metadata_node_type"))
+        .alias("Metadata_node_type")
+    )
+
+    profiles = profiles.with_columns(
+        pl.when(pl.col("Metadata_gene_allele").is_in(PC))
+        .then(pl.lit("PC"))
+        .otherwise(pl.col("Metadata_node_type"))
+        .alias("Metadata_node_type")
+    )
+
+    profiles = profiles.with_columns(
+        pl.when(pl.col("Metadata_gene_allele").is_in(NC))
+        .then(pl.lit("NC"))
+        .otherwise(pl.col("Metadata_node_type"))
+        .alias("Metadata_node_type")
+    )
+
+    profiles = profiles.with_columns(
+        pl.when(pl.col("Metadata_gene_allele").is_in(cPC))
+        .then(pl.lit("cPC"))
+        .otherwise(pl.col("Metadata_node_type"))
+        .alias("Metadata_node_type")
+    )
+
+    profiles = profiles.with_columns(
+        pl.when(pl.col("Metadata_gene_allele").is_in(cNC))
+        .then(pl.lit("cNC"))
+        .otherwise(pl.col("Metadata_node_type"))
+        .alias("Metadata_node_type")
+    )
 
     # save results
     profiles.write_parquet(output_data, compression="gzip")

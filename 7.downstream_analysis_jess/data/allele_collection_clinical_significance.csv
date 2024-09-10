@@ -1,0 +1,1092 @@
+orf_id,symbol,node_type,mutation_id,nt_change,aa_change,clinvar_cs,HGMD_cs,clinical_significance,conflicting_class
+12573,DES,allele,2217,46C>T,Arg16Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2218,58G>A,Gly20Arg,VUS,,VUS,Not Conflicting
+12573,DES,allele,2223,109C>T,Arg37Trp,VUS,,VUS,Not Conflicting
+12573,DES,allele,2225,130G>A,Gly44Ser,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+12573,DES,allele,2226,137C>A,Ser46Tyr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2229,166G>C,Val56Leu,VUS,,VUS,Not Conflicting
+12573,DES,allele,2237,250G>A,Gly84Ser,Conflicting,,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2239,295C>G,Gln99Glu,VUS,,VUS,Not Conflicting
+12573,DES,allele,2245,364T>G,Tyr122Asp,Pathogenic,,Pathogenic,Not Conflicting
+12573,DES,allele,2246,376G>T,Val126Leu,VUS,,VUS,Not Conflicting
+12573,DES,allele,2247,380G>C,Arg127Pro,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+12573,DES,allele,2248,391C>A,Gln131Lys,VUS,,VUS,Not Conflicting
+12573,DES,allele,2249,404C>T,Ala135Val,Conflicting,,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2251,407T>C,Leu136Pro,Pathogenic,,Pathogenic,Not Conflicting
+12573,DES,allele,2254,449G>A,Arg150Gln,VUS,,VUS,Not Conflicting
+12573,DES,allele,2263,635G>A,Arg212Gln,Conflicting,,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2264,638C>T,Ala213Val,Conflicting,VUS,Conflicting,Conflicting: Benign-Pathogenic
+12573,DES,allele,2266,656C>T,Thr219Ile,Conflicting,,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2267,665G>A,Arg222His,Conflicting,,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2268,679C>T,Arg227Cys,VUS,,VUS,Not Conflicting
+12573,DES,allele,2271,709G>A,Ala237Thr,VUS,,VUS,Not Conflicting
+12573,DES,allele,2273,727C>T,His243Tyr,VUS,,VUS,Not Conflicting
+12573,DES,allele,2274,735G>C,Glu245Asp,Pathogenic,,Pathogenic,Not Conflicting
+12573,DES,allele,2279,833G>C,Arg278Pro,VUS,,VUS,Not Conflicting
+12573,DES,allele,2284,935A>C,Asp312Ala,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2291,991T>A,Tyr331Asn,VUS,,VUS,Not Conflicting
+12573,DES,allele,2293,1009G>C,Ala337Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2295,1013T>G,Leu338Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2296,1024A>G,Asn342Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2297,1027G>A,Asp343Asn,VUS,,VUS,Not Conflicting
+12573,DES,allele,2299,1034T>C,Leu345Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2301,1047G>A,Met349Ile,VUS,,VUS,Not Conflicting
+12573,DES,allele,2303,1049G>C,Arg350Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2305,1064G>C,Arg355Pro,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+12573,DES,allele,2306,1069G>C,Ala357Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3780,28C>G,Pro10Ala,VUS,,VUS,Not Conflicting
+70497,AGXT,allele,3782,32C>A,Pro11His,Conflicting,,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3785,35A>G,Lys12Arg,Conflicting,,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3786,65A>G,Asn22Ser,Benign,,Benign,Conflicting: VUS-Benign
+70497,AGXT,allele,3789,106C>T,Arg36Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3791,121G>A,Gly41Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3792,122G>A,Gly41Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3796,145A>C,Met49Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3802,244G>C,Gly82Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3805,254C>A,Ala85Asp,Pathogenic,,Pathogenic,Not Conflicting
+70497,AGXT,allele,3812,332G>A,Arg111Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3814,346G>A,Gly116Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3815,352C>T,Arg118Cys,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+70497,AGXT,allele,3818,385G>C,Asp129His,VUS,Pathogenic,VUS,Not Conflicting
+70497,AGXT,allele,3821,454T>A,Phe152Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3825,481G>A,Gly161Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3826,481G>C,Gly161Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3828,484G>A,Val162Met,VUS,,VUS,Not Conflicting
+70497,AGXT,allele,3835,557C>T,Ala186Val,Benign,,Benign,Not Conflicting
+70497,AGXT,allele,3837,560C>T,Ser187Phe,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3839,583A>C,Met195Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3843,601G>A,Asp201Asn,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+70497,AGXT,allele,3845,605T>A,Ile202Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3848,628G>C,Ala210Pro,Pathogenic,,Pathogenic,Not Conflicting
+70497,AGXT,allele,3850,653C>T,Ser218Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3851,661T>C,Ser221Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3857,742G>T,Ala248Ser,Conflicting,,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3858,743C>T,Ala248Val,Conflicting,,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3863,822G>C,Glu274Asp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+70497,AGXT,allele,3865,836T>C,Ile279Thr,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3866,837T>G,Ile279Met,VUS,Pathogenic,VUS,Not Conflicting
+70497,AGXT,allele,3867,839C>T,Ala280Val,Benign,,Benign,Conflicting: VUS-Benign
+70497,AGXT,allele,3872,865C>T,Arg289Cys,VUS,Pathogenic,VUS,Not Conflicting
+70497,AGXT,allele,3873,866G>A,Arg289His,Conflicting,,Conflicting,Conflicting: Benign-Pathogenic
+11805,SMAD3,allele,2113,175A>G,Asn59Asp,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2117,260T>C,Ile87Thr,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2121,281G>T,Trp94Leu,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2123,326G>A,Cys109Tyr,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2127,371C>T,Pro124Leu,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2134,508A>G,Ile170Val,Benign,,Benign,Not Conflicting
+11805,SMAD3,allele,2136,636G>A,Met212Ile,Conflicting,,Conflicting,Conflicting: VUS-Benign
+11805,SMAD3,allele,2137,657G>C,Leu219Phe,Conflicting,,Conflicting,Conflicting: VUS-Benign
+11805,SMAD3,allele,2139,696G>C,Trp232Cys,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2140,715G>A,Glu239Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2144,764T>G,Met255Arg,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2145,772G>C,Asp258His,Pathogenic,,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2147,782C>T,Thr261Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2148,787C>G,Pro263Ala,Pathogenic,,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2150,788C>T,Pro263Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2151,802C>T,Arg268Cys,Pathogenic,,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2152,803G>A,Arg268His,Pathogenic,,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2154,814G>C,Gly272Arg,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2155,821T>C,Leu274Pro,Pathogenic,,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2156,836G>A,Arg279Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2157,850G>C,Glu284Gln,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2158,859C>T,Arg287Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2159,860G>A,Arg287Gln,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2161,880G>A,Val294Met,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2163,922C>T,Leu308Phe,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2165,947A>C,Gln316Pro,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2167,968G>A,Arg323His,Conflicting,,Conflicting,Conflicting: VUS-Benign
+11805,SMAD3,allele,2168,1064C>T,Ser355Leu,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2172,1091A>G,Tyr364Cys,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2173,1117C>T,Arg373Cys,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2176,1153A>G,Arg385Gly,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2177,1154G>C,Arg385Thr,Pathogenic,,Pathogenic,Not Conflicting
+11805,SMAD3,allele,2180,1222G>C,Asp408His,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+11805,SMAD3,allele,2181,1228G>T,Val410Phe,VUS,,VUS,Not Conflicting
+11805,SMAD3,allele,2183,1269T>A,Ser423Arg,VUS,,VUS,Not Conflicting
+70497,AGXT,allele,3874,883G>A,Ala295Thr,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3875,893T>C,Leu298Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3876,901C>T,Arg301Cys,VUS,,VUS,Not Conflicting
+70497,AGXT,allele,3878,956C>T,Pro319Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,3879,976G>A,Val326Ile,Benign,,Benign,Conflicting: VUS-Benign
+70497,AGXT,allele,3881,1020A>G,Ile340Met,Benign,Benign,Benign,Conflicting: VUS-Benign
+70497,AGXT,allele,3882,1023C>A,Asp341Glu,Benign,,Benign,Not Conflicting
+70497,AGXT,allele,3888,1111G>A,Glu371Lys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,3889,1142G>A,Arg381Lys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2312,1166A>C,Gln389Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2316,1180G>A,Val394Met,Conflicting,,Conflicting,Conflicting: VUS-Benign
+12573,DES,allele,2317,1189G>A,Ala397Thr,VUS,,VUS,Not Conflicting
+12573,DES,allele,2323,1237G>A,Glu413Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2325,1255C>T,Pro419Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,2327,1271C>T,Ser424Phe,VUS,,VUS,Not Conflicting
+12573,DES,allele,2330,1297C>A,Pro433Thr,VUS,,VUS,Not Conflicting
+12573,DES,allele,2333,1322A>T,His441Leu,VUS,,VUS,Not Conflicting
+12573,DES,allele,2336,1333A>G,Thr445Ala,VUS,Pathogenic,VUS,
+12573,DES,allele,2339,1358C>T,Thr453Ile,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+52920,LITAF,allele,2662,479G>A,Arg160His,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2665,430G>A,Val144Met,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+52920,LITAF,allele,2666,408C>A,Phe136Leu,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2667,404C>G,Pro135Arg,VUS,Pathogenic,VUS,
+52920,LITAF,allele,2668,403C>T,Pro135Ser,VUS,Pathogenic,VUS,
+52920,LITAF,allele,2669,403C>A,Pro135Thr,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+52920,LITAF,allele,2670,388G>A,Gly130Ser,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2671,386C>T,Ala129Val,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2673,364C>G,Leu122Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+52920,LITAF,allele,2674,352T>C,Ser118Pro,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2675,346T>G,Trp116Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+52920,LITAF,allele,2676,344C>A,Thr115Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+52920,LITAF,allele,2677,334G>A,Gly112Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+52920,LITAF,allele,2678,332C>G,Ala111Gly,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+52920,LITAF,allele,2681,251C>T,Pro84Leu,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2682,241G>A,Val81Met,Benign,,Benign,Not Conflicting
+52920,LITAF,allele,2683,158G>C,Gly53Ala,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2684,151C>T,Pro51Ser,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2685,146C>T,Thr49Met,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+52920,LITAF,allele,2686,115C>T,Pro39Ser,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2687,100C>A,Pro34Thr,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2688,88A>T,Asn30Tyr,VUS,,VUS,Not Conflicting
+52920,LITAF,allele,2689,44C>T,Ser15Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+7652,STXBP1,allele,1790,36G>C,Glu12Asp,Conflicting,,Conflicting,Conflicting: VUS-Benign
+7652,STXBP1,allele,1794,281C>T,Pro94Leu,Benign,,Benign,Not Conflicting
+7652,STXBP1,allele,1798,539G>A,Cys180Tyr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1799,548T>C,Leu183Pro,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1800,568C>T,Arg190Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1801,569G>A,Arg190Gln,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+7652,STXBP1,allele,1802,587A>G,Lys196Arg,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1803,619G>A,Asp207Asn,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1805,704G>A,Arg235Gln,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1806,714C>A,Asp238Glu,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1807,734A>G,His245Arg,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1808,743C>T,Thr248Ile,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+7652,STXBP1,allele,1809,767T>C,Leu256Pro,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1810,847G>A,Glu283Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1811,872T>C,Leu291Pro,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1812,874C>T,Arg292Cys,Pathogenic,,Pathogenic,Conflicting: VUS-Pathogenic
+7652,STXBP1,allele,1817,914G>A,Arg305Gln,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1818,997A>G,Lys333Glu,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1820,1004C>T,Pro335Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+7652,STXBP1,allele,1821,1060T>C,Cys354Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1824,1093C>T,Leu365Phe,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1825,1193A>G,Asn398Ser,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1826,1216C>T,Arg406Cys,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1827,1217G>A,Arg406His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1828,1217G>T,Arg406Leu,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1829,1231T>C,Tyr411His,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1830,1250G>A,Gly417Asp,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1831,1256C>T,Thr419Met,Conflicting,,Conflicting,Conflicting: VUS-Benign
+7652,STXBP1,allele,1832,1277T>C,Leu426Pro,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1834,1328T>G,Met443Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1835,1351G>A,Val451Ile,Benign,,Benign,Not Conflicting
+7652,STXBP1,allele,1836,1385C>T,Pro462Leu,Benign,,Benign,Not Conflicting
+7652,STXBP1,allele,1837,1439C>T,Pro480Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1838,1514G>A,Arg505His,VUS,,VUS,Not Conflicting
+7652,STXBP1,allele,1842,1642A>G,Asn548Asp,Pathogenic,,Pathogenic,Not Conflicting
+7652,STXBP1,allele,1846,1652G>T,Arg551Leu,Pathogenic,,Pathogenic,Not Conflicting
+55246,PYGL,allele,3211,2215C>A,Leu739Met,VUS,,VUS,Not Conflicting
+55246,PYGL,allele,3214,2023T>A,Ser675Thr,not provided,Pathogenic,Pathogenic,
+55246,PYGL,allele,3215,2017G>A,Glu673Lys,VUS,Pathogenic,VUS,
+55246,PYGL,allele,3217,1895A>T,Asn632Ile,not provided,Pathogenic,Pathogenic,
+55246,PYGL,allele,3218,1885G>T,Asp629Tyr,VUS,,VUS,Not Conflicting
+55246,PYGL,allele,3219,1757C>T,Thr586Met,Conflicting,,Conflicting,Conflicting: VUS-Benign
+55246,PYGL,allele,3220,1471C>T,Arg491Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+55246,PYGL,allele,3221,1366G>A,Val456Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+55246,PYGL,allele,3224,1145C>T,Pro382Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+55246,PYGL,allele,3236,176C>T,Thr59Met,Benign,,Benign,Not Conflicting
+71337,ACSF3,allele,3938,28C>T,Arg10Trp,VUS,,VUS,Conflicting: VUS-Pathogenic
+71337,ACSF3,allele,3940,49G>C,Ala17Pro,Benign,,Benign,Not Conflicting
+71337,ACSF3,allele,3941,356G>A,Gly119Asp,VUS,,VUS,Not Conflicting
+71337,ACSF3,allele,3942,584A>G,Lys195Arg,Benign,,Benign,Not Conflicting
+71337,ACSF3,allele,3943,589G>A,Ala197Thr,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+71337,ACSF3,allele,3944,593T>G,Met198Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71337,ACSF3,allele,3945,600C>G,Ile200Met,Benign,,Benign,Not Conflicting
+71337,ACSF3,allele,3946,673G>A,Gly225Arg,VUS,,VUS,Not Conflicting
+71337,ACSF3,allele,3947,706G>A,Asp236Asn,Pathogenic,,Pathogenic,Not Conflicting
+71337,ACSF3,allele,3948,728C>T,Pro243Leu,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+71337,ACSF3,allele,3949,796A>G,Met266Val,VUS,,VUS,Not Conflicting
+71337,ACSF3,allele,3950,854C>T,Pro285Leu,Benign,,Benign,Not Conflicting
+71337,ACSF3,allele,3951,1073C>T,Thr358Ile,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+71337,ACSF3,allele,3952,1075G>A,Glu359Lys,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+71337,ACSF3,allele,3955,1292C>A,Ser431Tyr,VUS,,VUS,Not Conflicting
+71337,ACSF3,allele,3957,1369G>A,Asp457Asn,VUS,,VUS,Not Conflicting
+71337,ACSF3,allele,3960,1411C>T,Arg471Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+281,MVK,allele,1,14T>C,Val5Ala,VUS,,VUS,Not Conflicting
+281,MVK,allele,3,59A>C,His20Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,4,122T>C,Leu41Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,5,155G>A,Ser52Asn,,,not provided,
+281,MVK,allele,6,238G>A,Val80Ile,Conflicting,,Conflicting,Conflicting: VUS-Benign
+281,MVK,allele,7,302G>A,Cys101Tyr,VUS,,VUS,Not Conflicting
+281,MVK,allele,8,317G>A,Arg106His,VUS,,VUS,Not Conflicting
+281,MVK,allele,10,346T>C,Tyr116His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,11,442G>A,Ala148Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,12,494C>T,Pro165Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,13,500C>T,Pro167Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,14,598C>T,Pro200Ser,VUS,,VUS,Not Conflicting
+281,MVK,allele,18,764T>C,Leu255Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,19,802A>G,Ile268Val,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+281,MVK,allele,20,803T>C,Ile268Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,21,832G>A,Val278Met,VUS,,VUS,Not Conflicting
+281,MVK,allele,22,857C>T,Pro286Leu,VUS,,VUS,
+281,MVK,allele,23,902A>C,Asn301Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,27,1129G>A,Val377Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,28,1156G>A,Asp386Asn,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+281,MVK,allele,29,1163G>A,Arg388Gln,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2601,119G>A,Arg40Gln,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2602,119G>C,Arg40Pro,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2604,199C>T,Arg67Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2605,200G>A,Arg67Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2606,208G>A,Ala70Thr,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2607,208G>T,Ala70Ser,Conflicting,,Conflicting,Conflicting: VUS-Benign
+100016069,KCNJ2,allele,2608,211G>A,Asp71Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2609,211G>C,Asp71His,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+100016069,KCNJ2,allele,2611,224C>G,Thr75Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2612,224C>T,Thr75Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2613,226T>G,Cys76Gly,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+100016069,KCNJ2,allele,2614,233A>G,Asp78Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2616,245G>A,Arg82Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2617,256G>T,Val86Phe,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2618,277G>A,Val93Ile,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+100016069,KCNJ2,allele,2619,328C>T,His110Tyr,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2620,344C>T,Ala115Val,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2622,416C>T,Thr139Ile,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2623,514G>A,Asp172Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2624,557C>T,Pro186Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2626,566G>A,Arg189Lys,Pathogenic,,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2627,566G>T,Arg189Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2628,616G>A,Gly206Ser,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+100016069,KCNJ2,allele,2629,644G>A,Gly215Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2635,773T>C,Ile258Thr,Benign,,Benign,Not Conflicting
+100016069,KCNJ2,allele,2636,779G>C,Arg260Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2637,806T>A,Ile269Lys,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2638,821A>T,Asp274Val,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2639,884T>C,Val295Ala,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2641,899G>A,Gly300Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2643,901A>C,Met301Leu,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+100016069,KCNJ2,allele,2644,901A>G,Met301Val,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+100016069,KCNJ2,allele,2646,904G>A,Val302Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2649,935G>A,Arg312His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100016069,KCNJ2,allele,2650,953A>G,Asn318Ser,VUS,Pathogenic,VUS,
+100016069,KCNJ2,allele,2651,966G>C,Trp322Cys,not provided,Pathogenic,Pathogenic,
+100016069,KCNJ2,allele,2652,973C>T,Arg325Cys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+100016069,KCNJ2,allele,2653,976T>A,Tyr326Asn,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2654,1045G>A,Glu349Lys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+100016069,KCNJ2,allele,2655,1091A>G,Lys364Arg,VUS,,VUS,Not Conflicting
+100016069,KCNJ2,allele,2656,1199C>T,Thr400Met,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+100016069,KCNJ2,allele,2658,1229A>G,Asn410Ser,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+100016069,KCNJ2,allele,2659,1244C>T,Pro415Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+100016069,KCNJ2,allele,2660,1259C>T,Pro420Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+2713,MLH1,allele,449,83C>T,Pro28Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,451,86C>G,Ala29Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,455,92C>G,Ala31Gly,VUS,,VUS,Not Conflicting
+2713,MLH1,allele,461,107T>A,Ile36Asn,VUS,Pathogenic,VUS,Not Conflicting
+2713,MLH1,allele,462,108T>G,Ile36Met,VUS,,VUS,Not Conflicting
+2713,MLH1,allele,467,112A>C,Asn38His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,470,114C>G,Asn38Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,472,116G>A,Cys39Tyr,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+2713,MLH1,allele,473,116G>T,Cys39Phe,VUS,Pathogenic,VUS,Not Conflicting
+2713,MLH1,allele,683,883A>G,Ser295Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,704,954C>A,His318Gln,VUS,,VUS,Not Conflicting
+2713,MLH1,allele,838,1524T>G,Ser508Arg,VUS,,VUS,Not Conflicting
+2713,MLH1,allele,869,1676T>C,Leu559Pro,Pathogenic,,Pathogenic,Not Conflicting
+2713,MLH1,allele,889,1744C>G,Leu582Val,VUS,Pathogenic,VUS,Not Conflicting
+2713,MLH1,allele,919,1853A>G,Lys618Arg,Benign,,Benign,Not Conflicting
+2713,MLH1,allele,921,1855G>C,Ala619Pro,Pathogenic,,Pathogenic,Not Conflicting
+2713,MLH1,allele,953,1958T>C,Leu653Pro,Pathogenic,,Pathogenic,Not Conflicting
+2713,MLH1,allele,955,1961C>T,Pro654Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,967,1989G>T,Glu663Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,971,2009A>G,Lys670Arg,VUS,,VUS,Not Conflicting
+2713,MLH1,allele,981,2038T>C,Cys680Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,983,2041G>A,Ala681Thr,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+2713,MLH1,allele,985,2042C>T,Ala681Val,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+2713,MLH1,allele,1005,2103G>C,Gln701His,VUS,Pathogenic,VUS,Not Conflicting
+2713,MLH1,allele,1015,2146G>A,Val716Met,Benign,Pathogenic,Benign,
+2713,MLH1,allele,1033,2239C>T,Pro747Ser,VUS,,VUS,Not Conflicting
+4723,TPM1,allele,1438,496G>A,Ala166Thr,Pathogenic,,Pathogenic,Not Conflicting
+54308,PKP2,allele,3007,2428C>T,His810Tyr,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3014,2392G>A,Val798Ile,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3025,2254T>C,Cys752Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54308,PKP2,allele,3026,2246C>A,Ala749Asp,VUS,Pathogenic,VUS,Not Conflicting
+54308,PKP2,allele,3030,2171A>C,Lys724Thr,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3040,1952G>A,Arg651His,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3045,1794C>A,Asn598Lys,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3048,1744T>A,Tyr582Asn,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3052,1711T>A,Ser571Thr,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+54308,PKP2,allele,3056,1627G>A,Val543Ile,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3059,1576G>A,Ala526Thr,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3061,1537A>G,Asn513Asp,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3064,1483C>G,Pro495Ala,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3065,1460T>G,Ile487Ser,Benign,Pathogenic,Benign,Not Conflicting
+54308,PKP2,allele,3067,1445C>T,Thr482Met,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3068,1444A>G,Thr482Ala,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3069,1442T>G,Leu481Arg,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3072,1415A>G,Lys472Arg,VUS,,VUS,Conflicting: VUS-Pathogenic
+54308,PKP2,allele,3075,1372A>G,Ile458Val,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3077,1271T>C,Phe424Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54308,PKP2,allele,3078,1238G>A,Arg413Gln,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3080,1181T>A,Leu394His,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3083,1138G>A,Glu380Lys,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3084,1130T>C,Ile377Thr,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3085,1114G>C,Ala372Pro,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3086,1097T>C,Leu366Pro,Benign,Pathogenic,Benign,Not Conflicting
+54308,PKP2,allele,3087,1095G>A,Met365Ile,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3088,1093A>G,Met365Val,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3089,1079T>C,Leu360Pro,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3101,791C>T,Ala264Val,Benign,,Benign,Not Conflicting
+54308,PKP2,allele,3106,725C>T,Thr242Met,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3109,681C>G,Ser227Arg,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3110,611G>A,Arg204His,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3123,419C>T,Ser140Phe,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3126,406G>A,Val136Met,Benign,,Benign,Not Conflicting
+54308,PKP2,allele,3128,302G>A,Arg101His,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3133,202G>A,Gly68Ser,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3134,193G>T,Ala65Ser,VUS,,VUS,Not Conflicting
+54308,PKP2,allele,3136,184C>A,Gln62Lys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3137,176A>T,Gln59Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,3142,76G>A,Asp26Asn,Benign,Pathogenic,Benign,Not Conflicting
+54308,PKP2,allele,3145,14G>A,Gly5Asp,VUS,Pathogenic,VUS,Not Conflicting
+56661,COMP,allele,3333,2267A>G,Gln756Arg,Benign,,Benign,Not Conflicting
+56661,COMP,allele,3346,1665C>A,Asn555Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,3347,1590C>A,Asp530Glu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+56661,COMP,allele,3348,1586C>T,Thr529Ile,VUS,Pathogenic,VUS,
+56661,COMP,allele,3349,1569C>G,Asn523Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,3350,1533C>G,Asp511Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,3355,1322A>G,His441Arg,Pathogenic,,Pathogenic,Not Conflicting
+56661,COMP,allele,3356,1222G>C,Asp408His,VUS,,VUS,Not Conflicting
+56661,COMP,allele,3357,1222G>A,Asp408Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,3360,1042T>C,Cys348Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,3363,956A>T,Asp319Val,VUS,Pathogenic,VUS,Not Conflicting
+56661,COMP,allele,3366,811G>C,Asp271His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,3367,620G>A,Gly207Asp,VUS,,VUS,Not Conflicting
+56661,COMP,allele,3368,566A>G,His189Arg,VUS,,VUS,Not Conflicting
+56661,COMP,allele,3370,511G>A,Ala171Thr,Benign,,Benign,Not Conflicting
+71892,TH,allele,3996,1402G>A,Val468Met,Conflicting,,Conflicting,Conflicting: VUS-Pathogenic
+71892,TH,allele,3998,1388C>T,Thr463Met,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+71892,TH,allele,3999,1361C>A,Pro454His,VUS,,VUS,Not Conflicting
+71892,TH,allele,4001,1103C>T,Thr368Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71892,TH,allele,4002,1069G>A,Gly357Arg,VUS,,VUS,Not Conflicting
+71892,TH,allele,4003,983G>T,Cys328Phe,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71892,TH,allele,4004,917G>A,Arg306His,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+71892,TH,allele,4005,848C>T,Thr283Met,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+71892,TH,allele,4006,799G>C,Asp267His,VUS,,VUS,Not Conflicting
+71892,TH,allele,4008,748G>C,Glu250Gln,VUS,,VUS,Not Conflicting
+71892,TH,allele,4009,733A>C,Thr245Pro,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+71892,TH,allele,4010,676G>A,Ala226Thr,VUS,,VUS,Not Conflicting
+71892,TH,allele,4011,662G>T,Arg221Leu,VUS,,VUS,Not Conflicting
+71892,TH,allele,4012,656T>C,Ile219Thr,Pathogenic,,Pathogenic,Not Conflicting
+71892,TH,allele,4013,653C>T,Pro218Leu,VUS,,VUS,Not Conflicting
+71892,TH,allele,4014,627C>G,Ile209Met,Benign,,Benign,Not Conflicting
+71892,TH,allele,4015,614T>C,Leu205Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71892,TH,allele,4016,605G>A,Arg202His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71892,TH,allele,4017,599G>A,Arg200His,VUS,,VUS,Not Conflicting
+71892,TH,allele,4018,406G>A,Val136Met,VUS,,VUS,Not Conflicting
+71892,TH,allele,4019,398G>A,Arg133His,VUS,,VUS,Not Conflicting
+71892,TH,allele,4020,362C>T,Pro121Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+71892,TH,allele,4021,267G>A,Arg89Arg,,,not provided,
+71892,TH,allele,4022,263C>T,Pro88Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+71892,TH,allele,4025,115C>G,Gln39Glu,VUS,,VUS,Not Conflicting
+71892,TH,allele,4026,81G>T,Glu27Asp,Conflicting,,Conflicting,Conflicting: VUS-Benign
+71892,TH,allele,4027,44G>A,Arg15His,VUS,,VUS,Not Conflicting
+71892,TH,allele,4028,19A>C,Thr7Pro,VUS,,VUS,Not Conflicting
+71892,TH,allele,4029,16G>A,Ala6Thr,Benign,,Benign,Not Conflicting
+71892,TH,allele,4030,5C>T,Pro2Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+5772,BANF1,allele,201973,34G>A,Ala12Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11435,MSRB3,allele,203467,244T>G,Cys82Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+510,CRADD,allele,200304,382G>C,Gly128Arg,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+9634,CLDN19,allele,216880,169C>G,Gln57Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3086,GOSR2,allele,201084,430G>T,Gly144Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1668,THAP1,allele,214084,70A>G,Lys24Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11443,CCBE1,allele,217252,406G>C,Gly136Arg,,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202802,419G>A,Gly140Asp,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+7038,DIABLO,allele,216141,377C>T,Ser126Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+13597,FAM187A,allele,204033,461A>C,His154Pro,,Pathogenic,Pathogenic,
+3756,VAPB,allele,201265,137C>T,Thr46Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12043,ORC6,allele,203658,695A>C,Tyr232Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+53798,NFU1,allele,218765,622G>T,Gly208Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54230,MIP,allele,218818,413C>G,Thr138Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+513,FA2H,allele,213752,184C>T,Arg62Cys,,Pathogenic,Pathogenic,
+13571,XRCC2,allele,218098,808T>G,Phe270Val,Benign,Pathogenic,Benign,Conflicting: VUS-Benign
+4723,TPM1,allele,201734,209A>C,Lys70Thr,VUS,Pathogenic,VUS,
+5712,TPM3,allele,215466,11C>T,Ala4Val,VUS,Pathogenic,VUS,
+70368,KCTD7,allele,205545,818A>T,Asn273Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14019,CA8,allele,218195,710G>A,Arg237Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4447,STAC3,allele,215126,734G>C,Trp245Ser,,Pathogenic,Pathogenic,
+2156,PHYH,allele,214168,526C>A,Gln176Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3038,CREB1,allele,201069,347A>G,Asp116Gly,,Pathogenic,Pathogenic,
+5431,POLR1C,allele,201910,836G>A,Arg279Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2767,GALE,allele,214358,505C>T,Arg169Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11374,RP2,allele,203457,353G>T,Arg118Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3449,GMPPB,allele,214609,79G>C,Asp27His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+9818,SFTPB,allele,216917,706C>T,Arg236Cys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+14879,SS18L1,allele,204320,378T>G,Ile126Met,,Pathogenic,Pathogenic,
+3438,TMEM43,allele,201180,829A>T,Thr277Ser,Benign,Pathogenic,Benign,Not Conflicting
+5933,TFG,allele,201998,854C>T,Pro285Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3108,SERPINE1,allele,201092,43G>A,Ala15Thr,Benign,VUS,Benign,Conflicting: Benign-Pathogenic
+2920,GFAP,allele,214447,1157A>T,Asn386Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+6395,IRAK4,allele,202113,34C>T,Arg12Cys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+3782,SMAD1,allele,201266,8T>C,Val3Ala,VUS,Pathogenic,VUS,Not Conflicting
+7637,CFP,allele,216439,1240T>G,Tyr414Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71286,FGD4,allele,205731,581G>A,Arg194His,,Pathogenic,Pathogenic,
+14966,KRT8,allele,218512,184G>T,Gly62Cys,Benign,Pathogenic,Benign,Conflicting: VUS-Benign
+54082,PRPF31,allele,204946,581C>A,Ala194Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13554,GLYCTK,allele,204026,1478T>G,Phe493Cys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+3727,NCF2,allele,214875,419C>A,Ala140Asp,not provided,Pathogenic,Pathogenic,
+3020,CHN1,allele,214465,427T>C,Tyr143His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11451,LRRC6,allele,217256,436G>C,Asp146His,,Pathogenic,Pathogenic,
+71258,CTNNA3,allele,220347,281T>A,Val94Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12343,CDC73,allele,203716,3G>A,Met1Ile,,Pathogenic,Pathogenic,
+13592,KRT4,allele,218110,1345G>A,Glu449Lys,,Pathogenic,Pathogenic,
+5441,PUF60,allele,215408,454C>T,His152Tyr,,Pathogenic,Pathogenic,
+5385,WRAP53,allele,201906,1192C>T,Arg398Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+53030,FAM161A,allele,218690,806T>G,Leu269Arg,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215282,512A>C,Asn171Thr,not provided,Pathogenic,Pathogenic,
+56360,NEXN,allele,205331,511C>T,Arg171Cys,,Pathogenic,Pathogenic,
+71001,UBQLN2,allele,205675,1516C>A,Pro506Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7866,EFHC1,allele,202619,685T>C,Phe229Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+11907,MID1,allele,217313,884T>C,Leu295Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11895,CLCNKA,allele,203649,240G>C,Trp80Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71206,POMT1,allele,205719,1175C>T,Thr392Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2468,TRIM2,allele,200623,680A>T,Glu227Val,,Pathogenic,Pathogenic,
+2713,MLH1,allele,200818,218T>G,Leu73Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11305,CUL3,allele,217226,1376A>G,Lys459Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1668,THAP1,allele,214083,68A>C,His23Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3535,EMD,allele,201190,1A>G,Met1Val,,Pathogenic,Pathogenic,
+2156,PHYH,allele,214172,823C>T,Arg275Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5431,POLR1C,allele,201911,835C>T,Arg279Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3787,CSNK1D,allele,214913,137A>G,His46Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+9970,PHYKPL,allele,216974,718G>A,Gly240Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11451,LRRC6,allele,217255,220G>C,Ala74Pro,,Pathogenic,Pathogenic,
+56360,NEXN,allele,205332,1631A>G,Tyr544Cys,,Pathogenic,Pathogenic,
+71206,POMT1,allele,205721,1680G>C,Trp560Cys,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+5066,BAG3,allele,201834,1430G>A,Arg477His,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+6408,IER3IP1,allele,215945,62T>G,Val21Gly,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+52920,LITAF,allele,218636,344C>A,Thr115Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+386,STAR,allele,213658,545G>A,Arg182His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4692,LDHB,allele,215210,19A>G,Lys7Glu,other,Pathogenic,Pathogenic,
+2455,PRKAR1A,allele,200621,1004G>C,Arg335Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4043,COQ8A,allele,201415,815G>A,Gly272Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+55246,PYGL,allele,219170,698G>A,Gly233Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+53965,SMARCB1,allele,204889,110G>A,Arg37His,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+70500,PIK3CD,allele,205593,1002C>A,Asn334Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+6408,IER3IP1,allele,215946,233T>C,Leu78Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+52920,LITAF,allele,218637,364C>G,Leu122Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3180,NAA10,allele,214556,346C>T,Arg116Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+53965,SMARCB1,allele,204888,143C>T,Pro48Leu,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+2455,PRKAR1A,allele,200620,1117T>C,Tyr373His,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+4043,COQ8A,allele,201419,1645G>A,Gly549Ser,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+386,STAR,allele,213660,562C>T,Arg188Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1668,THAP1,allele,214082,25G>T,Gly9Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+513,FA2H,allele,213753,427C>T,Arg143Cys,,Pathogenic,Pathogenic,
+386,STAR,allele,213661,545G>T,Arg182Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3731,PRPS1,allele,201248,385C>A,Leu129Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2156,PHYH,allele,214169,610G>A,Gly204Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2654,FBP1,allele,214307,530C>A,Ala177Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2455,PRKAR1A,allele,200617,1A>G,Met1Val,,Pathogenic,Pathogenic,
+71191,SUOX,allele,205704,794C>A,Ala265Asp,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+8420,ALAS2,allele,216654,364G>A,Asp122Asn,,Pathogenic,Pathogenic,
+55246,PYGL,allele,219175,1895A>T,Asn632Ile,not provided,Pathogenic,Pathogenic,
+9866,ZMYND10,allele,216927,47T>G,Val16Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1668,THAP1,allele,214086,266A>G,Lys89Arg,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+513,FA2H,allele,213754,431T>C,Phe144Ser,,Pathogenic,Pathogenic,
+386,STAR,allele,213659,559G>A,Val187Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3731,PRPS1,allele,201250,579C>G,His193Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2156,PHYH,allele,214170,824G>A,Arg275Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2455,PRKAR1A,allele,200622,980T>C,Ile327Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+9866,ZMYND10,allele,216928,797T>C,Leu266Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71191,SUOX,allele,205705,1589G>A,Gly530Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8420,ALAS2,allele,216660,784A>C,Lys262Gln,,Pathogenic,Pathogenic,
+55246,PYGL,allele,219180,2017G>A,Glu673Lys,VUS,Pathogenic,VUS,
+2654,FBP1,allele,214309,851C>G,Pro284Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4983,AP2S1,allele,215314,43C>T,Arg15Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7323,PMP22,allele,216369,110A>T,Asp37Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5585,CRYAB,allele,215441,325G>C,Asp109His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5442,SIX1,allele,215414,317T>G,Val106Gly,not provided,Pathogenic,Pathogenic,
+9905,PNKP,allele,216950,58C>T,Pro20Ser,Benign,Pathogenic,Benign,Not Conflicting
+6018,ASNS,allele,215806,17C>A,Ala6Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7323,PMP22,allele,216370,448G>T,Gly150Cys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+5585,CRYAB,allele,215440,460G>A,Gly154Ser,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+14468,TPK1,allele,218332,148A>C,Asn50His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7465,GATA2,allele,216383,1117T>C,Cys373Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4062,PLP1,allele,201430,578G>A,Cys193Tyr,,Pathogenic,Pathogenic,
+55855,KRT2,allele,219414,556A>T,Asn186Tyr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4910,AMPD2,allele,201776,2091G>C,Glu697Asp,,Pathogenic,Pathogenic,
+4983,AP2S1,allele,215316,44G>A,Arg15His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7323,PMP22,allele,216371,469C>T,Arg157Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+5585,CRYAB,allele,215438,470G>A,Arg157His,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+5442,SIX1,allele,215410,386A>G,Tyr129Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+9905,PNKP,allele,216952,976G>A,Glu326Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70368,KCTD7,allele,205542,280C>T,Arg94Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+1256,KLHL3,allele,214008,230C>A,Ala77Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3449,GMPPB,allele,214607,64C>T,Pro22Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,200095,728C>T,Thr243Ile,not provided,Pathogenic,Pathogenic,
+3020,CHN1,allele,214464,378T>G,Ile126Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3727,NCF2,allele,214871,130G>C,Gly44Arg,not provided,Pathogenic,Pathogenic,
+71001,UBQLN2,allele,205674,1489C>T,Pro497Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7866,EFHC1,allele,202616,520A>G,Ile174Val,other,Pathogenic,Pathogenic,
+70368,KCTD7,allele,205544,322C>A,Leu108Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1256,KLHL3,allele,214007,232A>G,Met78Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3449,GMPPB,allele,214608,95C>T,Pro32Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,200100,986G>A,Ser329Asn,VUS,Pathogenic,VUS,
+3020,CHN1,allele,214466,422C>T,Pro141Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71001,UBQLN2,allele,205673,1490C>A,Pro497His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7866,EFHC1,allele,202617,628G>A,Asp210Asn,VUS,Pathogenic,VUS,Not Conflicting
+8409,PDGFRB,allele,216618,1973T>C,Leu658Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3727,NCF2,allele,214874,279C>G,Asp93Glu,not provided,Pathogenic,Pathogenic,
+70368,KCTD7,allele,205543,343G>T,Asp115Tyr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1256,KLHL3,allele,214009,254A>C,Glu85Ala,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,205584,454T>A,Phe152Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3020,CHN1,allele,214470,754C>T,Pro252Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3727,NCF2,allele,214873,323A>T,Asp108Val,VUS,Pathogenic,VUS,
+71001,UBQLN2,allele,205676,1525C>T,Pro509Ser,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+8409,PDGFRB,allele,216619,1978C>A,Pro660Thr,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+7866,EFHC1,allele,202620,757G>T,Asp253Tyr,other,Pathogenic,Pathogenic,
+70368,KCTD7,allele,205546,550C>T,Arg184Cys,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+1256,KLHL3,allele,214010,491G>T,Cys164Phe,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3449,GMPPB,allele,214611,860G>A,Arg287Gln,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+70497,AGXT,allele,205585,466G>A,Gly156Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3020,CHN1,allele,214471,937G>A,Glu313Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3727,NCF2,allele,214876,551G>C,Arg184Pro,not provided,Pathogenic,Pathogenic,
+71001,UBQLN2,allele,205677,1573C>T,Pro525Ser,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+7866,EFHC1,allele,202621,776G>A,Cys259Tyr,other,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202782,122T>C,Leu41Pro,Pathogenic,Pathogenic,Pathogenic,
+4723,TPM1,allele,201726,109A>G,Lys37Glu,VUS,Pathogenic,VUS,
+6983,PITX2,allele,216119,344G>A,Arg115His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2767,GALE,allele,214357,280G>A,Val94Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214388,218T>G,Met73Arg,not provided,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215280,487G>A,Glu163Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,200798,107T>A,Ile36Asn,VUS,Pathogenic,VUS,Not Conflicting
+8151,IL36RN,allele,202843,80T>C,Leu27Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5723,SFTPC,allele,201962,196G>A,Glu66Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8151,IL36RN,allele,202844,104A>G,Lys35Arg,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+5723,SFTPC,allele,201963,218T>C,Ile73Thr,Pathogenic,Pathogenic,Pathogenic,
+7675,NMNAT1,allele,202590,457C>G,Leu153Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201733,188C>T,Ala63Val,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+6983,PITX2,allele,216121,361A>C,Thr121Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2767,GALE,allele,214356,308A>G,Asp103Gly,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+8416,DCX,allele,216626,232C>T,Arg78Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,203609,715G>A,Glu239Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214399,221T>C,Met74Thr,not provided,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215270,512A>G,Asn171Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5723,SFTPC,allele,201964,347C>A,Ala116Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7675,NMNAT1,allele,202586,619C>T,Arg207Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201737,479G>A,Arg160His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+6983,PITX2,allele,216122,365G>A,Arg122His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2767,GALE,allele,214360,715C>T,Arg239Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8416,DCX,allele,216631,233G>T,Arg78Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,203606,782C>T,Thr261Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214386,262C>T,Arg88Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3980,GRN,allele,201374,313T>C,Cys105Arg,not provided,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215273,526T>C,Ser176Pro,not provided,Pathogenic,Pathogenic,
+8151,IL36RN,allele,202848,304C>T,Arg102Trp,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+7982,HPRT1,allele,202801,481G>T,Ala161Ser,Pathogenic,Pathogenic,Pathogenic,
+7675,NMNAT1,allele,202588,710G>T,Arg237Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201739,554T>G,Leu185Arg,not provided,Pathogenic,Pathogenic,
+6983,PITX2,allele,216123,409C>T,Arg137Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2767,GALE,allele,214361,770A>G,Lys257Arg,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+8416,DCX,allele,216641,386C>T,Ser129Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,203607,788C>T,Pro263Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+2920,GFAP,allele,214420,704T>C,Leu235Pro,not provided,Pathogenic,Pathogenic,
+3980,GRN,allele,201375,359C>A,Ser120Tyr,Benign,Pathogenic,Benign,Conflicting: VUS-Benign
+5723,SFTPC,allele,201966,500G>A,Arg167Gln,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215293,1393T>C,Tyr465His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5723,SFTPC,allele,201965,563T>A,Leu188Gln,,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202809,582C>G,Asp194Glu,Pathogenic,Pathogenic,Pathogenic,
+7675,NMNAT1,allele,202585,769G>A,Glu257Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201744,688G>A,Asp230Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+6983,PITX2,allele,216124,421A>G,Lys141Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2767,GALE,allele,214362,905G>A,Gly302Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8416,DCX,allele,216636,607A>G,Thr203Ala,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,203608,836G>A,Arg279Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214437,1112A>G,Glu371Gly,not provided,Pathogenic,Pathogenic,
+2713,MLH1,allele,200887,1918C>T,Pro640Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8151,IL36RN,allele,202846,338C>T,Ser113Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+3980,GRN,allele,201376,545C>T,Thr182Met,Benign,Pathogenic,Benign,
+4870,KRT6A,allele,215290,1403T>C,Leu468Pro,not provided,Pathogenic,Pathogenic,
+8151,IL36RN,allele,202847,368C>G,Thr123Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5723,SFTPC,allele,201967,581T>C,Leu194Pro,,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202806,595T>G,Phe199Val,Pathogenic,Pathogenic,Pathogenic,
+7675,NMNAT1,allele,202587,817A>G,Asn273Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201746,715G>A,Ala239Thr,VUS,Pathogenic,VUS,
+2767,GALE,allele,214363,937C>A,Leu313Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8416,DCX,allele,216650,608C>G,Thr203Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11805,SMAD3,allele,203605,859C>T,Arg287Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3980,GRN,allele,201378,970G>A,Ala324Thr,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+4870,KRT6A,allele,215286,1414G>A,Glu472Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+6983,PITX2,allele,216125,431G>C,Arg144Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14221,KCTD1,allele,218276,89C>A,Ala30Glu,,Pathogenic,Pathogenic,
+3438,TMEM43,allele,201175,82C>T,Arg28Trp,Benign,Pathogenic,Benign,Not Conflicting
+8143,SH3BP2,allele,202836,1244G>A,Arg415Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+70497,AGXT,allele,205586,590G>A,Arg197Gln,Benign,Pathogenic,Benign,Not Conflicting
+14966,KRT8,allele,218513,158G>T,Gly53Val,not provided,Pathogenic,Pathogenic,
+71337,ACSF3,allele,205769,728C>T,Pro243Leu,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+14221,KCTD1,allele,218281,92C>A,Pro31His,,Pathogenic,Pathogenic,
+3438,TMEM43,allele,201176,253G>A,Glu85Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14966,KRT8,allele,218511,160T>C,Tyr54His,Benign,Pathogenic,Benign,
+8143,SH3BP2,allele,202840,1253C>T,Pro418Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5066,BAG3,allele,201829,652C>T,Arg218Trp,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+71337,ACSF3,allele,205771,1073C>T,Thr358Ile,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+71206,POMT1,allele,205717,430A>G,Asn144Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14221,KCTD1,allele,218279,98A>C,His33Pro,,Pathogenic,Pathogenic,
+3438,TMEM43,allele,201177,271A>G,Ile91Val,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+8143,SH3BP2,allele,202838,1253C>G,Pro418Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5066,BAG3,allele,201830,772C>T,Arg258Trp,Benign,Pathogenic,Benign,Conflicting: VUS-Benign
+71337,ACSF3,allele,205770,1075G>A,Glu359Lys,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+55855,KRT2,allele,219422,1427A>T,Glu476Val,not provided,Pathogenic,Pathogenic,
+71206,POMT1,allele,205718,598G>C,Ala200Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14966,KRT8,allele,218516,164G>C,Gly55Ala,not provided,Pathogenic,Pathogenic,
+55246,PYGL,allele,219176,1900G>C,Asp634His,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+14221,KCTD1,allele,218278,99C>A,His33Gln,,Pathogenic,Pathogenic,
+3438,TMEM43,allele,201179,424G>A,Glu142Lys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+8143,SH3BP2,allele,202839,1253C>A,Pro418His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5066,BAG3,allele,201832,1138C>T,Pro380Ser,Benign,Pathogenic,Benign,Not Conflicting
+71337,ACSF3,allele,205772,1411C>T,Arg471Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+14966,KRT8,allele,218514,187A>G,Ile63Val,Benign,Pathogenic,Benign,
+55855,KRT2,allele,219419,1435A>C,Thr479Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71206,POMT1,allele,205720,1545C>G,Ser515Arg,Benign,Pathogenic,Benign,Not Conflicting
+14221,KCTD1,allele,218283,185G>A,Gly62Asp,,Pathogenic,Pathogenic,
+3438,TMEM43,allele,201181,934C>T,Arg312Trp,Benign,Pathogenic,Benign,Not Conflicting
+8143,SH3BP2,allele,202841,1258G>C,Gly420Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14966,KRT8,allele,218521,1300G>A,Gly434Ser,Benign,Pathogenic,Benign,
+71206,POMT1,allele,205722,1704G>C,Gln568His,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+55246,PYGL,allele,219177,2042A>C,Lys681Thr,VUS,Pathogenic,VUS,
+14221,KCTD1,allele,218282,221A>C,His74Pro,,Pathogenic,Pathogenic,
+70497,AGXT,allele,205592,1020A>G,Ile340Met,Benign,Benign,Benign,Conflicting: VUS-Benign
+3438,TMEM43,allele,201183,1111T>C,Tyr371His,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+14966,KRT8,allele,218520,1360C>T,Arg454Cys,not provided,Pathogenic,Pathogenic,
+8143,SH3BP2,allele,202842,1259G>A,Gly420Glu,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+5066,BAG3,allele,201831,1385T>C,Leu462Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71337,ACSF3,allele,205774,1672C>T,Arg558Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+55855,KRT2,allele,219420,1462G>A,Glu488Lys,not provided,Pathogenic,Pathogenic,
+71206,POMT1,allele,205723,1939G>A,Ala647Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+55246,PYGL,allele,219181,2461T>C,Tyr821His,not provided,Pathogenic,Pathogenic,
+4723,TPM1,allele,201728,23T>G,Met8Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8416,DCX,allele,216624,150G>T,Lys50Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,200087,357C>G,Ile119Met,not provided,Pathogenic,Pathogenic,
+2920,GFAP,allele,214397,230A>G,Asn77Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7982,HPRT1,allele,202784,46G>A,Gly16Ser,Pathogenic,Pathogenic,Pathogenic,
+4062,PLP1,allele,201422,128C>T,Thr43Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4870,KRT6A,allele,215276,491G>C,Arg164Pro,not provided,Pathogenic,Pathogenic,
+4062,PLP1,allele,201423,220G>C,Gly74Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201724,45G>T,Lys15Asn,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+8416,DCX,allele,216622,176G>A,Arg59His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214382,235C>T,Arg79Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8420,ALAS2,allele,216655,384C>A,Phe128Leu,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215278,497A>C,Gln166Pro,not provided,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202783,134G>A,Arg45Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,200808,121G>C,Asp41His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201727,64G>A,Ala22Thr,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+8416,DCX,allele,216621,211G>T,Ala71Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214406,235C>A,Arg79Ser,VUS,Pathogenic,VUS,
+7982,HPRT1,allele,202788,209G>A,Gly70Glu,Pathogenic,Pathogenic,Pathogenic,
+4062,PLP1,allele,201425,362C>T,Thr121Ile,,Pathogenic,Pathogenic,
+8420,ALAS2,allele,216656,403G>A,Ala135Thr,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215272,508C>T,Leu170Phe,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7982,HPRT1,allele,202789,211G>C,Gly71Arg,Pathogenic,Pathogenic,Pathogenic,
+4062,PLP1,allele,201424,382T>C,Trp128Arg,,Pathogenic,Pathogenic,
+4723,TPM1,allele,201730,160G>A,Glu54Lys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+8416,DCX,allele,216632,233G>A,Arg78His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,200091,625A>G,Thr209Ala,not provided,Pathogenic,Pathogenic,
+2920,GFAP,allele,214394,269T>C,Leu90Pro,not provided,Pathogenic,Pathogenic,
+8420,ALAS2,allele,216657,458A>T,Asp153Val,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215275,511A>T,Asn171Tyr,not provided,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202796,222C>G,Phe74Leu,Pathogenic,Pathogenic,Pathogenic,
+4062,PLP1,allele,201429,404C>T,Ser135Phe,,Pathogenic,Pathogenic,
+4723,TPM1,allele,201732,172G>C,Asp58His,VUS,Pathogenic,VUS,
+281,MVK,allele,200092,632G>C,Gly211Ala,not provided,Pathogenic,Pathogenic,
+2920,GFAP,allele,214418,619G>A,Glu207Lys,not provided,Pathogenic,Pathogenic,
+2713,MLH1,allele,200824,318C>G,Ser106Arg,VUS,Pathogenic,VUS,Not Conflicting
+7982,HPRT1,allele,202787,312C>A,Ser104Arg,Pathogenic,Pathogenic,Pathogenic,
+4062,PLP1,allele,201426,439A>C,Thr147Pro,,Pathogenic,Pathogenic,
+4723,TPM1,allele,201736,275T>C,Ile92Thr,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+8416,DCX,allele,216627,304C>T,Arg102Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214424,707A>C,Lys236Thr,not provided,Pathogenic,Pathogenic,
+8420,ALAS2,allele,216659,760G>A,Gly254Ser,,Pathogenic,Pathogenic,
+54308,PKP2,allele,218853,1114G>C,Ala372Pro,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+7982,HPRT1,allele,202799,396T>G,Ile132Met,Pathogenic,Pathogenic,Pathogenic,
+4062,PLP1,allele,201428,455T>C,Ile152Thr,,Pathogenic,Pathogenic,
+4723,TPM1,allele,201740,515T>C,Ile172Thr,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+8416,DCX,allele,216643,520A>G,Lys174Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,200093,748G>A,Val250Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214422,716G>T,Arg239Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8420,ALAS2,allele,216661,1052C>G,Thr351Ser,,Pathogenic,Pathogenic,
+54308,PKP2,allele,218854,1271T>C,Phe424Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4870,KRT6A,allele,215279,533T>A,Ile178Asn,not provided,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202800,428T>A,Met143Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4062,PLP1,allele,201427,502G>C,Asp168His,,Pathogenic,Pathogenic,
+4723,TPM1,allele,201738,539A>T,Glu180Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8416,DCX,allele,216642,557G>A,Arg186His,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+281,MVK,allele,200099,794T>C,Leu265Pro,not provided,Pathogenic,Pathogenic,
+2920,GFAP,allele,214415,716G>C,Arg239Pro,not provided,Pathogenic,Pathogenic,
+8420,ALAS2,allele,216662,1073G>A,Cys358Tyr,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215295,1381G>A,Glu461Lys,not provided,Pathogenic,Pathogenic,
+14973,KRT5,allele,218575,992G>A,Arg331His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,200834,479C>T,Ala160Val,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+54308,PKP2,allele,218856,1445C>T,Thr482Met,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+7982,HPRT1,allele,202805,527C>T,Pro176Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201742,539A>G,Glu180Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8416,DCX,allele,216635,572C>G,Pro191Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8420,ALAS2,allele,216664,1120C>T,Arg374Cys,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215289,1385T>A,Ile462Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14973,KRT5,allele,218587,1210A>G,Lys404Glu,not provided,Pathogenic,Pathogenic,
+2713,MLH1,allele,200837,554T>G,Val185Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54308,PKP2,allele,218855,1460T>G,Ile487Ser,Benign,Pathogenic,Benign,Not Conflicting
+4062,PLP1,allele,201431,541C>T,Pro181Ser,,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202804,529G>T,Asp177Tyr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4062,PLP1,allele,201432,550G>T,Val184Phe,,Pathogenic,Pathogenic,
+8416,DCX,allele,216638,586C>A,Arg196Ser,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+281,MVK,allele,200097,863C>T,Pro288Leu,VUS,Pathogenic,VUS,
+2920,GFAP,allele,214427,835A>G,Lys279Glu,not provided,Pathogenic,Pathogenic,
+8420,ALAS2,allele,216665,1243C>T,Arg415Cys,,Pathogenic,Pathogenic,
+4723,TPM1,allele,201743,644C>T,Ser215Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7982,HPRT1,allele,202808,580G>A,Asp194Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201745,712C>T,Arg238Trp,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+8416,DCX,allele,216637,587G>A,Arg196His,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+281,MVK,allele,200098,877G>A,Val293Met,VUS,Pathogenic,VUS,
+4062,PLP1,allele,201434,556G>T,Gly186Cys,,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202807,602A>G,Asp201Gly,Pathogenic,Pathogenic,Pathogenic,
+4062,PLP1,allele,201433,566T>C,Leu189Pro,,Pathogenic,Pathogenic,
+4723,TPM1,allele,201749,830C>T,Ala277Val,VUS,Pathogenic,VUS,
+8420,ALAS2,allele,216668,1591A>G,Ser531Gly,,Pathogenic,Pathogenic,
+2920,GFAP,allele,214440,1097A>G,Tyr366Cys,not provided,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202810,610C>G,His204Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201750,835A>C,Asn279His,VUS,Pathogenic,VUS,Not Conflicting
+8416,DCX,allele,216651,641T>C,Ile214Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214442,1126C>T,Arg376Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8420,ALAS2,allele,216667,1646A>T,Tyr549Phe,,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202803,503C>T,Thr168Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214452,1250A>C,Asp417Ala,not provided,Pathogenic,Pathogenic,
+7215,NR0B1,allele,216202,1319A>T,Asn440Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5132,GSS,allele,215357,941C>T,Pro314Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+13939,KRT86,allele,204120,1204G>C,Glu402Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71077,IMPDH1,allele,220314,949G>A,Val317Ile,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215298,1416G>C,Glu472Asp,not provided,Pathogenic,Pathogenic,
+2713,MLH1,allele,200902,2252A>G,Lys751Arg,Benign,Pathogenic,Benign,Conflicting: VUS-Benign
+5613,APOA1,allele,215454,593T>C,Leu198Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54175,NEUROG3,allele,218808,319C>A,Arg107Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,201747,742A>G,Lys248Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4004,FADD,allele,201387,315T>G,Cys105Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71354,RAB33B,allele,205775,136A>C,Lys46Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2588,UNC119,allele,214279,65G>T,Gly22Val,Benign,Pathogenic,Benign,
+7662,XPA,allele,216446,323G>T,Cys108Phe,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+8177,SNIP1,allele,216544,1097A>G,Glu366Gly,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+54459,RNF135,allele,205019,857G>A,Arg286His,VUS,Pathogenic,VUS,Not Conflicting
+55834,KRT83,allele,219366,1219G>A,Glu407Lys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+71592,TRAF3,allele,206017,352C>T,Arg118Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+1063,SMN2,allele,200371,859G>C,Gly287Arg,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+5424,BLK,allele,201909,211G>A,Ala71Thr,Benign,Pathogenic,Benign,
+10122,EXOC8,allele,217010,782A>G,Glu261Gly,,Pathogenic,Pathogenic,
+13796,HBD,allele,218157,349C>T,Arg117Cys,other,Pathogenic,Pathogenic,
+4723,TPM1,allele,201725,67G>C,Glu23Gln,VUS,Pathogenic,VUS,
+3689,GCK,allele,214861,1160C>A,Ala387Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,203787,1405G>A,Val469Met,not provided,Pathogenic,Pathogenic,
+56661,COMP,allele,219650,2153G>C,Arg718Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13796,HBD,allele,218158,425T>C,Leu142Pro,other,Pathogenic,Pathogenic,
+4723,TPM1,allele,201731,184G>C,Glu62Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3689,GCK,allele,214863,1367C>T,Ala456Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13796,HBD,allele,218153,131A>G,Glu44Gly,other,Pathogenic,Pathogenic,
+2920,GFAP,allele,214433,1090G>C,Ala364Pro,not provided,Pathogenic,Pathogenic,
+3689,GCK,allele,214853,1133C>T,Ala378Val,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+2713,MLH1,allele,200850,884G>C,Ser295Thr,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+10735,FXN,allele,203289,3G>T,Met1Ile,,Pathogenic,Pathogenic,
+8416,DCX,allele,216646,373T>C,Tyr125His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5132,GSS,allele,215352,373C>T,Arg125Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71077,IMPDH1,allele,220310,460C>T,Arg154Trp,,Pathogenic,Pathogenic,
+13796,HBD,allele,218154,350G>A,Arg117His,other,Pathogenic,Pathogenic,
+3689,GCK,allele,214856,1130G>A,Arg377His,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+9726,DOLK,allele,216902,1322A>C,Tyr441Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,200856,911A>G,Asp304Gly,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+56661,COMP,allele,219647,2042C>G,Ser681Cys,not provided,Pathogenic,Pathogenic,
+10735,FXN,allele,203291,389G>T,Gly130Val,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+2920,GFAP,allele,214444,1070T>C,Leu357Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71077,IMPDH1,allele,220312,818G>C,Arg273Pro,,Pathogenic,Pathogenic,
+13796,HBD,allele,218155,440A>G,His147Arg,other,Pathogenic,Pathogenic,
+3689,GCK,allele,214859,1153G>A,Gly385Arg,VUS,Pathogenic,VUS,Not Conflicting
+10735,FXN,allele,203292,517T>G,Trp173Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+8416,DCX,allele,216652,751G>T,Ala251Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214445,1112A>T,Glu371Val,not provided,Pathogenic,Pathogenic,
+3689,GCK,allele,214860,1142T>G,Met381Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71077,IMPDH1,allele,220313,823G>A,Asp275Asn,,Pathogenic,Pathogenic,
+2713,MLH1,allele,200868,1455T>A,Asp485Glu,,Pathogenic,Pathogenic,
+5132,GSS,allele,215356,847C>T,Arg283Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13796,HBD,allele,218148,315G>T,Arg105Ser,other,Pathogenic,Pathogenic,
+8416,DCX,allele,216625,2T>C,Met1Thr,,Pathogenic,Pathogenic,
+3689,GCK,allele,214842,752T>C,Met251Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13939,KRT86,allele,204114,353C>A,Ala118Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14973,KRT5,allele,218591,1427G>A,Gly476Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,219641,1813G>A,Asp605Asn,not provided,Pathogenic,Pathogenic,
+13796,HBD,allele,218149,298G>A,Asp100Asn,other,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202790,239A>T,Asp80Val,Pathogenic,Pathogenic,Pathogenic,
+8416,DCX,allele,216633,265C>G,Arg89Gly,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3689,GCK,allele,214843,758T>C,Val253Ala,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+13939,KRT86,allele,204115,340A>G,Asn114Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,219642,1754C>A,Thr585Lys,not provided,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215274,511A>G,Asn171Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100000400,PLA2G6,allele,221530,1612C>T,Arg538Cys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+13796,HBD,allele,218150,295G>A,Val99Met,other,Pathogenic,Pathogenic,
+13939,KRT86,allele,204116,340A>C,Asn114His,,Pathogenic,Pathogenic,
+4870,KRT6A,allele,215281,500T>G,Ile167Ser,not provided,Pathogenic,Pathogenic,
+56661,COMP,allele,219643,1754C>G,Thr585Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100000400,PLA2G6,allele,221531,1699G>A,Glu567Lys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+13796,HBD,allele,218151,226C>G,Leu76Val,Pathogenic,Pathogenic,Pathogenic,
+7982,HPRT1,allele,202792,172G>A,Gly58Arg,Pathogenic,Pathogenic,Pathogenic,
+8416,DCX,allele,216644,586C>T,Arg196Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3689,GCK,allele,214847,907C>T,Arg303Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,219644,1754C>T,Thr585Met,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100000400,PLA2G6,allele,221532,1754C>T,Thr585Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4870,KRT6A,allele,215292,1403T>A,Leu468Gln,not provided,Pathogenic,Pathogenic,
+8416,DCX,allele,216645,557G>T,Arg186Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3689,GCK,allele,214851,895G>C,Gly299Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,203781,1255C>T,Pro419Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100000400,PLA2G6,allele,221533,1799G>A,Arg600Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13939,KRT86,allele,204118,1237G>A,Glu413Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,219645,1760A>G,His587Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13796,HBD,allele,218138,39T>A,Asn13Lys,other,Pathogenic,Pathogenic,
+13295,TTPA,allele,218056,191A>G,Asp64Gly,not provided,Pathogenic,Pathogenic,
+12573,DES,allele,203764,137C>A,Ser46Tyr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,219631,1042T>C,Cys348Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5613,APOA1,allele,215445,101G>T,Arg34Leu,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+3689,GCK,allele,214816,131G>A,Gly44Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13796,HBD,allele,218139,77G>A,Gly26Asp,other,Pathogenic,Pathogenic,
+5613,APOA1,allele,215446,148G>C,Gly50Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13295,TTPA,allele,218057,175C>T,Arg59Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+3689,GCK,allele,214822,532G>C,Gly178Arg,Pathogenic,Pathogenic,Pathogenic,
+13796,HBD,allele,218140,49G>C,Gly17Arg,other,Pathogenic,Pathogenic,
+5613,APOA1,allele,215447,595G>C,Ala199Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13295,TTPA,allele,218058,303T>G,His101Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2920,GFAP,allele,214409,613G>A,Glu205Lys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+3689,GCK,allele,214825,523G>C,Gly175Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7215,NR0B1,allele,216195,1138T>G,Tyr380Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56661,COMP,allele,219633,1024G>T,Asp342Tyr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5613,APOA1,allele,215448,589C>T,Arg197Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13295,TTPA,allele,218059,358G>A,Ala120Thr,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+12573,DES,allele,203768,893C>T,Ser298Leu,Conflicting,Pathogenic,Conflicting,Conflicting: Benign-Pathogenic
+100000400,PLA2G6,allele,221523,1058C>T,Pro353Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+13295,TTPA,allele,218060,421G>A,Glu141Lys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+100000400,PLA2G6,allele,221524,929T>A,Val310Glu,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+13796,HBD,allele,218142,81G>C,Glu27Asp,other,Pathogenic,Pathogenic,
+12573,DES,allele,203769,821T>C,Leu274Pro,not provided,Pathogenic,Pathogenic,
+5613,APOA1,allele,215450,251T>G,Leu84Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13295,TTPA,allele,218061,548T>C,Leu183Pro,not provided,Pathogenic,Pathogenic,
+2920,GFAP,allele,214419,628G>A,Glu210Lys,not provided,Pathogenic,Pathogenic,
+3689,GCK,allele,214835,661G>A,Glu221Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13796,HBD,allele,218145,110C>A,Pro37His,other,Pathogenic,Pathogenic,
+5613,APOA1,allele,215451,220T>C,Trp74Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13295,TTPA,allele,218062,575G>A,Arg192His,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+7215,NR0B1,allele,216199,1146G>T,Lys382Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,200832,439G>C,Gly147Arg,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+13796,HBD,allele,218146,174C>A,Asn58Lys,other,Pathogenic,Pathogenic,
+5613,APOA1,allele,215452,539T>A,Val180Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+12573,DES,allele,203772,1009G>C,Ala337Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13796,HBD,allele,218147,265C>G,Leu89Val,other,Pathogenic,Pathogenic,
+5613,APOA1,allele,215453,341T>C,Leu114Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13295,TTPA,allele,218064,736G>C,Gly246Arg,not provided,Pathogenic,Pathogenic,
+2920,GFAP,allele,214430,1055T>C,Leu352Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3689,GCK,allele,214841,706G>A,Glu236Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+100000400,PLA2G6,allele,221528,1442T>A,Leu481Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7215,NR0B1,allele,216201,1274G>T,Arg425Ile,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14221,KCTD1,allele,2241,742G>A,Val248Ile,,,not provided,
+5723,SFTPC,allele,667,142G>A,Val48Met,Benign,,Benign,Not Conflicting
+2654,FBP1,allele,460,865A>T,Met289Leu,Benign,,Benign,Not Conflicting
+8999,TTR,allele,388,437A>G,Lys146Arg,Benign,,Benign,Not Conflicting
+5723,SFTPC,allele,668,115G>T,Val39Leu,Conflicting,,Conflicting,Conflicting: VUS-Benign
+2654,FBP1,allele,371,818A>G,Asn273Ser,Benign,,Benign,Not Conflicting
+8999,TTR,allele,390,355G>A,Asp119Asn,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54230,MIP,allele,2462,319G>A,Val107Ile,Benign,,Benign,Not Conflicting
+1598,SUCLA2,allele,532,688C>T,Pro230Ser,Benign,,Benign,Not Conflicting
+4692,LDHB,allele,1907,472C>T,Arg158Cys,Benign,,Benign,Not Conflicting
+1668,THAP1,allele,1855,577G>A,Val193Ile,Benign,,Benign,Not Conflicting
+9866,ZMYND10,allele,298,727C>T,Arg243Cys,Benign,,Benign,Not Conflicting
+7038,DIABLO,allele,405,175A>G,Ile59Val,Benign,,Benign,Not Conflicting
+3438,TMEM43,allele,287,1096G>A,Ala366Thr,Benign,,Benign,Not Conflicting
+3732,UROD,allele,1788,952G>A,Gly318Arg,Conflicting,,Conflicting,Conflicting: VUS-Benign
+13554,GLYCTK,allele,2231,1468C>T,His490Tyr,Benign,,Benign,Not Conflicting
+8177,SNIP1,allele,1932,521C>T,Ala174Val,Benign,,Benign,Not Conflicting
+7637,CFP,allele,1971,748G>A,Gly115Ser,,,not provided,
+7651,IL2RG,allele,165,325G>A,Glu109Lys,Benign,,Benign,Not Conflicting
+3727,NCF2,allele,172,890T>C,Val297Ala,Benign,,Benign,Not Conflicting
+7389,CTRC,allele,247,736C>T,Arg246Cys,Benign,,Benign,Not Conflicting
+7389,CTRC,allele,1768,674A>C,Glu225Ala,Conflicting,,Conflicting,Conflicting: VUS-Benign
+3483,GYG1,allele,1598,46G>A,Ala16Thr,Benign,,Benign,Not Conflicting
+6395,IRAK4,allele,312,1282G>A,Ala428Thr,Benign,,Benign,Not Conflicting
+5613,APOA1,allele,152,562G>T,Ala188Ser,Conflicting,,Conflicting,Conflicting: VUS-Benign
+2651,CLN6,allele,436,89G>C,Gly30Ala,Benign,,Benign,Not Conflicting
+5723,SFTPC,allele,669,541C>G,Leu181Val,,,not provided,
+7323,PMP22,allele,394,152A>G,His51Arg,Conflicting,,Conflicting,Conflicting: VUS-Benign
+8177,SNIP1,allele,1933,347G>A,Arg116Gln,Benign,,Benign,Not Conflicting
+7215,NR0B1,allele,1976,376G>A,Val126Met,Conflicting,,Conflicting,Conflicting: VUS-Benign
+7389,CTRC,allele,248,533A>G,Gln178Arg,Conflicting,,Conflicting,Conflicting: VUS-Benign
+4252,PSAP,allele,674,227T>A,Met76Lys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+3438,TMEM43,allele,289,896G>C,Arg299Thr,Benign,,Benign,Not Conflicting
+510,CRADD,allele,1850,554G>A,Arg185Gln,Benign,,Benign,Not Conflicting
+7465,GATA2,allele,82,121C>G,Pro41Ala,Conflicting,,Conflicting,Conflicting: VUS-Benign
+9818,SFTPB,allele,1922,847G>A,Ala280Thr,,,not provided,
+14910,HGD,allele,990,142G>T,Ala48Ser,Benign,,Benign,Not Conflicting
+54484,CORO1A,allele,2333,1189G>A,Val397Ile,Conflicting,,Conflicting,Conflicting: VUS-Benign
+54230,MIP,allele,2463,199G>A,Val67Ile,Benign,,Benign,Not Conflicting
+3535,EMD,allele,768,166G>A,Ala56Thr,Conflicting,,Conflicting,Conflicting: VUS-Benign
+3727,NCF2,allele,1707,563G>A,Arg188Lys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+7389,CTRC,allele,249,110G>A,Arg37Gln,Benign,,Benign,Not Conflicting
+3180,NAA10,allele,243,583C>T,Arg195Cys,Benign,,Benign,Not Conflicting
+7675,NMNAT1,allele,1769,764G>A,Ser255Asn,Benign,,Benign,Not Conflicting
+7038,DIABLO,allele,404,670G>A,Gly224Arg,Benign,,Benign,Not Conflicting
+5723,SFTPC,allele,671,176A>G,His59Arg,Conflicting,,Conflicting,Conflicting: VUS-Benign
+7038,DIABLO,allele,406,8C>G,Ala3Gly,Benign,,Benign,Not Conflicting
+8999,TTR,allele,389,76G>A,Gly26Ser,Benign,,Benign,Not Conflicting
+9866,ZMYND10,allele,299,1019G>A,Arg340Gln,Benign,,Benign,Not Conflicting
+5865,GAMT,allele,1024,587C>T,Ala196Val,Conflicting,,Conflicting,Conflicting: VUS-Benign
+13554,GLYCTK,allele,2230,1181C>T,Thr394Ile,Benign,,Benign,Not Conflicting
+5865,GAMT,allele,1028,314G>A,Arg105Gln,Conflicting,,Conflicting,Conflicting: VUS-Benign
+3483,GYG1,allele,1599,98G>A,Arg33Lys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+7323,PMP22,allele,1840,403G>A,Ala135Thr,Benign,,Benign,Not Conflicting
+5865,GAMT,allele,1027,655G>A,Asp219Asn,VUS,,VUS,Conflicting: VUS-Benign
+1601,RASA1,allele,1754,209A>G,Glu70Gly,Benign,,Benign,Not Conflicting
+7918,MSH2,allele,209,287G>A,Arg96His,Benign,,Benign,Not Conflicting
+3727,NCF2,allele,1704,1342A>G,Asn448Asp,Benign,,Benign,Not Conflicting
+6666,MAP2K2,allele,51,49A>G,Thr17Ala,Conflicting,,Conflicting,Conflicting: VUS-Benign
+3438,TMEM43,allele,288,658C>T,Arg220Cys,Conflicting,,Conflicting,Conflicting: VUS-Benign
+2455,PRKAR1A,allele,277,221G>A,Arg74His,Conflicting,,Conflicting,Conflicting: VUS-Benign
+52920,LITAF,allele,900154,274A>G,Ile92Val,Benign,Benign,Benign,Conflicting: VUS-Benign
+4515,PNPO,allele,900160,347G>A,Arg116Gln,Benign,VUS,Benign,Not Conflicting
+14396,NT5C3A,allele,900163,91T>C,Phe31Leu,Benign,,Benign,Not Conflicting
+53657,FOXP3,allele,900167,155G>T,Gly52Val,Benign,,Benign,
+3643,EIF2B4,allele,900170,916C>G,Arg306Gly,Benign,,Benign,Not Conflicting
+6137,PITX1,allele,900172,896G>C,Gly299Ala,Benign,,Benign,Not Conflicting
+1884,LIG4,allele,900183,2569G>A,Ala857Thr,Benign,,Benign,Not Conflicting
+5645,GYPA,allele,900191,71A>G,Glu24Gly,,,Benign,
+4870,KRT6A,allele,900193,62A>G,Asn21Ser,Benign,,Benign,Not Conflicting
+6231,SDC3,allele,900194,691G>A,Asp231Asn,,,Benign,
+4870,KRT6A,allele,900195,745T>C,Phe249Leu,Benign,,Benign,Not Conflicting
+4870,KRT6A,allele,900196,1655C>G,Thr552Ser,Benign,,Benign,Not Conflicting
+7201,RAD51D,allele,900197,494G>A,Arg165Gln,Benign,,Benign,Not Conflicting
+55855,KRT2,allele,900198,656G>A,Gly219Asp,Benign,,Benign,Not Conflicting
+7866,EFHC1,allele,900199,475C>T,Arg159Trp,Benign,,Benign,Not Conflicting
+4870,KRT6A,allele,900200,1567G>T,Val523Phe,Benign,,Benign,Not Conflicting
+7866,EFHC1,allele,900201,1343T>C,Met448Thr,Benign,,Benign,Not Conflicting
+4043,COQ8A,allele,900203,255T>G,His85Gln,Benign,,Benign,Not Conflicting
+13943,GCM2,allele,900204,607G>A,Gly203Ser,Benign,,Benign,Not Conflicting
+2654,FBP1,allele,900206,653G>A,Arg218Lys,Benign,,Benign,Not Conflicting
+2654,FBP1,allele,900209,697T>A,Phe233Ile,Benign,,Benign,Not Conflicting
+10177,FKBP6,allele,900211,605G>A,Arg202His,Benign,,Benign,Not Conflicting
+4043,COQ8A,allele,900212,238C>T,His80Tyr,Benign,,Benign,Not Conflicting
+9634,CLDN19,allele,900213,599G>A,Arg200Gln,Benign,,Benign,Not Conflicting
+56918,PGBD1,allele,900214,2032A>G,Ile678Val,,,Benign,
+56918,PGBD1,allele,900215,2416C>G,His806Asp,,,Benign,
+56918,PGBD1,allele,900216,742C>G,Gln248Glu,,,Benign,
+13113,MCEE,allele,900217,227C>T,Ala76Val,Benign,,Benign,Not Conflicting
+2920,GFAP,allele,900221,883G>A,Asp295Asn,Benign,,Benign,
+56918,PGBD1,allele,900222,767C>T,Pro256Leu,,,Benign,
+53737,BFSP2,allele,900226,1220C>A,Ala407Asp,Benign,,Benign,Not Conflicting
+13113,MCEE,allele,900228,428G>A,Arg143His,Benign,,Benign,Not Conflicting
+3693,TUFM,allele,900231,445G>A,Gly149Ser,,,Benign,
+55247,OAS1,allele,900232,725G>A,Arg242Gln,Benign,,Benign,Not Conflicting
+5651,MYOZ2,allele,900235,29A>C,Gln10Pro,Benign,,Benign,Not Conflicting
+5645,GYPA,allele,10274,148C>T,Arg50Trp,,Pathogenic,Pathogenic,
+11032,FTH1,allele,18535,161A>G,Lys54Arg,,Pathogenic,Pathogenic,
+6137,PITX1,allele,11066,388G>A,Glu130Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7201,RAD51D,allele,12776,698A>G,Glu233Gly,Benign,Benign,Benign,Not Conflicting
+55247,OAS1,allele,30088,484A>G,Ser162Gly,,VUS,VUS,
+4676,SERPINF1,allele,8807,215C>T,Thr72Met,Benign,VUS,Benign,Not Conflicting
+11805,SMAD3,allele,20082,590A>T,Asn197Ile,,Pathogenic,Pathogenic,
+3693,TUFM,allele,6726,1016G>A,Arg339Gln,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+6733,BLMH,allele,12061,1327A>G,Ile443Val,Benign,VUS,Benign,Not Conflicting
+5385,WRAP53,allele,9894,202C>G,Arg68Gly,,VUS,VUS,
+56918,PGBD1,allele,32878,731G>A,Gly244Glu,,VUS,VUS,
+13113,MCEE,allele,21930,427C>T,Arg143Cys,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+53065,IL10,allele,25904,43G>A,Gly15Arg,Conflicting,VUS,Conflicting,Conflicting: VUS-Benign
+53065,IL10,allele,25905,386T>A,Phe129Tyr,VUS,VUS,VUS,Not Conflicting
+11832,BCL10,allele,20120,13G>T,Ala5Ser,Benign,VUS,Benign,Not Conflicting
+11832,BCL10,allele,20121,24C>G,Leu8Leu,,VUS,VUS,
+5651,MYOZ2,allele,10277,142T>C,Ser48Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+5651,MYOZ2,allele,10278,738A>G,Ile246Met,Benign,Pathogenic,Benign,
+10177,FKBP6,allele,18108,216C>A,Phe72Leu,,VUS,VUS,
+6231,SDC3,allele,11465,406G>A,Val136Ile,,VUS,VUS,
+53737,BFSP2,allele,27473,859C>T,Arg287Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+53737,BFSP2,allele,27474,1016G>A,Arg339His,,Pathogenic,Pathogenic,
+13943,GCM2,allele,23002,187G>A,Gly63Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+13943,GCM2,allele,23001,140G>T,Arg47Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+55246,PYGL,allele,30087,1131C>G,Asn377Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+55246,PYGL,allele,30086,1016A>G,Asn339Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4515,PNPO,allele,8609,283C>T,Arg95Cys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4515,PNPO,allele,8610,284G>A,Arg95His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4515,PNPO,allele,8612,685C>T,Arg229Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+268,CTH,allele,713,200C>T,Thr67Ile,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+268,CTH,allele,714,718C>G,Gln240Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+268,CTH,allele,715,1208G>T,Ser403Ile,Benign,VUS,Benign,
+7323,PMP22,allele,13235,47T>C,Leu16Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7323,PMP22,allele,13254,239T>C,Leu80Pro,VUS,Pathogenic,VUS,Not Conflicting
+7323,PMP22,allele,13263,325T>C,Cys109Arg,VUS,Pathogenic,VUS,Not Conflicting
+7323,PMP22,allele,13272,469C>G,Arg157Gly,VUS,Pathogenic,VUS,Not Conflicting
+3192,CDKN1A,allele,5563,93C>A,Ser31Arg,Benign,Benign,Benign,Not Conflicting
+3192,CDKN1A,allele,5564,200G>T,Arg67Leu,,Pathogenic,Pathogenic,
+3192,CDKN1A,allele,5565,251G>A,Arg84Gln,Benign,Benign,Benign,Not Conflicting
+3192,CDKN1A,allele,5566,446A>G,Asp149Gly,,VUS,VUS,
+54175,NEUROG3,allele,27915,499G>A,Gly167Arg,Benign,VUS,Benign,Not Conflicting
+54175,NEUROG3,allele,27913,278G>T,Arg93Leu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54175,NEUROG3,allele,27916,596T>C,Phe199Ser,Benign,VUS,Benign,Not Conflicting
+56023,SFTPA2,allele,31341,271G>C,Ala91Pro,Benign,VUS,Benign,Not Conflicting
+56023,SFTPA2,allele,31342,593T>C,Phe198Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+56023,SFTPA2,allele,31343,667C>A,Gln223Lys,Benign,VUS,Benign,Not Conflicting
+56023,SFTPA2,allele,31344,692G>T,Gly231Val,Pathogenic,Pathogenic,Pathogenic,
+3535,EMD,allele,6159,161C>T,Ser54Phe,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3535,EMD,allele,6171,547C>A,Pro183Thr,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3535,EMD,allele,6172,548C>A,Pro183His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3535,EMD,allele,6161,215A>T,Asp72Val,VUS,Pathogenic,VUS,Not Conflicting
+4723,TPM1,allele,8945,118G>A,Glu40Lys,VUS,Pathogenic,VUS,Conflicting: VUS-Pathogenic
+4723,TPM1,allele,8950,284T>C,Val95Ala,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,8952,523G>A,Asp175Asn,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4723,TPM1,allele,8956,842T>C,Met281Thr,Pathogenic,Pathogenic,Pathogenic,Conflicting: VUS-Pathogenic
+14396,NT5C3A,allele,23456,322T>C,Cys108Arg,,Pathogenic,Pathogenic,
+14396,NT5C3A,allele,23457,395A>T,Asp132Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+14396,NT5C3A,allele,23459,604G>C,Gly202Arg,,Pathogenic,Pathogenic,
+14396,NT5C3A,allele,23463,823G>C,Gly275Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4692,LDHB,allele,8915,515G>A,Arg172His,other,Pathogenic,Pathogenic,
+4692,LDHB,allele,8918,973T>C,Trp325Arg,other,Pathogenic,Pathogenic,
+2156,PHYH,allele,3351,85C>T,Pro29Ser,Benign,other,Benign,Not Conflicting
+2654,FBP1,allele,4167,490G>A,Gly164Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2654,FBP1,allele,4169,581T>C,Phe194Ser,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2654,FBP1,allele,4170,639C>G,Asn213Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2654,FBP1,allele,4172,778G>A,Gly260Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11374,RP2,allele,19295,844C>T,Arg282Trp,Benign,Pathogenic,Benign,Not Conflicting
+11374,RP2,allele,19275,257G>A,Cys86Tyr,VUS,Pathogenic,VUS,Not Conflicting
+11374,RP2,allele,19281,353G>A,Arg118His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+11374,RP2,allele,19294,758T>G,Leu253Arg,VUS,Pathogenic,VUS,Not Conflicting
+7651,IL2RG,allele,13838,266A>G,Tyr89Cys,VUS,Pathogenic,VUS,Not Conflicting
+7651,IL2RG,allele,13847,322T>C,Ser108Pro,,Pathogenic,Pathogenic,
+7651,IL2RG,allele,13899,709T>C,Trp237Arg,,Pathogenic,Pathogenic,
+7651,IL2RG,allele,13909,854G>A,Arg285Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7167,AIPL1,allele,12744,236T>C,Met79Thr,not provided,Pathogenic,Pathogenic,
+7167,AIPL1,allele,12749,341C>T,Thr114Ile,Benign,Pathogenic,Benign,
+7167,AIPL1,allele,12756,809G>A,Arg270His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7167,AIPL1,allele,12758,905G>T,Arg302Leu,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Benign
+70497,AGXT,allele,34545,32C>T,Pro11Leu,Benign,Benign,Benign,Not Conflicting
+281,MVK,allele,727,60T>A,His20Gln,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+281,MVK,allele,744,613A>G,Asn205Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+53657,FOXP3,allele,27195,560C>T,Pro187Leu,,Pathogenic,Pathogenic,
+53657,FOXP3,allele,27196,725T>C,Leu242Pro,,Pathogenic,Pathogenic,
+53657,FOXP3,allele,27199,1087A>G,Ile363Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+53657,FOXP3,allele,27193,210G>T,Gln70His,,Pathogenic,Pathogenic,
+2920,GFAP,allele,5153,140C>T,Pro47Leu,Benign,Pathogenic,Benign,
+54914,TAT,allele,28861,355C>T,Arg119Trp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+54914,TAT,allele,28866,818T>C,Leu273Pro,,Pathogenic,Pathogenic,
+54914,TAT,allele,28869,1297C>T,Arg433Trp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54914,TAT,allele,28864,658C>T,Pro220Ser,,Pathogenic,Pathogenic,
+7215,NR0B1,allele,12804,315G>C,Trp105Cys,Conflicting,VUS,Conflicting,Conflicting: VUS-Benign
+7215,NR0B1,allele,12825,800G>C,Arg267Pro,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71892,TH,allele,36345,1141C>A,Gln381Lys,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+71892,TH,allele,36334,643C>T,His215Tyr,,Pathogenic,Pathogenic,
+3643,EIF2B4,allele,6441,683C>T,Ala228Val,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3643,EIF2B4,allele,6448,1172C>A,Ala391Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+3727,NCF2,allele,6812,1256A>T,Asn419Ile,Benign,Pathogenic,Benign,Not Conflicting
+7652,STXBP1,allele,13916,251T>A,Val84Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+7652,STXBP1,allele,13919,1631G>A,Gly544Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,4400,131C>T,Ser44Phe,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,4465,731G>A,Gly244Asp,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+2713,MLH1,allele,4554,1757C>A,Ala586Asp,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+4765,ITGB2,allele,8979,817G>A,Gly273Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+4765,ITGB2,allele,8985,1768T>C,Cys590Arg,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+54308,PKP2,allele,28253,982G>A,Gly328Arg,,Pathogenic,Pathogenic,
+54308,PKP2,allele,28264,1828A>C,Lys610Gln,,Pathogenic,Pathogenic,
+54308,PKP2,allele,28266,1930T>C,Ser644Pro,Conflicting,Pathogenic,Conflicting,Conflicting: VUS-Pathogenic
+1884,LIG4,allele,2942,8C>T,Ala3Val,Benign,Benign,Benign,
+1884,LIG4,allele,2945,833G>A,Arg278His,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1884,LIG4,allele,2948,1406G>A,Gly469Glu,Pathogenic,Pathogenic,Pathogenic,Not Conflicting
+1884,LIG4,allele,2943,26C>T,Thr9Ile,Benign,Benign,Benign,
+1601,RASA1,allele,2813,2288A>T,Glu763Val,Benign,Pathogenic,Benign,Not Conflicting
+1601,RASA1,allele,2804,1277A>G,Tyr426Cys,,Pathogenic,Pathogenic,

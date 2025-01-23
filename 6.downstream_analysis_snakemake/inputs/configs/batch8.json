@@ -2,7 +2,9 @@
     "Metadata_Batch": "2024_02_06_Batch_8",
     "cell_count_col": "Metadata_Object_Count",
     "parallel": true,
-    "pipeline": "profiles_tcdropped_filtered_var_mad_outlier_featselect",
-    "transfection_col": "Metadata_control_type",
-    "trasfection_pert": ["TC"]
+    "pipeline": "profiles_tcdropped_filtered_var_mad_outlier_featselect_filtcells_metacorr",
+    "transfection_col": "Metadata_node_type",
+    "trasfection_pert": ["TC"],
+    "metadata_corr": "onepercent_metadata_update_20240814.csv",
+    "cc_threshold": 20
 }

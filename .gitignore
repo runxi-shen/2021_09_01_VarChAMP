@@ -144,3 +144,9 @@ runinfo/
 runinfo/
 7.downstream_analysis_jess/scripts/runinfo/
 .gitignore.swp
+profiles/
+inputs/
+outputs/
+benchmarks/
+.snakemake/
+test.ipynb

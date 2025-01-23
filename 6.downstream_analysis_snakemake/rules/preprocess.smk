@@ -2,6 +2,7 @@ import preprocess
 import utils
 import classification
 
+
 rule remove_nan:
     input:
         "outputs/batch_profiles/{batch}/{pipeline}.parquet"
@@ -18,6 +19,7 @@ rule remove_nan:
             cell_threshold=params.drop_threshold
         )
 
+
 rule drop_empty_wells:
     input: 
         "outputs/batch_profiles/{batch}/profiles.parquet",
@@ -33,6 +35,7 @@ rule drop_empty_wells:
             pert_name=config["trasfection_pert"]
         )
 
+
 rule wellpos:
     input:
         "outputs/batch_profiles/{batch}/filtered.parquet"
@@ -45,6 +48,7 @@ rule wellpos:
     run:
         preprocess.subtract_well_mean_polar(*input, *output)
 
+
 rule plate_stats:
     input:
         "outputs/batch_profiles/{batch}/profiles_tcdropped_filtered.parquet"
@@ -54,6 +58,7 @@ rule plate_stats:
         "benchmarks/plate_stats_{batch}.bwa.benchmark.txt"
     run:
         preprocess.compute_norm_stats_polar(*input, *output)
+
 
 rule select_variant_feats:
     input:
@@ -66,6 +71,7 @@ rule select_variant_feats:
     run:
         preprocess.select_variant_features_polars(*input, *output)
 
+
 rule mad:
     input:
         "outputs/batch_profiles/{batch}/{pipeline}.parquet",
@@ -77,6 +83,7 @@ rule mad:
     run:
         preprocess.robustmad(input[0], input[1], *output)
 
+
 rule outlier_removal:
     input: 
         "outputs/batch_profiles/{batch}/{pipeline}.parquet",
@@ -86,6 +93,7 @@ rule outlier_removal:
         "benchmarks/{pipeline}_outlier_{batch}.bwa.benchmark.txt"
     run:
         preprocess.clean.outlier_removal_polars(*input, *output)
+
 
 rule feat_select:
     input:
@@ -97,14 +105,34 @@ rule feat_select:
     run:
         preprocess.select_features(*input, *output)
 
+
+rule filter_cells:
+    input: 
+        "outputs/batch_profiles/{batch}/{pipeline}.parquet"
+    output:
+        "outputs/batch_profiles/{batch}/{pipeline}_filtcells.parquet"
+    run:
+        preprocess.filter_cells(*input, *output)
+
+
+rule correct_metadata:
+    input: 
+        "outputs/batch_profiles/{batch}/{pipeline}.parquet",
+        f"inputs/metadata/metadata_correction/{config['metadata_corr']}",
+    output:
+        "outputs/batch_profiles/{batch}/{pipeline}_metacorr.parquet"
+    run:
+        preprocess.correct_metadata(*input, *output)
+
+
 rule classify:
     input:
-        "outputs/batch_profiles/{batch}/{pipeline}.parquet"
+        "outputs/batch_profiles/{batch}/{pipeline}.parquet",
     output:
         "outputs/results/{batch}/{pipeline}/feat_importance.csv",
         "outputs/results/{batch}/{pipeline}/classifier_info.csv",
-        "outputs/results/{batch}/{pipeline}/predictions.parquet",
+        "outputs/results/{batch}/{pipeline}/predictions.parquet"
     benchmark:
         "benchmarks/{pipeline}_classify_{batch}.bwa.benchmark.txt"
     run:
-        classification.run_classify_workflow(*input, *output)
+        classification.run_classify_workflow(*input, *output, config["cc_threshold"])

@@ -150,3 +150,6 @@ outputs/
 benchmarks/
 .snakemake/
 test.ipynb
+
+# Runxi added
+*.png

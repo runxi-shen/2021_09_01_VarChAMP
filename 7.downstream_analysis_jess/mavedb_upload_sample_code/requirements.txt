@@ -1,0 +1,5 @@
+jupyter
+pandas==1.4.2
+mavetools @ git+https://github.com/varianteffect/mavetools@dev
+fqfa
+mavehgvs

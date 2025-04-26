@@ -1,3 +1,4 @@
+## Should ONLY be run when located 8.2_updated_snakemake_pipeline
 configfile: "inputs/configs/2025_01_27_Batch_13.json"
 
 include: "rules/common.smk"
@@ -9,4 +10,4 @@ PIPELINE = config["pipeline"]
 
 rule all:
     input:
-        f"outputs/analyses/{BATCH}/{PIPELINE}/metrics_summary.csv"
+        f"outputs/classification_analyses/{BATCH}/{PIPELINE}/metrics_summary.csv"

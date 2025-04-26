@@ -1,6 +1,6 @@
 ## imports
-import plotnine as plotnine
 import polars as pl
+from tqdm import tqdm
 from sklearn.metrics import (
     average_precision_score,
     balanced_accuracy_score,
@@ -8,15 +8,16 @@ from sklearn.metrics import (
     f1_score,
     roc_auc_score,
 )
-from tqdm import tqdm
 
 
 # Define a function to compute metrics for each group
 def compute_aubprc(auprc, prior):
+    ## calculate the balanced AUPRC based on a prior (incorporating the class imbalance)
     return (auprc * (1 - prior)) / ((auprc * (1 - prior)) + ((1 - auprc) * prior))
 
 
 def compute_metrics(group):
+    ## Calculate all the metrics for evaluating a classifier
     y_true = group["Label"].to_numpy()
     y_prob = group["Prediction"].to_numpy()
     y_pred = (y_prob > 0.5).astype(int)
@@ -27,7 +28,7 @@ def compute_metrics(group):
     # Compute AUROC
     auroc = roc_auc_score(y_true, y_prob)
 
-    # Compute AUPRC
+    # Compute AUPRC and balanced AUPRC
     auprc = average_precision_score(y_true, y_prob)
     aubprc = compute_aubprc(auprc, prior)
 
@@ -58,8 +59,10 @@ def calculate_class_metrics(classifier_info: str, predictions: str, metrics_file
     batch_id = [subdir for subdir in classifier_info.split("/") if "Batch" in subdir][0]
     batch_id = f"B{batch_id.split('Batch_')[-1]}"
 
-    # read in classifier info
+    ## read in classifier info
     class_info = pl.read_csv(classifier_info)
+
+    ## calculate the class imbalance in training and testing per each classifier
     class_info = class_info.with_columns(
         (pl.col("trainsize_1") / (pl.col("trainsize_0") + pl.col("trainsize_1"))).alias(
             "train_prob_1"
@@ -69,7 +72,7 @@ def calculate_class_metrics(classifier_info: str, predictions: str, metrics_file
         ),
     )
 
-    # read in predictions
+    ## read in predictions
     preds = pl.scan_parquet(predictions)
     preds = preds.with_columns(pl.lit(batch_id).alias("Batch")).collect()
     preds = preds.with_columns(
@@ -105,23 +108,21 @@ def calculate_class_metrics(classifier_info: str, predictions: str, metrics_file
         ).alias("Testing_imbalance"),
     )
     metrics_df.write_csv(metrics_file)
-
     return metrics_df
 
 
 def compute_hits(metrics_file: str, metrics_summary_file: str, trn_imbal_thres: int, min_num_classifier: int):
     metrics_df = pl.read_csv(metrics_file)
-    
     batch_id = [subdir for subdir in metrics_file.split("/") if "Batch" in subdir][0]
     batch_id = f"B{batch_id.split('Batch_')[-1]}"
 
     # Add useful columns (type, batch)
     metrics_df = metrics_df.with_columns(
-        pl.format(
-            "A{}P{}",  # 组合格式
-            pl.col("Plate").str.extract(r'A(\d+)', 1),  # 提取A后的数字
-            pl.col("Plate").str.extract(r'_P(\d+)T', 1)  # 提取P后的数字（排除T后的部分）
-        ).alias("Allele_set")
+        #  Group the same alleles from platemap together, by extracting the substring that:
+        #  1. Has a digit (\d) immediately before it (anchors the match at a number)
+        #  2. Starts with 'A' and then as few characters as needed (A.*?), captured as group 1
+        #  3. Stops right before the literal 'T'
+        pl.col("Plate").str.extract(r"\d(A.*?)T", 1).alias("Allele_set"),
     )
 
     metrics_df = metrics_df.with_columns(

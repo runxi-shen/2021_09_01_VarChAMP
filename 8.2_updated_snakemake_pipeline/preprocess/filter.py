@@ -94,7 +94,6 @@ def filter_cells(input_path: str, output_path: str, TC: list, NC: list, PC: list
     # Create new Metadata_node_type annotations
     dframe = dframe.drop([
         "Metadata_node_type",
-        "Metadata_control_type",
     ]).with_columns(
         pl.when(pl.col("Metadata_symbol") == pl.col("Metadata_gene_allele"))
         .then(pl.lit("disease_wt"))

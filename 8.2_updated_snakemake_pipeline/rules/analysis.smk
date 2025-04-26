@@ -1,11 +1,25 @@
 import classification
 
+
+rule classify:
+    input:
+        "outputs/batch_profiles/{batch}/{pipeline}.parquet",
+    output:
+        "outputs/classification_results/{batch}/{pipeline}/feat_importance.csv",
+        "outputs/classification_results/{batch}/{pipeline}/classifier_info.csv",
+        "outputs/classification_results/{batch}/{pipeline}/predictions.parquet"
+    benchmark:
+        "benchmarks/{pipeline}_classify_{batch}.bwa.benchmark.txt"
+    run:
+        classification.run_classify_workflow(*input, *output, config["cc_threshold"])
+
+
 rule calculate_metrics:
     input:
-        "outputs/results/{batch}/{pipeline}/classifier_info.csv",
-        "outputs/results/{batch}/{pipeline}/predictions.parquet"
+        "outputs/classification_results/{batch}/{pipeline}/classifier_info.csv",
+        "outputs/classification_results/{batch}/{pipeline}/predictions.parquet"
     output:
-        "outputs/analyses/{batch}/{pipeline}/metrics.csv"
+        "outputs/classification_analyses/{batch}/{pipeline}/metrics.csv"
     benchmark:
         "outputs/benchmarks/{batch}/{pipeline}_calc_metrics.bwa.benchmark.txt"
     run:
@@ -17,9 +31,9 @@ rule calculate_metrics:
 
 rule compute_hits:
     input:
-        "outputs/analyses/{batch}/{pipeline}/metrics.csv"
+        "outputs/classification_analyses/{batch}/{pipeline}/metrics.csv"
     output:
-        "outputs/analyses/{batch}/{pipeline}/metrics_summary.csv"
+        "outputs/classification_analyses/{batch}/{pipeline}/metrics_summary.csv"
     benchmark:
         "outputs/benchmarks/{batch}/{pipeline}_comp_hits.bwa.benchmark.txt"
     run:

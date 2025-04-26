@@ -5,7 +5,6 @@ import sys
 import warnings
 from itertools import combinations
 from typing import Union
-
 import cupy as cp
 import numpy as np
 import pandas as pd
@@ -22,7 +21,7 @@ sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
 
-def classifier(df_train, df_test, target="Label", shuffle=False):
+def classifier(df_train, df_test, log_file, target="Label", shuffle=False):
     """
     This function runs classification.
     """
@@ -37,6 +36,9 @@ def classifier(df_train, df_test, target="Label", shuffle=False):
     num_neg = df_train[df_train[target] == 0].shape[0]
 
     if (num_pos == 0) or (num_neg == 0):
+        log_file.write(f"Missing positive/negative labels in {df_train['Metadata_Plate'].unique()}, {df_train['Metadata_symbol'].unique()} wells: {df_train['Metadata_well_position'].unique()}\n")
+        log_file.write(f"Size of pos: {num_pos}, Size of neg: {num_neg}\n")
+
         print(f"size of pos: {num_pos}, size of neg: {num_neg}")
         feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
         return feat_importances, np.nan
@@ -44,6 +46,8 @@ def classifier(df_train, df_test, target="Label", shuffle=False):
     scale_pos_weight = num_neg / num_pos
 
     if (scale_pos_weight > 100) or (scale_pos_weight < 0.01):
+        log_file.write(f"Extreme class imbalance in {df_train['Metadata_Plate'].unique()}, {df_train['Metadata_symbol'].unique()} wells: {df_train['Metadata_well_position'].unique()}\n")
+        log_file.write(f"Scale_pos_weight: {scale_pos_weight}, Size of pos: {num_pos}, Size of neg: {num_neg}\n")
         print(
             f"scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}"
         )
@@ -141,9 +145,22 @@ def get_classifier_features(dframe: pd.DataFrame, protein_feat: bool):
     return dframe
 
 
+def get_common_plates(dframe1, dframe2):
+    """Helper func: get common plates in two dataframes"""
+    plate_list = list(
+        set(list(dframe1["Metadata_Plate"].unique()))
+        & set(list(dframe2["Metadata_Plate"].unique()))
+    )
+    return plate_list
+
+
 def stratify_by_plate(df_sampled: pd.DataFrame, plate: str):
     """Stratify dframe by plate"""
-    platemap = "_".join(plate.split("T")[0].split("_")[-2:])
+    # print(df_sampled.head())
+    df_sampled_platemap = plate.split("_T")[0]
+    platemaps = df_sampled[df_sampled["Metadata_Plate"].str.contains(df_sampled_platemap)]["Metadata_plate_map_name"].to_list()
+    assert(len(set(platemaps))==1), "Only one platemap should be associated with plate: {plate}."
+    platemap = platemaps[0]
 
     # Train on data from same platemap but other plates
     df_train = df_sampled[
@@ -159,6 +176,7 @@ def stratify_by_plate(df_sampled: pd.DataFrame, plate: str):
 def experimental_runner(
     exp_dframe: pd.DataFrame,
     pq_writer,
+    log_file,
     protein=True,
     group_key_one="Metadata_symbol",
     group_key_two="Metadata_gene_allele",
@@ -176,6 +194,7 @@ def experimental_runner(
     feat_list = []
     info_list = []
 
+    log_file.write(f"Running XGBboost classifiers w/ protein {protein} on target variants:\n")
     groups = exp_dframe.groupby(group_key_one).groups
     for key in tqdm(groups.keys()):
         dframe_grouped = exp_dframe.loc[groups[key]].reset_index(drop=True)
@@ -200,13 +219,12 @@ def experimental_runner(
             df_group_two["Label"] = 0
 
             df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
-
             plate_list = get_common_plates(df_group_one, df_group_two)
 
             def classify_by_plate_helper(plate):
                 df_train, df_test = stratify_by_plate(df_sampled, plate)
                 feat_importances, classifier_info, predictions = classifier(
-                    df_train, df_test
+                    df_train, df_test, log_file
                 )
                 return {plate: [feat_importances, classifier_info, predictions]}
 
@@ -236,6 +254,9 @@ def experimental_runner(
                 pq_writer.write_table(table)
             except Exception as e:
                 print(e)
+                log_file.write(f"{key}, {subkey} error: {e}\n")
+        #     break
+        # break
 
     # Store feature importance
     df_feat_one = pd.DataFrame({"Group1": group_list, "Group2": pair_list})
@@ -247,21 +268,16 @@ def experimental_runner(
     # process classifier info
     df_result = pd.concat(info_list, ignore_index=True)
     df_result["Metadata_Control"] = False
+
+    log_file.write(f"Finished running XGBboost classifiers w/ protein {protein} on target variants.\n")
+    log_file.write(f"===========================================================================\n\n")
     return df_feat, df_result
-
-
-def get_common_plates(dframe1, dframe2):
-    """Helper func: get common plates in two dataframes"""
-    plate_list = list(
-        set(list(dframe1["Metadata_Plate"].unique()))
-        & set(list(dframe2["Metadata_Plate"].unique()))
-    )
-    return plate_list
 
 
 def control_group_runner(
     ctrl_dframe: pd.DataFrame,
     pq_writer,
+    log_file,
     group_key_one="Metadata_gene_allele",
     group_key_two="Metadata_plate_map_name",
     group_key_three="Metadata_well_position",
@@ -280,8 +296,8 @@ def control_group_runner(
     feat_list = []
     info_list = []
 
+    log_file.write(f"Running XGBboost classifiers w/ protein {protein} on control alleles:\n")
     groups = ctrl_dframe.groupby(group_key_one).groups
-
     for key in tqdm(groups.keys()):
         # groupby alleles
         dframe_grouped = ctrl_dframe.loc[groups[key]].reset_index(drop=True)
@@ -292,7 +308,6 @@ def control_group_runner(
 
         # group by platemap
         subgroups = dframe_grouped.groupby(group_key_two).groups
-
         for key_two in subgroups.keys():
             dframe_grouped_two = dframe_grouped.loc[subgroups[key_two]].reset_index(
                 drop=True
@@ -327,7 +342,7 @@ def control_group_runner(
                     def classify_by_plate_helper(plate):
                         df_train, df_test = stratify_by_plate(df_sampled, plate)
                         feat_importances, classifier_info, predictions = classifier(
-                            df_train, df_test
+                            df_train, df_test, log_file
                         )
                         return {plate: [feat_importances, classifier_info, predictions]}
 
@@ -355,6 +370,9 @@ def control_group_runner(
                     pq_writer.write_table(table)
                 except Exception as e:
                     print(e)
+                    log_file.write(f"{key}, {key_two} error: {e}, wells per ctrl: {sub_sub_groups}\n")
+            #     break
+            # break
 
     # Store feature importance
     df_feat_one = pd.DataFrame({"Group1": group_list, "Group2": pair_list})
@@ -366,14 +384,19 @@ def control_group_runner(
     # process classifier info
     df_result = pd.concat(info_list, ignore_index=True)
     df_result["Metadata_Control"] = True
+
+    log_file.write(f"Finished running XGBboost classifiers w/ protein {protein} on control alleles.\n")
+    log_file.write(f"===========================================================================\n\n")
     return df_feat, df_result
 
 
 def control_type_helper(col_annot: str):
     """helper func for annotating column "Metadata_control" """
-    if col_annot in ["TC", "NC", "PC", "cPC", "cNC"]:
+    ## Only TC, NC, PC are used for constructing the null distribution because of multiple duplicates 
+    if col_annot in ["TC", "NC", "PC"]:
         return True
-    elif col_annot in ["disease_wt", "allele"]:
+    ## else labeled as not controls
+    elif col_annot in ["disease_wt", "allele", "cPC", "cNC"]:
         return False
     else:
         return None
@@ -388,22 +411,32 @@ def add_control_annot(dframe):
     return dframe
 
 
-def drop_low_cc_wells(dframe, cc_thresh):
+def drop_low_cc_wells(dframe, cc_thresh, log_file):
     # Drop wells with cell counts lower than the threshold
-
     dframe["Metadata_Cell_ID"] = dframe.index
     cell_count = (
         dframe.groupby(["Metadata_Plate", "Metadata_Well"])["Metadata_Cell_ID"]
         .count()
         .reset_index(name="Metadata_Cell_Count")
     )
-
+    ## get the cell counts per well per plate
     dframe = dframe.merge(
         cell_count,
         on=["Metadata_Plate", "Metadata_Well"],
     )
+    dframe_dropped = (
+        dframe[dframe["Metadata_Cell_Count"] < cc_thresh]
+    )
+    ## keep track of the alleles in a log file
+    log_file.write(f"Number of wells dropped due to cell counts < {cc_thresh}: {len((dframe_dropped['Metadata_Plate']+dframe_dropped['Metadata_Well']+dframe_dropped['Metadata_gene_allele']).unique())}\n")
+    dframe_dropped = dframe_dropped.drop_duplicates(subset=["Metadata_Plate", "Metadata_Well"])
+    if (dframe_dropped.shape[0] > 0):
+        for idx in dframe_dropped.index:
+            log_file.write(f"{dframe_dropped.loc[idx, 'Metadata_Plate']}, {dframe_dropped.loc[idx, 'Metadata_Well']}:{dframe_dropped.loc[idx, 'Metadata_gene_allele']}\n")
+            # print(f"{dframe_dropped.loc[idx, 'Metadata_Plate']}, {dframe_dropped.loc[idx, 'Metadata_Well']}:{dframe_dropped.loc[idx, 'Metadata_gene_allele']}\n")
+    ## keep only the wells with cc >= cc_thresh
     dframe = (
-        dframe[dframe["Metadata_Cell_Count"] > cc_thresh]
+        dframe[dframe["Metadata_Cell_Count"] >= cc_thresh]
         .drop(columns=["Metadata_Cell_Count"])
         .reset_index(drop=True)
     )
@@ -427,6 +460,11 @@ def run_classify_workflow(
     # Initialize parquet for cell-level predictions
     if os.path.exists(preds_output_path):
         os.remove(preds_output_path)
+    
+    ## create a log file
+    logfile_path = os.path.join('/'.join(preds_output_path.split("/")[:-1]), "classify.log")
+
+    ## output the prediction.parquet
     schema = pa.schema([
         ("Classifier_ID", pa.string()),
         ("CellID", pa.string()),
@@ -483,32 +521,45 @@ def run_classify_workflow(
         drop=True
     )
 
-    # Filter out wells with fewer than the cell count threhsold
-    df_control = drop_low_cc_wells(df_control, cc_threshold)
-    df_exp = drop_low_cc_wells(df_exp, cc_threshold)
+    with open(logfile_path, "w") as log_file:
+        log_file.write(f"===============================================================================================================================================================\n")
+        log_file.write("Dropping low cell count wells in control alleles:\n")
+        print("Dropping low cell count wells in control alleles:\n")
 
-    # Protein feature analysis
-    df_feat_pro_con, df_result_pro_con = control_group_runner(
-        df_control, pq_writer=writer, protein=True
-    )
-    df_feat_pro_exp, df_result_pro_exp = experimental_runner(
-        df_exp, pq_writer=writer, protein=True
-    )
+        df_control = drop_low_cc_wells(df_control, cc_threshold, log_file)
+        log_file.write("Dropping low cell count wells in ref. vs variant alleles:\n")
+        print("Dropping low cell count wells in ref. vs variant alleles:")
+        df_exp = drop_low_cc_wells(df_exp, cc_threshold, log_file)
+        log_file.write(f"===============================================================================================================================================================\n\n")
 
-    # Non-protein feature analysis
-    df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
-        df_control, pq_writer=writer, protein=False
-    )
-    df_feat_no_pro_exp, df_result_no_pro_exp = experimental_runner(
-        df_exp, pq_writer=writer, protein=False
-    )
-    writer.close()
+        # Filter out wells with fewer than the cell count threhsold
+        df_control = drop_low_cc_wells(df_control, cc_threshold, log_file)
+        df_exp = drop_low_cc_wells(df_exp, cc_threshold, log_file)
+
+        # Protein feature analysis
+        df_feat_pro_con, df_result_pro_con = control_group_runner(
+            df_control, pq_writer=writer, log_file=log_file, protein=True
+        )
+        df_feat_pro_exp, df_result_pro_exp = experimental_runner(
+            df_exp, pq_writer=writer, log_file=log_file, protein=True
+        )
+
+        # Non-protein feature analysis
+        df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
+            df_control, pq_writer=writer, log_file=log_file, protein=False
+        )
+        df_feat_no_pro_exp, df_result_no_pro_exp = experimental_runner(
+            df_exp, pq_writer=writer, log_file=log_file, protein=False
+        )
+        writer.close()
 
     # Concatenate results for both protein and non-protein
     df_feat = pd.concat(
         [df_feat_pro_con, df_feat_no_pro_con, df_feat_pro_exp, df_feat_no_pro_exp],
         ignore_index=True,
     )
+    # print(df_feat.shape)
+    # print(df_feat)
     df_result = pd.concat(
         [
             df_result_pro_con,

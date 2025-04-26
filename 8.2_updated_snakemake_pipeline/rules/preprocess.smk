@@ -1,6 +1,21 @@
 import preprocess
 import utils
-import classification
+
+
+rule drop_empty_wells:
+    input: 
+        "outputs/batch_profiles/{batch}/profiles.parquet",
+    output: 
+        "outputs/batch_profiles/{batch}/profiles_tcdropped.parquet",
+    benchmark:
+        "outputs/benchmarks/{batch}/profiles_tcdropped.bwa.benchmark.txt"
+    run:
+        preprocess.drop_empty_wells(
+            *input, 
+            *output, 
+            pert_col=config["transfection_col"], 
+            pert_name=config["trasfection_pert"]
+        )
 
 
 rule remove_nan:
@@ -20,22 +35,8 @@ rule remove_nan:
         )
 
 
-rule drop_empty_wells:
-    input: 
-        "outputs/batch_profiles/{batch}/profiles.parquet",
-    output: 
-        "outputs/batch_profiles/{batch}/profiles_tcdropped.parquet",
-    benchmark:
-        "outputs/benchmarks/{batch}/profiles_tcdropped.bwa.benchmark.txt"
-    run:
-        preprocess.drop_empty_wells(
-            *input, 
-            *output, 
-            pert_col=config["transfection_col"], 
-            pert_name=config["trasfection_pert"]
-        )
-
-
+"""
+## Well-position correction IS NOT applied for now, but it is always kept as a procedure to be tested
 rule wellpos:
     input:
         "outputs/batch_profiles/{batch}/filtered.parquet"
@@ -47,6 +48,7 @@ rule wellpos:
         parallel = config['parallel']
     run:
         preprocess.subtract_well_mean_polar(*input, *output)
+"""
 
 
 rule plate_stats:
@@ -118,16 +120,3 @@ rule filter_cells:
         cPC = config['cPC']
     run:
         preprocess.filter_cells(*input, *output, TC=params.TC, NC=params.NC, PC=params.PC, cPC=params.cPC)
-
-
-rule classify:
-    input:
-        "outputs/batch_profiles/{batch}/{pipeline}.parquet",
-    output:
-        "outputs/results/{batch}/{pipeline}/feat_importance.csv",
-        "outputs/results/{batch}/{pipeline}/classifier_info.csv",
-        "outputs/results/{batch}/{pipeline}/predictions.parquet"
-    benchmark:
-        "benchmarks/{pipeline}_classify_{batch}.bwa.benchmark.txt"
-    run:
-        classification.run_classify_workflow(*input, *output, config["cc_threshold"])

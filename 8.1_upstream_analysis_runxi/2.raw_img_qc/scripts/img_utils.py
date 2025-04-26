@@ -42,6 +42,36 @@ batch_dict = {
 
 ## Store a large dict for mapping platemaps to img measurements on cell-painting gallery
 plate_dict = {
+    ## Batch 13
+    "B13A7A8P1_R1_T1": {
+        "B13A7A8P1_R1_T1": "2025_01_27_B13A7A8P1_T1__2025_01_27T08_46_50_Measurement_1",
+        "B13A7A8P1_R1_T2": "2025_01_27_B13A7A8P1_T2__2025_01_27T09_53_48_Measurement_1",
+        "B13A7A8P1_R1_T3": "2025_01_27_B13A7A8P1_T3__2025_01_27T11_10_53_Measurement_1",
+        "B13A7A8P1_R1_T4": "2025_01_27_B13A7A8P1_T4__2025_01_27T12_17_23_Measurement_1",
+    },
+
+    "B13A7A8P2_R1_T1": {
+        "B13A7A8P2_R1_T1": "2025_01_27_B13A7A8P2_T1__2025_01_27T13_39_08_Measurement_1",
+    "B13A7A8P2_R1_T2": "2025_01_27_B13A7A8P2_T2__2025_01_27T15_06_52_Measurement_1",
+    "B13A7A8P2_R1_T3": "2025_01_27_B13A7A8P2_T3__2025_01_27T16_24_23_Measurement_1",
+    "B13A7A8P2_R1_T4": "2025_01_27_B13A7A8P2_T4__2025_01_27T17_34_19_Measurement_1",
+    },
+
+    ## Batch 14
+    "B14A7A8P2_R2_T1": {
+        "B14A7A8P1_R2_T1": '2025_01_28_B14A7A8P1_T1__2025_01_28T08_50_18_Measurement_1',
+        "B14A7A8P1_R2_T2": '2025_01_28_B14A7A8P1_T2__2025_01_28T09_53_20_Measurement_1',
+        "B14A7A8P1_R2_T3": '2025_01_28_B14A7A8P1_T3__2025_01_28T12_28_32_Measurement_3',
+        "B14A7A8P1_R2_T4": '2025_01_28_B14A7A8P1_T4__2025_01_28T11_14_00_Measurement_2',
+    },
+
+    "B14A7A8P2_R2_T1": {
+        "B14A7A8P2_R2_T1": '2025_01_28_B14A7A8P2_T1__2025_01_28T13_32_03_Measurement_1',
+        "B14A7A8P2_R2_T4": '2025_01_28_B14A7A8P2_T4__2025_01_28T17_11_31_Measurement_1',
+        "B14A7A8P2_R2_T2": '2025_01_28_B14A7A8P2_T2__2025_01_28T14_42_58_Measurement_1',
+        "B14A7A8P2_R2_T3": '2025_01_28_B14A7A8P2_T3__2025_01_28T16_06_55_Measurement_1'
+    },
+
     ## Batch 7
     "B7A1R1_P1": {"T1": "2024_01_17_B7A1R1_P1T1__2024_01_17T08_35_58_Measurement_1",
                   "T2": "2024_01_17_B7A1R1_P1T2__2024_01_17T10_13_45_Measurement_1",
@@ -63,17 +93,12 @@ plate_dict = {
                   "T3": "2024_01_22_B7A1R1_P4T3__2024_01_22T08_37_41_Measurement_1",
                   "T4": "2024_01_22_B7A1R1_P4T4__2024_01_22T10_27_16_Measurement_1"},
     
-    "B7A2R1_P1": {"T1": "2024_01_22_B7A2R1_P1T1__2024_01_22T12_13_13_Measurement_1",
-                  "T2": "2024_01_22_B7A2R1_P1T2__2024_01_22T13_52_24_Measurement_1",
-                  "T3": "2024_01_22_B7A2R1_P1T3__2024_01_22T15_29_31_Measurement_1",
-                  "T4": "2024_01_23_B7A2R1_P1T4__2024_01_23T08_28_07_Measurement_1"},
-    
+    ## Batch 8
     "B8A1R2_P1": {"T1": "2024_01_31_B8A1R2_P1T1__2024_01_31T10_11_57_Measurement_1",
                   "T2": "2024_01_31_B8A1R2_P1T2__2024_01_31T08_35_51_Measurement_2",
                   "T3": "2024_01_31_B8A1R2_P1T3__2024_01_31T12_09_14_Measurement_1",
                   "T4": "2024_01_31_B8A1R2_P1T4__2024_01_31T14_02_18_Measurement_2"},
-    
-    ## Batch 8
+
     "B8A1R2_P2": {"T1": "2024_01_31_B8A1R2_P2T1__2024_01_31T15_41_23_Measurement_1",
                   "T2": "2024_02_01_B8A1R2_P2T2__2024_02_01T10_23_20_Measurement_2",
                   "T3": "2024_02_01_B8A1R2_P2T3__2024_02_01T12_16_30_Measurement_4",
@@ -88,10 +113,5 @@ plate_dict = {
                   "T2": "2024_02_05_B8A1R2_P4T2__2024_02_05T08_22_47_Measurement_2",
                   "T3": "2024_02_05_B8A1R2_P4T3__2024_02_05T10_00_30_Measurement_1",
                   "T4": "2024_02_05_B8A1R2_P4T4__2024_02_05T11_38_50_Measurement_1"},
-    
-    "B8A2R2_P1": {"T1": "2024_02_05_B8A2R2_P1T1__2024_02_05T13_23_28_Measurement_1",
-                  "T2": "2024_02_05_B8A2R2_P1T2__2024_02_05T15_18_32_Measurement_1",
-                  "T3": "2024_02_06_B8A2R2_P1T3__2024_02_06T08_23_49_Measurement_1",
-                  "T4": "2024_02_06_B8A2R2_P1T4__2024_02_06T10_18_16_Measurement_1"}
 }
 

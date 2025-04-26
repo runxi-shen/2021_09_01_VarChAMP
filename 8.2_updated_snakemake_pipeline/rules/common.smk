@@ -4,6 +4,7 @@ import os
 batch = config["Metadata_Batch"]
 plates = os.listdir(f"inputs/single_cell_profiles/{batch}/")
 
+
 rule parquet_convert:
     input: 
         "inputs/single_cell_profiles/{batch}/{plate}/{plate}.sqlite"

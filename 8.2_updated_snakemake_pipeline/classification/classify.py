@@ -15,7 +15,6 @@ import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 from tqdm.contrib.concurrent import thread_map
-
 warnings.filterwarnings("ignore")
 sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
@@ -23,7 +22,7 @@ from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
 
 def classifier(df_train, df_test, log_file, target="Label", shuffle=False):
     """
-    This function runs classification.
+    This function train and test a classifier on the single-cell profiles from ref. and var. alleles.
     """
 
     feat_col = find_feat_cols(df_train)
@@ -169,7 +168,6 @@ def stratify_by_plate(df_sampled: pd.DataFrame, plate: str):
     ].reset_index(drop=True)
 
     df_test = df_sampled[df_sampled["Metadata_Plate"] == plate].reset_index(drop=True)
-
     return df_train, df_test
 
 
@@ -195,66 +193,69 @@ def experimental_runner(
     info_list = []
 
     log_file.write(f"Running XGBboost classifiers w/ protein {protein} on target variants:\n")
+    ## First group the df by reference genes
     groups = exp_dframe.groupby(group_key_one).groups
     for key in tqdm(groups.keys()):
         dframe_grouped = exp_dframe.loc[groups[key]].reset_index(drop=True)
-
         # Ensure this gene has both reference and variants
         if dframe_grouped[threshold_key].unique().size < 2:
             continue
-
         df_group_one = dframe_grouped[
-            dframe_grouped["Metadata_node_type"] == "disease_wt"
+            dframe_grouped[threshold_key] == "disease_wt"
         ].reset_index(drop=True)
         df_group_one["Label"] = 1
 
+        ## Then group the gene-specific df by different variant alleles
         subgroups = (
-            dframe_grouped[dframe_grouped["Metadata_node_type"] == "allele"]
+            dframe_grouped[dframe_grouped[threshold_key] == "allele"]
             .groupby(group_key_two)
             .groups
         )
-
         for subkey in subgroups.keys():
             df_group_two = dframe_grouped.loc[subgroups[subkey]].reset_index(drop=True)
             df_group_two["Label"] = 0
-
-            df_sampled = pd.concat([df_group_one, df_group_two], ignore_index=True)
             plate_list = get_common_plates(df_group_one, df_group_two)
 
-            def classify_by_plate_helper(plate):
-                df_train, df_test = stratify_by_plate(df_sampled, plate)
-                feat_importances, classifier_info, predictions = classifier(
-                    df_train, df_test, log_file
-                )
-                return {plate: [feat_importances, classifier_info, predictions]}
+            ## Get ALL the wells for reference gene and variant alleles and pair up all possible combinations
+            ref_wells = df_group_one["Metadata_well_position"].unique()
+            var_wells = list(df_group_two["Metadata_well_position"].unique())
+            ref_var_pairs = [(ref_well, var_well) for ref_well in ref_wells for var_well in var_wells]
+            df_sampled_ = pd.concat([df_group_one, df_group_two], ignore_index=True)
+            ## Per each ref-var well pair on the SAME plate, train and test the classifier
+            for ref_var in ref_var_pairs:
+                df_sampled = df_sampled_[df_sampled_["Metadata_well_position"].isin(ref_var)]
+                ## Define the func. for thread_map the plate on the same df_sampled
+                def classify_by_plate_helper(plate):
+                    df_train, df_test = stratify_by_plate(df_sampled, plate)
+                    feat_importances, classifier_info, predictions = classifier(
+                        df_train, df_test, log_file
+                    )
+                    return {plate: [feat_importances, classifier_info, predictions]}
+                try:
+                    result = thread_map(classify_by_plate_helper, plate_list)
+                    pred_list = []
+                    for res in result:
+                        if len(list(res.values())[0]) == 3:
+                            feat_list.append(list(res.values())[0][0])
+                            group_list.append(key)
+                            pair_list.append(f"{key}_{subkey}")
+                            info_list.append(list(res.values())[0][1])
+                            pred_list.append(list(res.values())[0][2])
+                        else:
+                            print("res length not 3!")
+                            feat_list.append([None] * len(feat_cols))
+                            group_list.append(key)
+                            pair_list.append(f"{key}_{subkey}")
+                            info_list.append([None] * 10)
 
-            # try run classifier
-            try:
-                result = thread_map(classify_by_plate_helper, plate_list)
-
-                pred_list = []
-                for res in result:
-                    if len(list(res.values())[0]) == 3:
-                        feat_list.append(list(res.values())[0][0])
-                        group_list.append(key)
-                        pair_list.append(f"{key}_{subkey}")
-                        info_list.append(list(res.values())[0][1])
-                        pred_list.append(list(res.values())[0][2])
-                    else:
-                        print("res length not 3!")
-                        feat_list.append([None] * len(feat_cols))
-                        group_list.append(key)
-                        pair_list.append(f"{key}_{subkey}")
-                        info_list.append([None] * 10)
-
-                cell_preds = pd.concat(pred_list, axis=0)
-                cell_preds["Metadata_Protein"] = protein
-                cell_preds["Metadata_Control"] = False
-                table = pa.Table.from_pandas(cell_preds, preserve_index=False)
-                pq_writer.write_table(table)
-            except Exception as e:
-                print(e)
-                log_file.write(f"{key}, {subkey} error: {e}\n")
+                    cell_preds = pd.concat(pred_list, axis=0)
+                    cell_preds["Metadata_Protein"] = protein
+                    cell_preds["Metadata_Control"] = False
+                    table = pa.Table.from_pandas(cell_preds, preserve_index=False)
+                    pq_writer.write_table(table)
+                except Exception as e:
+                    print(e)
+                    log_file.write(f"{key}, {subkey} error: {e}\n")
         #     break
         # break
 
@@ -297,11 +298,11 @@ def control_group_runner(
     info_list = []
 
     log_file.write(f"Running XGBboost classifiers w/ protein {protein} on control alleles:\n")
+    ## First group the df by reference genes
     groups = ctrl_dframe.groupby(group_key_one).groups
     for key in tqdm(groups.keys()):
         # groupby alleles
         dframe_grouped = ctrl_dframe.loc[groups[key]].reset_index(drop=True)
-
         # Skip controls with no replicates
         if dframe_grouped[threshold_key].unique().size < 2:
             continue

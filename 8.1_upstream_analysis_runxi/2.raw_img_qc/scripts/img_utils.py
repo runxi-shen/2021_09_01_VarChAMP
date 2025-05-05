@@ -36,12 +36,30 @@ batch_dict = {
     "B7A1R1": "2024_01_23_Batch_7",
     "B7A2R1": "2024_01_23_Batch_7",
     "B8A1R2": "2024_02_06_Batch_8",
-    "B8A2R2": "2024_02_06_Batch_8"
+    "B8A2R2": "2024_02_06_Batch_8",
+    "B15A1A2P1": "2025_03_17_Batch_15",
+    "B16A1A2P1": "2025_03_17_Batch_16",
 }
 
 
 ## Store a large dict for mapping platemaps to img measurements on cell-painting gallery
 plate_dict = {
+    ## Batch 15
+    "B15A1A2P1": {
+        "T1": '2025-03-17_B15A1A2_P1T1__2025-03-17T08_34_13-Measurement_1',
+        "T2": '2025-03-17_B15A1A2_P1T3__2025-03-17T11_08_17-Measurement_2',
+        "T3": '2025-03-17_B15A1A2_P1T2__2025-03-17T09_39_24-Measurement_1',
+        "T4": '2025-03-17_B15A1A2_P1T4__2025-03-17T12_28_48-Measurement_1'
+    },
+    
+    ## Batch 16
+    "B16A1A2P1": {
+        "T1": '2025-03-18_B16A1A2_P1T2__2025-03-18T08_45_49-Measurement_1',
+        "T2": '2025-03-18_B16A1A2_P1T3__2025-03-18T10_08_59-Measurement_1',
+        "T3": '2025-03-17_B16A1A2_P1T1__2025-03-17T13_48_08-Measurement_1',
+        "T4": '2025-03-18_B16A1A2_P1T4__2025-03-18T11_18_31-Measurement_1'
+    },
+
     ## Batch 13
     "B13A7A8P1_R1_T1": {
         "B13A7A8P1_R1_T1": "2025_01_27_B13A7A8P1_T1__2025_01_27T08_46_50_Measurement_1",
@@ -52,9 +70,9 @@ plate_dict = {
 
     "B13A7A8P2_R1_T1": {
         "B13A7A8P2_R1_T1": "2025_01_27_B13A7A8P2_T1__2025_01_27T13_39_08_Measurement_1",
-    "B13A7A8P2_R1_T2": "2025_01_27_B13A7A8P2_T2__2025_01_27T15_06_52_Measurement_1",
-    "B13A7A8P2_R1_T3": "2025_01_27_B13A7A8P2_T3__2025_01_27T16_24_23_Measurement_1",
-    "B13A7A8P2_R1_T4": "2025_01_27_B13A7A8P2_T4__2025_01_27T17_34_19_Measurement_1",
+        "B13A7A8P2_R1_T2": "2025_01_27_B13A7A8P2_T2__2025_01_27T15_06_52_Measurement_1",
+        "B13A7A8P2_R1_T3": "2025_01_27_B13A7A8P2_T3__2025_01_27T16_24_23_Measurement_1",
+        "B13A7A8P2_R1_T4": "2025_01_27_B13A7A8P2_T4__2025_01_27T17_34_19_Measurement_1",
     },
 
     ## Batch 14

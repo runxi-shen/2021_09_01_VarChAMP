@@ -20,22 +20,16 @@ from tqdm.contrib.concurrent import thread_map
 from functools import partial
 import argparse
 import logging
-
 import warnings
 warnings.filterwarnings("ignore")
-
 sys.path.append("..")
 from utils import find_feat_cols, find_meta_cols, remove_nan_infs_columns
-
-## some constants
-## Minimum number of cells required per well for ML training/testing
-CC_THRESHOLD = 20
 
 
 ############################################################
 # 1. UNCHANGED classifier and util functions defined by Jess
 ############################################################
-def classifier(df_train, df_test, target="Label", shuffle=False):
+def classifier(df_train, df_test, log_file, target="Label", shuffle=False):
     """
     This function runs classification.
     """
@@ -49,12 +43,18 @@ def classifier(df_train, df_test, target="Label", shuffle=False):
     num_neg = df_train[df_train[target] == 0].shape[0]
 
     if (num_pos == 0) or (num_neg == 0):
+        log_file.write(f"Missing positive/negative labels in {df_train['Metadata_Plate'].unique()}, {df_train['Metadata_symbol'].unique()} wells: {df_train['Metadata_well_position'].unique()}\n")
+        log_file.write(f"Size of pos: {num_pos}, Size of neg: {num_neg}\n")
+
         print(f"size of pos: {num_pos}, size of neg: {num_neg}")
         feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
         return feat_importances, np.nan
 
     scale_pos_weight = num_neg / num_pos
+
     if (scale_pos_weight > 100) or (scale_pos_weight < 0.01):
+        log_file.write(f"Extreme class imbalance in {df_train['Metadata_Plate'].unique()}, {df_train['Metadata_symbol'].unique()} wells: {df_train['Metadata_well_position'].unique()}\n")
+        log_file.write(f"Scale_pos_weight: {scale_pos_weight}, Size of pos: {num_pos}, Size of neg: {num_neg}\n")
         print(
             f"scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}"
         )
@@ -145,71 +145,73 @@ def get_classifier_features(dframe: pd.DataFrame, protein_feat: bool):
         feat_col = [
             i
             for i in feat_col
-            if ("GFP" not in i) and ("Brightfield" not in i) and ("AGP" not in i)
+            if ("GFP" not in i) and ("Brightfield" not in i)
         ]
 
     dframe = pd.concat([dframe[meta_col], dframe[feat_col]], axis=1)
     return dframe
 
 
-def get_common_plates(dframe1, dframe2):
-    """Helper func: get common plates in two dataframes"""
-    plate_list = list(
-        set(list(dframe1["Metadata_Plate"].unique()))
-        & set(list(dframe2["Metadata_Plate"].unique()))
-    )
-    return plate_list
+# def get_common_plates(dframe1, dframe2):
+#     """Helper func: get common plates in two dataframes"""
+#     plate_list = list(
+#         set(list(dframe1["Metadata_Plate"].unique()))
+#         & set(list(dframe2["Metadata_Plate"].unique()))
+#     )
+#     return plate_list
 
 
-def control_type_helper(col_annot: str):
-    """Helper func for annotating column "Metadata_control" """
-    if col_annot in ["TC", "NC", "PC", "cPC", "cNC"]:
-        return True
-    elif col_annot in ["disease_wt", "allele"]:
-        return False
-    else:
-        return None
+# def control_type_helper(col_annot: str):
+#     """helper func for annotating column "Metadata_control" """
+#     ## Only TC, NC, PC are used for constructing the null distribution because of multiple duplicates 
+#     if col_annot in ["TC", "NC", "PC"]:
+#         return True
+#     ## else labeled as not controls
+#     elif col_annot in ["disease_wt", "allele", "cPC", "cNC"]:
+#         return False
+#     else:
+#         return None
 
 
-def add_control_annot(dframe):
-    """Annotating column "Metadata_control" """
-    if "Metadata_control" not in dframe.columns:
-        dframe["Metadata_control"] = dframe["Metadata_node_type"].apply(
-            lambda x: control_type_helper(x)
-        )
-    return dframe
+# def add_control_annot(dframe):
+#     """Annotating column "Metadata_control" """
+#     if "Metadata_control" not in dframe.columns:
+#         dframe["Metadata_control"] = dframe["Metadata_node_type"].apply(
+#             lambda x: control_type_helper(x)
+#         )
+#     return dframe
 
 
-def drop_low_cc_wells(dframe, cc_thresh):
-    # Drop wells with cell counts lower than the threshold
-    dframe["Metadata_Cell_ID"] = dframe.index
-    cell_count = (
-        dframe.groupby(["Metadata_Plate", "Metadata_Well"])["Metadata_Cell_ID"]
-        .count()
-        .reset_index(name="Metadata_Cell_Count")
-    )
-    dframe = dframe.merge(
-        cell_count,
-        on=["Metadata_Plate", "Metadata_Well"],
-    )
-    dframe_dropped = (
-        dframe[dframe["Metadata_Cell_Count"] < cc_thresh]
-    )
-    print(f"Wells dropped due to cell counts < {cc_thresh}: {len(dframe_dropped['Metadata_Well'].unique())}")
-    dframe_dropped = dframe_dropped.drop_duplicates(subset="Metadata_Well")
-    # print(dframe_dropped[["Metadata_Plate","Metadata_Well","Metadata_gene_allele","Metadata_Cell_Count"]])
-    well_gene_pair = dict(zip(dframe_dropped["Metadata_Well"].to_list(), 
-                              dframe_dropped["Metadata_gene_allele"].to_list()))
-    if (well_gene_pair):
-        for well, well_gene in well_gene_pair.items():
-            print(f"{well}:{well_gene}")
+# def drop_low_cc_wells(dframe, cc_thresh):
+#     # Drop wells with cell counts lower than the threshold
+#     dframe["Metadata_Cell_ID"] = dframe.index
+#     cell_count = (
+#         dframe.groupby(["Metadata_Plate", "Metadata_Well"])["Metadata_Cell_ID"]
+#         .count()
+#         .reset_index(name="Metadata_Cell_Count")
+#     )
+#     dframe = dframe.merge(
+#         cell_count,
+#         on=["Metadata_Plate", "Metadata_Well"],
+#     )
+#     dframe_dropped = (
+#         dframe[dframe["Metadata_Cell_Count"] < cc_thresh]
+#     )
+#     print(f"Wells dropped due to cell counts < {cc_thresh}: {len(dframe_dropped['Metadata_Well'].unique())}")
+#     dframe_dropped = dframe_dropped.drop_duplicates(subset="Metadata_Well")
+#     # print(dframe_dropped[["Metadata_Plate","Metadata_Well","Metadata_gene_allele","Metadata_Cell_Count"]])
+#     well_gene_pair = dict(zip(dframe_dropped["Metadata_Well"].to_list(), 
+#                               dframe_dropped["Metadata_gene_allele"].to_list()))
+#     if (well_gene_pair):
+#         for well, well_gene in well_gene_pair.items():
+#             print(f"{well}:{well_gene}")
     
-    dframe = (
-        dframe[dframe["Metadata_Cell_Count"] >= cc_thresh]
-        .drop(columns=["Metadata_Cell_Count"])
-        .reset_index(drop=True)
-    )
-    return dframe
+#     dframe = (
+#         dframe[dframe["Metadata_Cell_Count"] >= cc_thresh]
+#         .drop(columns=["Metadata_Cell_Count"])
+#         .reset_index(drop=True)
+#     )
+#     return dframe
 
 
 #######################################

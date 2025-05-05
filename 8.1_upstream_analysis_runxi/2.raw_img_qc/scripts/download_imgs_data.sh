@@ -8,7 +8,11 @@ HOMEPATH="/home/shenrunx/igvf/varchamp/2021_09_01_VarChAMP_imgs" ## symbolic lin
 
 ## Batch names
 # batches="2024_01_23_Batch_7 2024_02_06_Batch_8"
-batches="2025_01_28_Batch_14" ##2025_01_27_Batch_13 
+batches="2024_12_09_Batch_11 2024_12_09_Batch_12"
+# batches="2025_01_27_Batch_13 2025_01_28_Batch_14"
+# batches="2025_03_17_Batch_15 2025_03_17_Batch_16"
+
+"2024_01_23_Batch_7,2024_02_06_Batch_8,2025_01_27_Batch_13,2025_01_28_Batch_14,2025_03_17_Batch_15,2025_03_17_Batch_16"
 
 for batch_id in $batches;
 do

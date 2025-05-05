@@ -34,24 +34,27 @@ def classifier(df_train, df_test, log_file, target="Label", shuffle=False):
     num_pos = df_train[df_train[target] == 1].shape[0]
     num_neg = df_train[df_train[target] == 0].shape[0]
 
-    if (num_pos == 0) or (num_neg == 0):
-        log_file.write(f"Missing positive/negative labels in {df_train['Metadata_Plate'].unique()}, {df_train['Metadata_symbol'].unique()} wells: {df_train['Metadata_well_position'].unique()}\n")
-        log_file.write(f"Size of pos: {num_pos}, Size of neg: {num_neg}\n")
+    unique_plates = ",".join(sorted(df_train['Metadata_Plate'].unique()))
+    gene_symbols = ",".join(sorted(df_train['Metadata_symbol'].unique()))
+    wells = ",".join(sorted(df_train['Metadata_well_position'].unique()))
 
-        print(f"size of pos: {num_pos}, size of neg: {num_neg}")
+    if (num_pos == 0) or (num_neg == 0):
+        log_file.write(f"Missing positive/negative labels for {gene_symbols} in wells: {wells} from plates {unique_plates}\n")
+        log_file.write(f"Size of pos: {num_pos}, Size of neg: {num_neg}\n")
+        print(f"Size of pos: {num_pos}, Size of neg: {num_neg}")
         feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
-        return feat_importances, np.nan
+        return feat_importances, None, None
 
     scale_pos_weight = num_neg / num_pos
 
     if (scale_pos_weight > 100) or (scale_pos_weight < 0.01):
-        log_file.write(f"Extreme class imbalance in {df_train['Metadata_Plate'].unique()}, {df_train['Metadata_symbol'].unique()} wells: {df_train['Metadata_well_position'].unique()}\n")
+        log_file.write(f"Extreme class imbalance for {gene_symbols} in wells: {wells} from plates {unique_plates}\n")
         log_file.write(f"Scale_pos_weight: {scale_pos_weight}, Size of pos: {num_pos}, Size of neg: {num_neg}\n")
         print(
-            f"scale_pos_weight: {scale_pos_weight}, size of pos: {num_pos}, size of neg: {num_neg}"
+            f"Scale_pos_weight: {scale_pos_weight}, Size of pos: {num_pos}, Size of neg: {num_neg}"
         )
         feat_importances = pd.Series(np.nan, index=df_train[feat_col].columns)
-        return feat_importances, np.nan
+        return feat_importances, None, None
 
     le = LabelEncoder()
     y_train = cp.array(le.fit_transform(y_train))
@@ -235,14 +238,14 @@ def experimental_runner(
                     result = thread_map(classify_by_plate_helper, plate_list)
                     pred_list = []
                     for res in result:
-                        if len(list(res.values())[0]) == 3:
+                        if list(res.values())[-1] is not None:
                             feat_list.append(list(res.values())[0][0])
                             group_list.append(key)
                             pair_list.append(f"{key}_{subkey}")
                             info_list.append(list(res.values())[0][1])
                             pred_list.append(list(res.values())[0][2])
                         else:
-                            print("res length not 3!")
+                            print(f"Skipping result for {key}_{subkey}...")
                             feat_list.append([None] * len(feat_cols))
                             group_list.append(key)
                             pair_list.append(f"{key}_{subkey}")

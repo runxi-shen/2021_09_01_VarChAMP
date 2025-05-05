@@ -16,7 +16,8 @@ COLUMNS = (
     "Cytoplasm_Parent_Nuclei",
 )
 
-COMMANDS = """
+## Updated from LEFT JOIN to JOIN compared with the previous SNAKEMAKE workflow due to cytotable updates
+COMMANDS =  """
             WITH Image_Filtered AS (
                 SELECT
                     Metadata_TableNumber,
@@ -30,19 +31,18 @@ COMMANDS = """
                 *
             FROM
                 Image_Filtered AS image
-            LEFT JOIN read_parquet('cytoplasm.parquet') AS cytoplasm ON
+            JOIN read_parquet('cytoplasm.parquet') AS cytoplasm ON
                 cytoplasm.Metadata_TableNumber = image.Metadata_TableNumber
                 AND cytoplasm.Metadata_ImageNumber = image.Metadata_ImageNumber
-            LEFT JOIN read_parquet('cells.parquet') AS cells ON
+            JOIN read_parquet('cells.parquet') AS cells ON
                 cells.Metadata_TableNumber = cytoplasm.Metadata_TableNumber
                 AND cells.Metadata_ImageNumber = cytoplasm.Metadata_ImageNumber
                 AND cells.Metadata_ObjectNumber = cytoplasm.Metadata_Cytoplasm_Parent_Cells
-            LEFT JOIN read_parquet('nuclei.parquet') AS nuclei ON
+            JOIN read_parquet('nuclei.parquet') AS nuclei ON
                 nuclei.Metadata_TableNumber = cytoplasm.Metadata_TableNumber
                 AND nuclei.Metadata_ImageNumber = cytoplasm.Metadata_ImageNumber
                 AND nuclei.Metadata_ObjectNumber = cytoplasm.Metadata_Cytoplasm_Parent_Nuclei
-                """
-
+            """
 
 
 def convert_parquet(

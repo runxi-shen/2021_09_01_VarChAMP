@@ -10,8 +10,11 @@ rule classify:
         "outputs/classification_results/{batch}/{pipeline}/predictions.parquet"
     benchmark:
         "benchmarks/{pipeline}_classify_{batch}.bwa.benchmark.txt"
+    params:
+        cc_thresh = config["cc_threshold"],
+        plate_layout = config["plate_layout"],
     run:
-        classification.run_classify_workflow(*input, *output, config["cc_threshold"])
+        classification.run_classify_workflow(*input, *output, cc_threshold=params.cc_thresh, plate_layout=params.plate_layout)
 
 
 rule calculate_metrics:

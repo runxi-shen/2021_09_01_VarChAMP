@@ -229,7 +229,7 @@ def main():
                 result = fut.result()
                 results_per_well.append(result)
 
-        df = pl.DataFrame(results_per_well)
+        df = pl.DataFrame(results_per_well, infer_schema_length=100000)
         df.write_parquet(os.path.join(args.output_dir, batch, "plate_well_sum_stats.parquet"))
 
 

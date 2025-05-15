@@ -803,7 +803,7 @@ def run_classify_workflow(
         .collect()
         .to_pandas()
     )
-
+    ## select the feature columns
     feat_col = find_feat_cols(dframe)
 
     try:
@@ -821,31 +821,29 @@ def run_classify_workflow(
     dframe = add_control_annot(dframe)
     dframe = dframe[~dframe["Metadata_control"].isna()]
 
-    # Split data into controls and alleles
+    ## Split data into experimental df with var and ref alleles
     df_exp = dframe[~dframe["Metadata_control"].astype("bool")].reset_index(drop=True)
-    df_control = dframe[dframe["Metadata_control"].astype("bool")].reset_index(
-        drop=True
-    )
-
-    # Remove any remaining TC from analysis
-    df_control = df_control[df_control["Metadata_node_type"] != "TC"].reset_index(
-        drop=True
-    )
-
     with open(logfile_path, "w") as log_file:
         log_file.write(f"===============================================================================================================================================================\n")
-        log_file.write("Dropping low cell count wells in control alleles:\n")
-        print("Dropping low cell count wells in control alleles:\n")
-
-        # Filter out wells with fewer than the cell count threhsold
-        df_control = drop_low_cc_wells(df_control, cc_threshold, log_file)
         log_file.write("Dropping low cell count wells in ref. vs variant alleles:\n")
         print("Dropping low cell count wells in ref. vs variant alleles:")
         df_exp = drop_low_cc_wells(df_exp, cc_threshold, log_file)
         log_file.write(f"===============================================================================================================================================================\n\n")
-
         # Check the plate_layout for the correct classification set-up
         if (plate_layout=="single_rep"):
+            ## If the plate_layout is single_rep, with only one well per allele on a single plate
+            ## we can only get the control_df with the control labels
+            df_control = dframe[dframe["Metadata_control"].astype("bool")].reset_index(
+                drop=True
+            )
+            # Remove any remaining TC from analysis
+            df_control = df_control[df_control["Metadata_node_type"] != "TC"].reset_index(
+                drop=True
+            )
+            log_file.write("Dropping low cell count wells in ONLY the control alleles on the same plate:\n")
+            print("Dropping low cell count wells in ONLY the control alleles on the same plate:\n")
+            # Filter out wells with fewer than the cell count threhsold
+            df_control = drop_low_cc_wells(df_control, cc_threshold, log_file)
             # Protein feature analysis
             df_feat_pro_con, df_result_pro_con = control_group_runner(
                 df_control, pq_writer=writer, log_file=log_file, protein=True
@@ -853,7 +851,6 @@ def run_classify_workflow(
             df_feat_pro_exp, df_result_pro_exp = experimental_runner(
                 df_exp, pq_writer=writer, log_file=log_file, protein=True
             )
-
             # Non-protein feature analysis
             df_feat_no_pro_con, df_result_no_pro_con = control_group_runner(
                 df_control, pq_writer=writer, log_file=log_file, protein=False
@@ -862,6 +859,16 @@ def run_classify_workflow(
                 df_exp, pq_writer=writer, log_file=log_file, protein=False
             )
         else:
+            ## If the plate_layout is multi_rep, with multiple wells per allele on a single plate
+            ## we can get control_df with every possible allele on the same plate
+            ## As long as it is not a TC:
+            df_control = dframe[dframe["Metadata_node_type"] != "TC"].reset_index(
+                drop=True
+            )
+            log_file.write("Dropping low cell count wells in every possible allele that could be used as controls:\n")
+            print("Dropping low cell count wells in every possible allele that could be used as controls:\n")
+            # Filter out wells with fewer than the cell count threhsold
+            df_control = drop_low_cc_wells(df_control, cc_threshold, log_file)
             # Protein feature analysis
             df_feat_pro_con, df_result_pro_con = control_group_runner_fewer_rep(
                 df_control, pq_writer=writer, err_logger=log_file, protein=True

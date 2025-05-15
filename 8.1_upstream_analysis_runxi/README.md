@@ -1,4 +1,4 @@
-# VarChAMP Upstream Analyses for Metadata QC
+# VarChAMP Pipeline Upstream Analyses for Data QC
 
 __Auther: Runxi Shen__
 
@@ -12,4 +12,10 @@ If the original platemap information downloaded from aws needs further correctio
 
 ## 2. raw_img_qc
 
-Check the imaging wells with low GFP expressions and remove them from downstream analyses.
+Check the imaging wells with extremely low GFP expressions, which are on the same level as the background and considered as technical noises, and flag them in the downstream analyses.
+
+The procedure for flag the imaging wells:
+
+1. For each imaging plate, we calculate the summary statistics of each imaging site, well, and the whole plate, such as their [25, 50, 75, 80, 85, 90, 95, 99]th percentiles, mean, and standard deviations;
+
+2. For each imaging well, we use the log ratio of log10(99th perc / 25th perc) as its signal-to-noise ratio, and plot the distribution of the log-ratios for each plate. The first bin out of the 50 bins across the whole imaging plate are identified as "outlier" log-ratios. All the imaging wells from this first bin are considered to capture nothing but techinical noises, and no actual cell is identified.

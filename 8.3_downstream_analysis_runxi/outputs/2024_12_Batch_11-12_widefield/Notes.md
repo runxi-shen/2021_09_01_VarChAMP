@@ -1,0 +1,3 @@
+# Confocal vs widefield microscopes comparison
+
+Widefield microscopes always suffered from the problem of not being able to accurately identify the morphological changes between the VAR and WT wells. The null distribution of AUROCs for comparing imaging wells with the exact same alleles does not have the shape of a normal-like distribution, but instead looks more like a uniform distribution. As a result, we could not effectively identify the significant AUROC from this kind of distribution and are able to call any VAR-WT pair with a significant change in cellular morphology.

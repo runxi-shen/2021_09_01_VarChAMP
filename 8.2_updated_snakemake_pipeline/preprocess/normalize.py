@@ -1,9 +1,7 @@
 """RobustMAD Normalization"""
 from functools import partial
 import logging
-
 from scipy.stats import median_abs_deviation
-
 import numpy as np
 import pandas as pd
 import polars as pl

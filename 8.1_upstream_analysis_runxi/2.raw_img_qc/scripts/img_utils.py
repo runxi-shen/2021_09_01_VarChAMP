@@ -49,7 +49,7 @@ batch_dict = {
 ## Store a large dict for mapping platemaps to img measurements on cell-painting gallery
 plate_dict = {
     ## Batch 15
-    "B15A1A2P1": {
+    "B15A1A2P1_R1": {
         "T1": '2025-03-17_B15A1A2_P1T1__2025-03-17T08_34_13-Measurement_1',
         "T2": '2025-03-17_B15A1A2_P1T3__2025-03-17T11_08_17-Measurement_2',
         "T3": '2025-03-17_B15A1A2_P1T2__2025-03-17T09_39_24-Measurement_1',
@@ -57,7 +57,7 @@ plate_dict = {
     },
     
     ## Batch 16
-    "B16A1A2P1": {
+    "B16A1A2P1_R2": {
         "T1": '2025-03-18_B16A1A2_P1T2__2025-03-18T08_45_49-Measurement_1',
         "T2": '2025-03-18_B16A1A2_P1T3__2025-03-18T10_08_59-Measurement_1',
         "T3": '2025-03-17_B16A1A2_P1T1__2025-03-17T13_48_08-Measurement_1',

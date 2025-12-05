@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.8.22"
-app = marimo.App()
+app = marimo.App(width="full")
 
 
 @app.cell
@@ -80,6 +80,7 @@ def __(mo):
 @app.cell
 def __(BIO_BATCHES, BIO_PLATE_MAP_BATCHES, operator, os, pl, reduce):
     profiled_variants_df, profiled_variants_pass_qc_df = pl.DataFrame(), pl.DataFrame()
+    change_sum_local, change_sum_morph = pl.DataFrame(), pl.DataFrame()
 
     for batch, batch_biorep in zip(BIO_PLATE_MAP_BATCHES, BIO_BATCHES):
         profiled_variants_df_batch = pl.DataFrame()
@@ -127,14 +128,37 @@ def __(BIO_BATCHES, BIO_PLATE_MAP_BATCHES, operator, os, pl, reduce):
         profiled_variants_pass_qc_df = pl.concat([profiled_variants_pass_qc_df, profiled_variants_pass_qc_df_batch], 
                                           how="diagonal_relaxed")
 
+        change_sum_local_batch = pl.read_csv(f"../../outputs/{batch_biorep}/altered_local_summary_auroc.csv")
+        change_sum_local_batch = change_sum_local_batch.filter(
+            (pl.col("allele_0").is_in(df_result["gene_allele"]))
+        )
+        change_sum_local = pl.concat([change_sum_local, change_sum_local_batch], how="diagonal_relaxed")
+        ## Get the altered morphology hits
+        if batch_biorep != "2024_02_Batch_7-8":
+            change_sum_morph_batch = pl.read_csv(f"../../outputs/{batch_biorep}/altered_morph_summary_auroc.csv")
+            change_sum_morph_batch = change_sum_morph_batch.filter(
+                (pl.col("allele_0").is_in(df_result["gene_allele"]))
+            )
+            change_sum_morph = pl.concat([change_sum_morph, change_sum_morph_batch], how="diagonal_relaxed")
+
+
     profiled_variants_df = profiled_variants_df.drop(["control_type", "allele_set", "imaging_plate", "batch1", "batch2", "clone_ID", "hgmd_ID"])
     profiled_variants_pass_qc_df = profiled_variants_pass_qc_df.drop(["control_type", "allele_set", "imaging_plate", "batch1", "batch2", "clone_ID", "hgmd_ID"])
+
+    change_wtvar = {}
+    change_wtvar["localization"] = change_sum_local
+    change_wtvar["morphology"] = change_sum_morph
     return (
         allele_qc_df,
         allele_qc_df_pass,
         batch,
         batch_biorep,
         batches,
+        change_sum_local,
+        change_sum_local_batch,
+        change_sum_morph,
+        change_sum_morph_batch,
+        change_wtvar,
         df_grouped,
         df_pivot,
         df_result,
@@ -180,70 +204,56 @@ def __():
 
 
 @app.cell
-def __(BIO_BATCHES, operator, pl, reduce):
-    change_sum_local, change_sum_morph = pl.DataFrame(), pl.DataFrame()
-    change_wtvar = {}
+def __():
+    # change_sum_local, change_sum_morph = pl.DataFrame(), pl.DataFrame()
+    # change_wtvar = {}
 
-    for bio_batch in BIO_BATCHES:
-        ## load the img qc results
-        allele_qc_df = pl.read_csv(f"../../outputs/{bio_batch}/well-level_img_qc_gfp_sum.csv")
-        # Step 1: Filter only rows with PASS
-        allele_qc_df_pass = allele_qc_df.filter(pl.col("QC_Flag")=="PASS")
-        # Step 2: Group by gene_allele and Batch, count occurrences
-        df_grouped = allele_qc_df_pass.select([
-            pl.col("gene_allele"),
-            pl.col("Batch"),
-            pl.col("QC_Flag")
-        ]).unique()
-        # Step 3: Pivot to wide format
-        df_pivot = df_grouped.pivot(
-            values="QC_Flag",
-            index="gene_allele",
-            on="Batch"
-        )
-        # Step 4: Filter alleles with PASS in both batches
-        # (They will have non-null values in both columns)
-        # Step 4: Build filter expression dynamically for non-null in all batches
-        batches = allele_qc_df_pass.select("Batch").unique().get_column("Batch").to_list()
-        # Step 4: Dynamically build filter expression to check non-null in all batches
-        filter_expr = reduce(
-            operator.and_,
-            [pl.col(batch).is_not_null() for batch in batches]
-        )
-        # Step 5: Apply filter to get only alleles with PASS in all batches
-        df_result = df_pivot.filter(filter_expr)
-        # print(df_result)
-        ## Get the mislocalization hits
-        change_sum_local_batch = pl.read_csv(f"../../outputs/{bio_batch}/altered_local_summary_auroc.csv")
-        change_sum_local_batch = change_sum_local_batch.filter(
-            (pl.col("allele_0").is_in(df_result["gene_allele"]))
-        )
-        change_sum_local = pl.concat([change_sum_local, change_sum_local_batch], how="diagonal_relaxed")
-        ## Get the altered morphology hits
-        if bio_batch != "2024_02_Batch_7-8":
-            change_sum_morph_batch = pl.read_csv(f"../../outputs/{bio_batch}/altered_morph_summary_auroc.csv")
-            change_sum_morph_batch = change_sum_morph_batch.filter(
-                (pl.col("allele_0").is_in(df_result["gene_allele"]))
-            )
-            change_sum_morph = pl.concat([change_sum_morph, change_sum_morph_batch], how="diagonal_relaxed")
+    # for bio_batch in BIO_BATCHES:
+    #     ## load the img qc results
+    #     allele_qc_df = pl.read_csv(f"../../outputs/{bio_batch}/well-level_img_qc_gfp_sum.csv")
+    #     # Step 1: Filter only rows with PASS
+    #     allele_qc_df_pass = allele_qc_df.filter(pl.col("QC_Flag")=="PASS")
+    #     # Step 2: Group by gene_allele and Batch, count occurrences
+    #     df_grouped = allele_qc_df_pass.select([
+    #         pl.col("gene_allele"),
+    #         pl.col("Batch"),
+    #         pl.col("QC_Flag")
+    #     ]).unique()
+    #     # Step 3: Pivot to wide format
+    #     df_pivot = df_grouped.pivot(
+    #         values="QC_Flag",
+    #         index="gene_allele",
+    #         on="Batch"
+    #     )
+    #     # Step 4: Filter alleles with PASS in both batches
+    #     # (They will have non-null values in both columns)
+    #     # Step 4: Build filter expression dynamically for non-null in all batches
+    #     batches = allele_qc_df_pass.select("Batch").unique().get_column("Batch").to_list()
+    #     # Step 4: Dynamically build filter expression to check non-null in all batches
+    #     filter_expr = reduce(
+    #         operator.and_,
+    #         [pl.col(batch).is_not_null() for batch in batches]
+    #     )
+    #     # Step 5: Apply filter to get only alleles with PASS in all batches
+    #     df_result = df_pivot.filter(filter_expr)
+    #     # print(df_result)
+    #     ## Get the mislocalization hits
+    #     change_sum_local_batch = pl.read_csv(f"../../outputs/{bio_batch}/altered_local_summary_auroc.csv")
+    #     change_sum_local_batch = change_sum_local_batch.filter(
+    #         (pl.col("allele_0").is_in(df_result["gene_allele"]))
+    #     )
+    #     change_sum_local = pl.concat([change_sum_local, change_sum_local_batch], how="diagonal_relaxed")
+    #     ## Get the altered morphology hits
+    #     if bio_batch != "2024_02_Batch_7-8":
+    #         change_sum_morph_batch = pl.read_csv(f"../../outputs/{bio_batch}/altered_morph_summary_auroc.csv")
+    #         change_sum_morph_batch = change_sum_morph_batch.filter(
+    #             (pl.col("allele_0").is_in(df_result["gene_allele"]))
+    #         )
+    #         change_sum_morph = pl.concat([change_sum_morph, change_sum_morph_batch], how="diagonal_relaxed")
 
-    change_wtvar["localization"] = change_sum_local
-    change_wtvar["morphology"] = change_sum_morph
-    return (
-        allele_qc_df,
-        allele_qc_df_pass,
-        batches,
-        bio_batch,
-        change_sum_local,
-        change_sum_local_batch,
-        change_sum_morph,
-        change_sum_morph_batch,
-        change_wtvar,
-        df_grouped,
-        df_pivot,
-        df_result,
-        filter_expr,
-    )
+    # change_wtvar["localization"] = change_sum_local
+    # change_wtvar["morphology"] = change_sum_morph
+    return
 
 
 @app.cell
@@ -305,6 +315,7 @@ def __(
     plt,
     profiled_variants_pass_qc_df,
 ):
+    # 1. Clinvar counts
     profiled_variants_df_clinvar = profiled_variants_pass_qc_df.join(
         clin_var_scores.select(
             pl.col(["allele_0","plddt","rsa","clinvar_clnsig_clean","clinvar_clnsig_clean_old"])
@@ -321,66 +332,71 @@ def __(
     df["symbol"] = df["gene_allele"].apply(lambda x: x.split("_")[0])
 
     # Count category frequencies
-    counts = df["clinvar_clnsig_clean_old"].value_counts()
+    clinvar_cat_counts = df["clinvar_clnsig_clean_old"].value_counts()
 
     # Sort categories if you want specific order
     category_order = sorted(df["clinvar_clnsig_clean_old"].unique())
-    counts = counts.reindex([cat for cat in category_order if cat in counts.index])
+    clinvar_cat_counts = clinvar_cat_counts.reindex([cat for cat in category_order if cat in clinvar_cat_counts.index])
 
-    # Plot pie chart
-    fig, ax = plt.subplots(figsize=(6, 6))
-    ax.pie(
-        counts,
-        labels=counts.index,
-        autopct='%1.1f%%',
-        startangle=90,
-        colors=clinvar_palette_old
-    )
-    ax.set_title(f"ClinVar Categories of\n{profiled_variants_df_clinvar.shape[0]} Profiled Variants",y=.94)
-    plt.tight_layout()
-    plt.show()
-    return ax, category_order, counts, df, fig, profiled_variants_df_clinvar
-
-
-@app.cell
-def __(category_order, clinvar_palette_old, df, plt):
     # 2. Count per (gene, category)
     top_num = 40
-    counts = (
+    gene_clinvar_counts = (
         df.groupby(["symbol", "clinvar_clnsig_clean_old"])
         .size()
         .reset_index(name="count")
     )
     # 3. Pivot
-    pivot = counts.pivot(index="symbol", columns="clinvar_clnsig_clean_old", values="count").fillna(0)
+    gene_clinvar_cnt_df = gene_clinvar_counts.pivot(index="symbol", columns="clinvar_clnsig_clean_old", values="count").fillna(0)
 
     # Add total count column and sort by it (descending)
-    pivot["total_count"] = pivot.sum(axis=1)
-    pivot = pivot.sort_values("total_count", ascending=False).head(top_num)
-    pivot = pivot.drop(columns=["total_count"])
+    gene_clinvar_cnt_df["total_count"] = gene_clinvar_cnt_df.sum(axis=1)
+    gene_clinvar_cnt_df = gene_clinvar_cnt_df.sort_values("total_count", ascending=False).head(top_num)
+    gene_clinvar_cnt_df = gene_clinvar_cnt_df.drop(columns=["total_count"])
 
     # 4. Ensure category order
     for cat in category_order:
-        if cat not in pivot.columns:
-            pivot[cat] = 0
-    pivot = pivot[category_order]
+        if cat not in gene_clinvar_cnt_df.columns:
+            gene_clinvar_cnt_df[cat] = 0
+    gene_clinvar_cnt_df = gene_clinvar_cnt_df[category_order]
 
-    # 5. Plotting
-    fig, ax = plt.subplots(figsize=(6, 7))
+    # Plot pie chart
+    _fig, _axes = plt.subplots(1,2, figsize=(14, 7))
+    _axes[0].pie(
+        clinvar_cat_counts,
+        labels=clinvar_cat_counts.index,
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=clinvar_palette_old
+    )
+    _axes[0].set_title(f"ClinVar Categories of\n{profiled_variants_df_clinvar.shape[0]} Profiled Variants",y=.94)
+
     # Get Set2 colors
     bottom = None
     for cat, color in zip(category_order, clinvar_palette_old):
-        ax.barh(pivot.index, pivot[cat], left=bottom, label=cat, color=color)
-        bottom = pivot[cat] if bottom is None else bottom + pivot[cat]
+        _axes[1].barh(gene_clinvar_cnt_df.index, gene_clinvar_cnt_df[cat], left=bottom, label=cat, color=color)
+        bottom = gene_clinvar_cnt_df[cat] if bottom is None else bottom + gene_clinvar_cnt_df[cat]
+
     # Axis formatting
-    ax.set_xlabel("Variant Count")
-    ax.set_ylim(-1, pivot.shape[0] - .5)  # Tighten y-axis to remove top/bottom gaps
-    ax.set_title(f"ClinVar Categories per Gene (Top {top_num} with Most Variants)", fontsize=14)
-    ax.invert_yaxis()
-    ax.legend(title="ClinVar Label", fontsize=9, title_fontsize=10, loc="lower right")
+    _axes[1].set_xlabel("Variant Count")
+    _axes[1].set_ylim(-1, gene_clinvar_cnt_df.shape[0] - .5)  # Tighten y-axis to remove top/bottom gaps
+    _axes[1].set_title(f"ClinVar Categories per Gene (Top {top_num} with Most Variants)", fontsize=14)
+    _axes[1].invert_yaxis()
+    _axes[1].legend(title="ClinVar Label", fontsize=9, title_fontsize=10, loc="lower right")
+
     plt.tight_layout()
     plt.show()
-    return ax, bottom, cat, color, counts, fig, pivot, top_num
+    return (
+        bottom,
+        cat,
+        category_order,
+        clinvar_cat_counts,
+        color,
+        df,
+        gene_clinvar_cnt_df,
+        gene_clinvar_counts,
+        profiled_variants_df_clinvar,
+        top_num,
+    )
 
 
 @app.cell
@@ -390,21 +406,21 @@ def __(mo):
 
 
 @app.cell
-def __(change_wtvar, display, pl, profiled_variants_pass_qc_df):
-    # pl.Config.set_tbl_rows(20)  # Sets the number of rows displayed
+def __(change_wtvar, mo, pl, profiled_variants_pass_qc_df):
     print(profiled_variants_pass_qc_df.filter((pl.col("node_type")!="disease_wt") & (pl.col("gene_allele")!=pl.col("symbol"))).unique(subset="gene_allele").shape)
     print(profiled_variants_pass_qc_df.filter((pl.col("node_type")!="disease_wt") & (pl.col("gene_allele")!=pl.col("symbol"))).unique(subset="symbol").shape)
 
-    display(change_wtvar["localization"].unique(subset="allele_0"))
-    # change_wtvar["localization"].filter((pl.col("allele_0").str.contains("FARS2"))).sort(by="AUROC_Mean", descending=True) #(pl.col(f"Altered_local_both_batches"))
-    display(change_wtvar["localization"].filter(pl.col("Altered_local_both_batches")).sort(by=["allele_0","AUROC_Mean"]).unique(subset="allele_0"))
-    display(change_wtvar["localization"].with_columns(
-        pl.col("allele_0").str.split("_").list.get(0).alias("gene")
-    ).sort(by=["allele_0","AUROC_Mean"]).unique(subset="gene"))
+    mo.plain(change_wtvar["localization"].unique(subset="allele_0"))
 
-    change_wtvar["localization"].filter(pl.col("Altered_local_both_batches")).with_columns(
-        pl.col("allele_0").str.split("_").list.get(0).alias("gene")
-    ).sort(by=["allele_0","AUROC_Mean"]).unique(subset="gene")
+    # # change_wtvar["localization"].filter((pl.col("allele_0").str.contains("FARS2"))).sort(by="AUROC_Mean", descending=True) #(pl.col(f"Altered_local_both_batches"))
+    # mo.plain(change_wtvar["localization"].filter(pl.col("Altered_local_both_batches")).sort(by=["allele_0","AUROC_Mean"]).unique(subset="allele_0"))
+    # mo.plain(change_wtvar["localization"].with_columns(
+    #     pl.col("allele_0").str.split("_").list.get(0).alias("gene")
+    # ).sort(by=["allele_0","AUROC_Mean"]).unique(subset="gene"))
+
+    # change_wtvar["localization"].filter(pl.col("Altered_local_both_batches")).with_columns(
+    #     pl.col("allele_0").str.split("_").list.get(0).alias("gene")
+    # ).sort(by=["allele_0","AUROC_Mean"]).unique(subset="gene")
     return
 
 

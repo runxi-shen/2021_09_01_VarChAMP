@@ -431,8 +431,8 @@ def control_group_runner(
                             info_list.append(list(res.values())[0][1])
                             pred_list.append(list(res.values())[0][2])
                         else:
-                            log_file.write(f"Skipped classification result for {key}_{subkey}\n")
-                            print(f"Skipping classification result for {key}_{subkey}...")
+                            log_file.write(f"Skipped classification result for {key}_{key_two}\n")
+                            print(f"Skipping classification result for {key}_{key_two}...")
                             feat_list.append([None] * len(feat_cols))
                             group_list.append(key)
                             pair_list.append(f"{idx1}_{idx2}")

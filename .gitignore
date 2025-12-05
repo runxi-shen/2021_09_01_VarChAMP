@@ -151,3 +151,5 @@ test.ipynb
 
 # Runxi added
 *.png
+**/test/
+8.updated_snakemake_pipeline/
